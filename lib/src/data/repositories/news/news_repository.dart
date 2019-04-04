@@ -13,4 +13,6 @@ abstract class NewsRepository
     }
 
     Future<List<News>> fetchAfterId(int id, int limit);
+
+    Future<News> fetchById(int id);
 }
