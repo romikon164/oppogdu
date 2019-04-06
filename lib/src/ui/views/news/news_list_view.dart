@@ -5,6 +5,7 @@ import 'package:oppo_gdu/src/data/models/news/news.dart';
 import 'package:oppo_gdu/src/ui/views/news/news_list_item_view.dart';
 import 'package:oppo_gdu/src/ui/views/news/news_list_item_without_image_view.dart';
 import 'package:oppo_gdu/src/ui/views/news/news_list_view_delegate.dart';
+import 'package:oppo_gdu/src/ui/components/bottom_navigation_bar.dart';
 
 typedef void NewsListItemOnTapCallback(News news);
 
@@ -20,14 +21,14 @@ class NewsListView extends StatefulWidget
     _NewsListState createState() => _NewsListState();
 }
 
-class _NewsListState extends State<NewsListView> with TickerProviderStateMixin implements NewsListViewDelegate
+class _NewsListState extends State<NewsListView> implements NewsListViewDelegate
 {
     List<News> news = [];
 
     bool _isFinish = false;
     bool _isError = false;
 
-    bool _bottomNavigationVisible = true;
+    AnimatedBottomNavigationBarController _bottomNavigationBarController;
 
     @override
     void initState()
@@ -36,6 +37,9 @@ class _NewsListState extends State<NewsListView> with TickerProviderStateMixin i
 
         widget.presenter.viewDelegate = this;
         widget.presenter.didInitState();
+
+        _bottomNavigationBarController = AnimatedBottomNavigationBarController();
+        _bottomNavigationBarController.delegate = widget.presenter;
     }
 
     @override
@@ -70,45 +74,37 @@ class _NewsListState extends State<NewsListView> with TickerProviderStateMixin i
                                         )
                                     ],
                                 ),
-                                onRefresh: () {
-                                    news = [];
-                                    return widget.presenter.didRefresh();
-                                }
+                                onRefresh: _didRefresh
                             ),
-                            onNotification: (ScrollNotification scrollNotification) {
-                                if(scrollNotification is UserScrollNotification) {
-                                    _onUserScroll(scrollNotification);
-                                }
-
-                                if(scrollNotification is ScrollUpdateNotification) {
-                                    _onUpdateScroll(scrollNotification);
-                                }
-                            },
+                            onNotification: _didScrollNotification,
                         );
                     },
                 )
             ),
-            bottomNavigationBar: AnimatedSize(
-                duration: Duration(milliseconds: 500),
-                vsync: this,
-                curve: Curves.fastOutSlowIn,
-                child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: _bottomNavigationVisible ? 60 : 0,
-                    color: Colors.red,
-                ),
+            bottomNavigationBar: AnimatedBottomNavigationBar(
+                controller: _bottomNavigationBarController,
             ),
         );
+    }
+
+    void _didScrollNotification(ScrollNotification scrollNotification) {
+        if(scrollNotification is UserScrollNotification) {
+            _onUserScroll(scrollNotification);
+        }
+
+        if(scrollNotification is ScrollUpdateNotification) {
+            _onUpdateScroll(scrollNotification);
+        }
     }
 
     void _onUserScroll(UserScrollNotification notification)
     {
         if(notification.direction == ScrollDirection.forward) {
-            _showBottomNavigationBar();
+            _bottomNavigationBarController.show();
         }
 
         if(notification.direction == ScrollDirection.reverse) {
-            _hideBottomNavigationBar();
+            _bottomNavigationBarController.hide();
         }
     }
 
@@ -119,6 +115,12 @@ class _NewsListState extends State<NewsListView> with TickerProviderStateMixin i
                 widget.presenter.didLoad();
             }
         }
+    }
+
+    void _didRefresh()
+    {
+        news = [];
+        widget.presenter.didRefresh();
     }
 
     void onLoadComplete(List<News> newNews)
@@ -143,20 +145,6 @@ class _NewsListState extends State<NewsListView> with TickerProviderStateMixin i
         setState(() {
             _isError = true;
             _isFinish = false;
-        });
-    }
-
-    void _showBottomNavigationBar()
-    {
-        setState(() {
-            _bottomNavigationVisible = true;
-        });
-    }
-
-    void _hideBottomNavigationBar()
-    {
-        setState(() {
-            _bottomNavigationVisible = false;
         });
     }
 

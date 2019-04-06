@@ -1,6 +1,6 @@
+import "package:oppo_gdu/src/data/models/model.dart";
 
-
-class HtmlContentElement
+class HtmlContentElement extends Model
 {
     String type;
 
@@ -24,25 +24,50 @@ class HtmlContentElement
             children: HtmlContentElementCollection.fromJson(json["children"] as List<dynamic>),
         );
     }
+
+    Map<String, dynamic> toJson()
+    {
+        Map<String, dynamic> json = Map<String, dynamic>();
+
+        json["type"] = type;
+
+        if(content != null) {
+            json["content"] = content;
+        }
+
+        if(link != null) {
+            json["link"] = link;
+        }
+
+        if(title != null) {
+            json["title"] = title;
+        }
+
+        if(children != null) {
+            json["children"] = children.toJson();
+        }
+
+        return json;
+    }
 }
 
-class HtmlContentElementCollection
+class HtmlContentElementCollection extends ModelCollection<HtmlContentElement>
 {
-    List<HtmlContentElement> items = [];
-
-    HtmlContentElementCollection(this.items);
+    HtmlContentElementCollection(List<HtmlContentElement> items): super(items);
 
     factory HtmlContentElementCollection.fromJson(List<dynamic> json)
     {
         if(json == null) {
             return HtmlContentElementCollection([]);
         }
+
         return HtmlContentElementCollection(
-            json.map<HtmlContentElement>((item) => HtmlContentElement.fromJson(item as Map<String, dynamic>)).toList()
+            json.map((item) => HtmlContentElement.fromJson(item as Map<String, dynamic>)).toList()
         );
     }
 
-    List<HtmlContentElement> toList() => items;
-
-    HtmlContentElement operator [](int index) => items[index];
+    List<dynamic> toJson()
+    {
+        return map((item) => item.toJson()).toList();
+    }
 }

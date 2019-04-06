@@ -5,8 +5,9 @@ import 'package:oppo_gdu/src/data/repositories/news/news_repository.dart';
 import 'package:oppo_gdu/src/data/models/news/news.dart';
 import 'package:oppo_gdu/src/config/news/news_list_configuration.dart';
 import 'package:oppo_gdu/src/support/routing/router.dart';
+import 'package:oppo_gdu/src/ui/components/bottom_navigation_bar.dart';
 
-class NewsListPresenter
+class NewsListPresenter implements AnimatedBottomNavigationBarDelegate
 {
 
     final Router router;
@@ -50,9 +51,7 @@ class NewsListPresenter
                 loadedNews = await repository.fetchAfter(news.last, configuration.loadLimit);
             }
         } catch (e) {
-            if(viewDelegate != null) {
-                viewDelegate.onLoadFail();
-            }
+            viewDelegate?.onLoadFail();
 
             isLoading = false;
             return ;
@@ -60,12 +59,10 @@ class NewsListPresenter
 
         news.addAll(loadedNews);
 
-        if(viewDelegate != null) {
-            if (loadedNews.isEmpty) {
-                viewDelegate.onLoadFinish();
-            } else {
-                viewDelegate.onLoadComplete(news);
-            }
+        if (loadedNews.isEmpty) {
+            viewDelegate?.onLoadFinish();
+        } else {
+            viewDelegate?.onLoadComplete(news);
         }
 
         isLoading = false;
@@ -75,5 +72,20 @@ class NewsListPresenter
     {
         news = [];
         await didLoad();
+    }
+
+    void onNewsTap()
+    {
+
+    }
+
+    void onSportComplexTap()
+    {
+
+    }
+
+    void onCallbackTap()
+    {
+
     }
 }
