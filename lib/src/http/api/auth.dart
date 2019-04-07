@@ -2,10 +2,14 @@ import 'package:http/http.dart' as http;
 import 'package:oppo_gdu/src/http/api/response.dart' as ApiResponse;
 import 'package:oppo_gdu/src/http/api/api.dart';
 import 'dart:convert' as convert;
+import 'package:oppo_gdu/src/data/models/users/user.dart';
+import 'package:oppo_gdu/src/data/models/users/user_profile.dart';
 
 class Auth
 {
     final Api api;
+
+    User currentUser;
 
     Auth(this.api);
 
@@ -63,6 +67,10 @@ class Auth
         }
     }
 
+    UserProfile getCurrentUserProfile()
+    {
+        return currentUser?.profile;
+    }
 
 }
 

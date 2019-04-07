@@ -6,8 +6,11 @@ import 'package:oppo_gdu/src/data/models/news/news.dart';
 import 'package:oppo_gdu/src/config/news/news_list_configuration.dart';
 import 'package:oppo_gdu/src/support/routing/router.dart';
 import 'package:oppo_gdu/src/ui/components/bottom_navigation_bar.dart';
+import 'package:oppo_gdu/src/ui/components/main_menu_component.dart';
+import 'package:oppo_gdu/src/data/models/users/user_profile.dart';
+import 'package:oppo_gdu/src/http/api/api.dart';
 
-class NewsListPresenter implements AnimatedBottomNavigationBarDelegate
+class NewsListPresenter implements AnimatedBottomNavigationBarDelegate, MainMenuDelegate
 {
 
     final Router router;
@@ -74,6 +77,7 @@ class NewsListPresenter implements AnimatedBottomNavigationBarDelegate
         await didLoad();
     }
 
+    // AnimatedBottomNavigationBar implements
     void onNewsTap()
     {
 
@@ -85,6 +89,27 @@ class NewsListPresenter implements AnimatedBottomNavigationBarDelegate
     }
 
     void onCallbackTap()
+    {
+
+    }
+
+    // MainMenuDelegate implements
+    UserProfile getUserProfile()
+    {
+        return Api.getInstance().auth.getCurrentUserProfile();
+    }
+
+    void onUserProfileTap()
+    {
+
+    }
+
+    void onUserLoginTap()
+    {
+
+    }
+
+    void onPhotoGalleryTap()
     {
 
     }

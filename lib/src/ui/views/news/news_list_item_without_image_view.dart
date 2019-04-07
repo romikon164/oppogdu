@@ -46,21 +46,14 @@ class _NewsListItemWithoutImageViewState extends State<NewsListItemWithoutImageV
                             children: [
                                 Text(
                                     widget.news.name,
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold
-                                    ),
+                                    style: Theme.of(context).textTheme.subhead,
                                 ),
                                 Container(
                                     height: 16,
                                 ),
                                 Text(
                                     dateFormatter.format(widget.news.createdAt),
-                                    style: TextStyle(
-                                        color: Colors.black54,
-                                        fontSize: 12,
-                                    )
+                                    style: Theme.of(context).textTheme.overline
                                 )
                             ]
                         )

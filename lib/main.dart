@@ -18,6 +18,52 @@ class Application extends StatelessWidget {
         return MaterialApp(
             home: router.createNewsListPresenter().view,
             navigatorKey: router.navigatorKey,
+            theme: ThemeData(
+                appBarTheme: AppBarTheme(
+                    brightness: Brightness.light,
+                    color: Color.fromARGB(255, 0, 114, 197),
+                    iconTheme: IconThemeData(
+                        color: Colors.white,
+                    ),
+                    actionsIconTheme: IconThemeData(
+                        color: Colors.white,
+                    ),
+                ),
+                iconTheme: IconThemeData(
+                    color: Color.fromARGB(255, 90, 90, 90),
+                    size: 24,
+                ),
+                accentIconTheme: IconThemeData(
+                    color: Color.fromARGB(255, 0, 114, 197),
+                    size: 24,
+                ),
+                textTheme: TextTheme(
+                    subhead: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold
+                    ),
+                    overline: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        letterSpacing: 0.1,
+                        color: Colors.black54,
+                        fontSize: 12,
+                    ),
+                    display1: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.normal,
+                        color: Color.fromARGB(255, 90, 90, 90)
+                    )
+                ),
+                accentTextTheme: TextTheme(
+                    display1: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.normal,
+                        color: Color.fromARGB(255, 0, 114, 197)
+                    )
+                ),
+                backgroundColor: Colors.white
+            ),
         );
     }
 }

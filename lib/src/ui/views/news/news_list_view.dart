@@ -6,6 +6,8 @@ import 'package:oppo_gdu/src/ui/views/news/news_list_item_view.dart';
 import 'package:oppo_gdu/src/ui/views/news/news_list_item_without_image_view.dart';
 import 'package:oppo_gdu/src/ui/views/news/news_list_view_delegate.dart';
 import 'package:oppo_gdu/src/ui/components/bottom_navigation_bar.dart';
+import 'package:flutter/services.dart';
+import 'package:oppo_gdu/src/ui/components/main_menu_component.dart';
 
 typedef void NewsListItemOnTapCallback(News news);
 
@@ -52,6 +54,12 @@ class _NewsListState extends State<NewsListView> implements NewsListViewDelegate
     @override
     Widget build(BuildContext context)
     {
+        SystemChrome.setSystemUIOverlayStyle(
+            SystemUiOverlayStyle.dark.copyWith(
+                statusBarColor: Theme.of(context).appBarTheme.color,
+            )
+        );
+
         return Scaffold(
             body: NestedScrollView(
                 headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
@@ -60,6 +68,10 @@ class _NewsListState extends State<NewsListView> implements NewsListViewDelegate
                             title: Text(widget.presenter.configuration.title),
                             floating: true,
                             snap: true,
+                            backgroundColor: Theme.of(context).appBarTheme.color,
+                            brightness: Theme.of(context).appBarTheme.brightness,
+                            iconTheme: Theme.of(context).appBarTheme.iconTheme,
+                            textTheme: Theme.of(context).appBarTheme.textTheme,
                         )
                     ];
                 },
@@ -83,11 +95,16 @@ class _NewsListState extends State<NewsListView> implements NewsListViewDelegate
             ),
             bottomNavigationBar: AnimatedBottomNavigationBar(
                 controller: _bottomNavigationBarController,
+                currentIndex: AnimatedBottomNavigationBar.newsItem,
+            ),
+            drawer: MainMenuComponent(
+                delegate: widget.presenter,
+                currentIndex: MainMenuComponent.newsItem
             ),
         );
     }
 
-    void _didScrollNotification(ScrollNotification scrollNotification) {
+    bool _didScrollNotification(ScrollNotification scrollNotification) {
         if(scrollNotification is UserScrollNotification) {
             _onUserScroll(scrollNotification);
         }
@@ -95,6 +112,8 @@ class _NewsListState extends State<NewsListView> implements NewsListViewDelegate
         if(scrollNotification is ScrollUpdateNotification) {
             _onUpdateScroll(scrollNotification);
         }
+
+        return true;
     }
 
     void _onUserScroll(UserScrollNotification notification)
@@ -117,10 +136,10 @@ class _NewsListState extends State<NewsListView> implements NewsListViewDelegate
         }
     }
 
-    void _didRefresh()
+    Future<void> _didRefresh() async
     {
         news = [];
-        widget.presenter.didRefresh();
+        await widget.presenter.didRefresh();
     }
 
     void onLoadComplete(List<News> newNews)
