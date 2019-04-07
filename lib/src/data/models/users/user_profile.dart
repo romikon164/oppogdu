@@ -24,10 +24,10 @@ class UserProfile extends Model
     {
         return UserProfile(
             id: json["id"] as int,
-            firstname: json["firstname"] as String,
-            lastname: json["lastname"] as String,
-            secondname: json["secondname"] as String,
-            fullname: json["fullname"] as String,
+            firstname: json["first_name"] as String,
+            lastname: json["last_name"] as String,
+            secondname: json["second_name"] as String,
+            fullname: json["full_name"] as String,
             photo: json["photo"] as String,
             email: json["email"] as String,
             phone: json["phone"] as String,

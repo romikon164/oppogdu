@@ -101,12 +101,13 @@ class NewsListPresenter implements AnimatedBottomNavigationBarDelegate, MainMenu
 
     void onUserProfileTap()
     {
-
+        print("profile tap");
     }
 
     void onUserLoginTap()
     {
-
+        router.pop();
+        router.presentLogin();
     }
 
     void onPhotoGalleryTap()

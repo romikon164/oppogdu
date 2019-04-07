@@ -4,10 +4,15 @@ import 'package:oppo_gdu/src/http/api/api.dart';
 import 'dart:convert' as convert;
 import 'package:oppo_gdu/src/data/models/users/user.dart';
 import 'package:oppo_gdu/src/data/models/users/user_profile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Auth
 {
     final Api api;
+
+    static const accessTokenPrefferencesKey = "oppo_gdu_auth_access_token";
+
+    static const refreshTokenPrefferencesKey = "oppo_gdu_auth_refresh_token";
 
     User currentUser;
 
@@ -41,16 +46,16 @@ class Auth
         }
     }
 
-    Future<ApiResponse.Response> requestToken(AuthRequestTokenData data) async
+    Future<AuthToken> requestToken(AuthRequestTokenData data) async
     {
         try {
             http.Response response = await http.post(
-                api.baseUrl + '/oauth/register',
+                api.baseUrl + '/oauth/token',
                 headers: {
                     'Accept': 'application/json',
                 },
                 body: {
-                    'client_id': api.clientId,
+                    'client_id': api.clientId.toString(),
                     'client_secret': api.clientSecret,
                     'grant_type': 'password',
                     'username': data.username,
@@ -58,18 +63,91 @@ class Auth
                 }
             );
 
-            return ApiResponse.Response(
-                code: response.statusCode,
-                body: convert.jsonDecode(response.body)
+            return AuthToken.fromJson(
+                convert.jsonDecode(response.body)
             );
         } catch (exception) {
-            return ApiResponse.ResponseError(exception.toString());
+
         }
+
+        return null;
+    }
+
+    Future<bool> attemptAuthForSharedPreferences() async
+    {
+        try {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            String accessToken = prefs.getString(
+                Auth.accessTokenPrefferencesKey);
+            String refreshToken = prefs.getString(
+                Auth.refreshTokenPrefferencesKey);
+
+            if(accessToken != null && refreshToken != null) {
+                AuthToken token = AuthToken(
+                    accessToken: accessToken,
+                    refreshToken: refreshToken
+                );
+
+                return await authByToken(token);
+            }
+
+        } catch (exception) {
+            print(exception.toString());
+        }
+
+        return false;
+    }
+
+    Future<bool> authByToken(AuthToken token) async
+    {
+        UserProfile profile = await requestUserProfile(token);
+
+        if(profile != null) {
+            currentUser = User(token, profile);
+
+            try {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                await prefs.setString(
+                    Auth.accessTokenPrefferencesKey, token.accessToken);
+                await prefs.setString(
+                    Auth.refreshTokenPrefferencesKey, token.refreshToken);
+            } catch (exception) {
+                print(exception.toString());
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     UserProfile getCurrentUserProfile()
     {
         return currentUser?.profile;
+    }
+
+    Future<UserProfile> requestUserProfile(AuthToken token) async
+    {
+        try {
+            http.Response response = await http.get(
+                api.baseUrl + '/oauth/profile',
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': "Bearer ${token.accessToken}"
+                }
+            );
+
+            if(response.statusCode == ApiResponse.ResponseCode.ok) {
+                return UserProfile.fromJson(
+                    convert.jsonDecode(response.body)
+                );
+            }
+
+        } catch (exception) {
+
+        }
+
+        return null;
     }
 
 }

@@ -95,10 +95,7 @@ class _MainMenuComponentState extends State<MainMenuComponent>
         return ListTile(
             title: Text(title),
             leading: Icon(icon),
-            onTap: () {
-                Navigator.of(context).pop();
-                onTap();
-            },
+            onTap: onTap,
         );
     }
 }

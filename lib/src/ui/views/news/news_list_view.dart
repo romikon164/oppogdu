@@ -15,7 +15,8 @@ class NewsListView extends StatefulWidget
 {
     final NewsListPresenter presenter;
 
-    NewsListView({Key key, @required this.presenter}): super(key: key) {
+    NewsListView({Key key, @required this.presenter}): super(key: key)
+    {
         presenter.view = this;
     }
 
@@ -37,16 +38,24 @@ class _NewsListState extends State<NewsListView> implements NewsListViewDelegate
     {
         super.initState();
 
-        widget.presenter.viewDelegate = this;
-        widget.presenter.didInitState();
+        widget.presenter?.viewDelegate = this;
+        widget.presenter?.didInitState();
 
         _bottomNavigationBarController = AnimatedBottomNavigationBarController();
         _bottomNavigationBarController.delegate = widget.presenter;
     }
 
     @override
+    void didUpdateWidget(NewsListView oldWidget)
+    {
+        super.didUpdateWidget(oldWidget);
+
+        widget.presenter?.viewDelegate = this;
+    }
+
+    @override
     void dispose() {
-        widget.presenter.viewDelegate = null;
+        widget.presenter?.viewDelegate = null;
 
         super.dispose();
     }
@@ -65,7 +74,7 @@ class _NewsListState extends State<NewsListView> implements NewsListViewDelegate
                 headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
                     return [
                         SliverAppBar(
-                            title: Text(widget.presenter.configuration.title),
+                            title: Text(widget.presenter?.configuration?.title),
                             floating: true,
                             snap: true,
                             backgroundColor: Theme.of(context).appBarTheme.color,
@@ -131,7 +140,7 @@ class _NewsListState extends State<NewsListView> implements NewsListViewDelegate
     {
         if(notification.metrics.pixels >= notification.metrics.maxScrollExtent) {
             if(!_isFinish && !_isError) {
-                widget.presenter.didLoad();
+                widget.presenter?.didLoad();
             }
         }
     }
@@ -139,7 +148,7 @@ class _NewsListState extends State<NewsListView> implements NewsListViewDelegate
     Future<void> _didRefresh() async
     {
         news = [];
-        await widget.presenter.didRefresh();
+        await widget.presenter?.didRefresh();
     }
 
     void onLoadComplete(List<News> newNews)
@@ -176,8 +185,8 @@ class _NewsListState extends State<NewsListView> implements NewsListViewDelegate
         News newsItem = news[index];
 
         return newsItem.thumb == null
-            ? NewsListItemWithoutImageView(news: newsItem, onTap: widget.presenter.didTapListItem)
-            : NewsListItemView(news: newsItem, onTap: widget.presenter.didTapListItem);
+            ? NewsListItemWithoutImageView(news: newsItem, onTap: widget.presenter?.didTapListItem)
+            : NewsListItemView(news: newsItem, onTap: widget.presenter?.didTapListItem);
     }
 
     Widget _buildFooter(BuildContext context, int index)
@@ -207,16 +216,16 @@ class _NewsListState extends State<NewsListView> implements NewsListViewDelegate
             child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                    Text(widget.presenter.configuration.errorMessage),
+                    Text(widget.presenter?.configuration?.errorMessage),
                     InkWell(
                         onTap: () {
                             setState(() {
                                 _isError = false;
                                 _isFinish = false;
-                                widget.presenter.didLoad();
+                                widget.presenter?.didLoad();
                             });
                         },
-                        child: Text(widget.presenter.configuration.updateLabel),
+                        child: Text(widget.presenter?.configuration?.updateLabel),
                     )
                 ],
             ),

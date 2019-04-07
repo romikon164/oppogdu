@@ -26,6 +26,8 @@ class ResponseCode
 
     static final ok = 200;
 
+    static final incorrectCredentials = 401;
+
     static final accessDenied = 403;
 
     static final notFound = 404;

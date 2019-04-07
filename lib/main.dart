@@ -4,65 +4,78 @@ import 'package:oppo_gdu/src/http/api/api.dart';
 
 void main() => runApp(Application());
 
-class Application extends StatelessWidget {
+class Application extends StatelessWidget
+{
     // This widget is the root of your application.
     @override
-    Widget build(BuildContext context) {
+    Widget build(BuildContext context)
+    {
+
         Api.buildInstance(
             clientId: 2,
             clientSecret: "o9SRuHh8SDzVPB7DoR8E64WIBG44nfkGLd2vySRe"
         );
+
+        Api.getInstance().auth.attemptAuthForSharedPreferences();
 
         Router router = Router();
 
         return MaterialApp(
             home: router.createNewsListPresenter().view,
             navigatorKey: router.navigatorKey,
-            theme: ThemeData(
-                appBarTheme: AppBarTheme(
-                    brightness: Brightness.light,
-                    color: Color.fromARGB(255, 0, 114, 197),
-                    iconTheme: IconThemeData(
-                        color: Colors.white,
-                    ),
-                    actionsIconTheme: IconThemeData(
-                        color: Colors.white,
-                    ),
-                ),
+            theme: _buildThemeData(context),
+        );
+    }
+
+    ThemeData _buildThemeData(BuildContext context)
+    {
+        return ThemeData(
+            appBarTheme: AppBarTheme(
+                brightness: Brightness.light,
+                color: Color.fromARGB(255, 0, 114, 197),
                 iconTheme: IconThemeData(
-                    color: Color.fromARGB(255, 90, 90, 90),
-                    size: 24,
+                    color: Colors.white,
                 ),
-                accentIconTheme: IconThemeData(
-                    color: Color.fromARGB(255, 0, 114, 197),
-                    size: 24,
+                actionsIconTheme: IconThemeData(
+                    color: Colors.white,
                 ),
-                textTheme: TextTheme(
-                    subhead: TextStyle(
-                        color: Colors.black,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold
-                    ),
-                    overline: TextStyle(
-                        fontWeight: FontWeight.normal,
-                        letterSpacing: 0.1,
-                        color: Colors.black54,
-                        fontSize: 12,
-                    ),
-                    display1: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.normal,
-                        color: Color.fromARGB(255, 90, 90, 90)
-                    )
+            ),
+            iconTheme: IconThemeData(
+                color: Color.fromARGB(255, 90, 90, 90),
+                size: 24,
+            ),
+            accentIconTheme: IconThemeData(
+                color: Color.fromARGB(255, 0, 114, 197),
+                size: 24,
+            ),
+            textTheme: TextTheme(
+                subhead: TextStyle(
+                    color: Colors.black,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold
                 ),
-                accentTextTheme: TextTheme(
-                    display1: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.normal,
-                        color: Color.fromARGB(255, 0, 114, 197)
-                    )
+                overline: TextStyle(
+                    fontWeight: FontWeight.normal,
+                    letterSpacing: 0.1,
+                    color: Colors.black54,
+                    fontSize: 12,
                 ),
-                backgroundColor: Colors.white
+                display1: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal,
+                    color: Color.fromARGB(255, 90, 90, 90)
+                )
+            ),
+            accentTextTheme: TextTheme(
+                display1: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal,
+                    color: Color.fromARGB(255, 0, 114, 197)
+                )
+            ),
+            backgroundColor: Colors.white,
+            buttonTheme: ButtonThemeData(
+                buttonColor: Color.fromARGB(255, 0, 114, 197)
             ),
         );
     }
