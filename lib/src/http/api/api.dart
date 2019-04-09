@@ -1,7 +1,8 @@
 import 'package:http/http.dart' as http;
-import 'package:oppo_gdu/src/http/api/auth.dart';
-import 'package:oppo_gdu/src/http/api/response.dart' as ApiResponse;
 import 'dart:convert' as convert;
+
+part 'auth.dart';
+part 'response.dart';
 
 class Api
 {
@@ -9,15 +10,15 @@ class Api
 
     final String clientSecret;
 
-    final String baseUrl = 'http://api.oppo-gdu.ru';
+    final String baseUrl;
 
     Auth _auth;
 
     static Api _instance;
 
-    static Api buildInstance({int clientId, String clientSecret})
+    static Api buildInstance({int clientId, String clientSecret, String baseUrl})
     {
-        Api._instance = Api(clientId: clientId, clientSecret: clientSecret);
+        Api._instance = Api(clientId: clientId, clientSecret: clientSecret, baseUrl: baseUrl);
 
         return Api._instance;
     }
@@ -31,7 +32,7 @@ class Api
         return Api._instance;
     }
 
-    Api({this.clientId, this.clientSecret}) {
+    Api({this.clientId, this.clientSecret, this.baseUrl}) {
         _auth = Auth(this);
     }
 
@@ -39,7 +40,7 @@ class Api
         return _auth;
     }
 
-    Future<ApiResponse.Response> retrieveNews(ApiNewsRequestData data) async
+    Future<Map<String, dynamic>> retrieveNews(ApiNewsRequestData data) async
     {
         String url;
 

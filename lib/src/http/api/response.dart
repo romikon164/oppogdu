@@ -1,4 +1,4 @@
-
+part of 'api.dart';
 
 class Response
 {
