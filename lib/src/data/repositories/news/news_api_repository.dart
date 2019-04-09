@@ -1,7 +1,7 @@
 import 'package:oppo_gdu/src/data/repositories/news/news_repository.dart';
 import 'package:oppo_gdu/src/data/models/news/news.dart';
-import 'package:oppo_gdu/src/http/api/api.dart';
-import 'package:oppo_gdu/src/http/api/response.dart' as ApiResponse;
+import 'package:oppo_gdu/src/http/api/service.dart';
+import 'package:oppo_gdu/src/http/api/response_status_codes.dart' as ApiResponse;
 
 class NewsApiRepository extends NewsRepository
 {

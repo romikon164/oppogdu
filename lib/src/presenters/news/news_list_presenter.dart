@@ -8,7 +8,7 @@ import 'package:oppo_gdu/src/support/routing/router.dart';
 import 'package:oppo_gdu/src/ui/components/bottom_navigation_bar.dart';
 import 'package:oppo_gdu/src/ui/components/main_menu_component.dart';
 import 'package:oppo_gdu/src/data/models/users/user_profile.dart';
-import 'package:oppo_gdu/src/http/api/api.dart';
+import 'package:oppo_gdu/src/http/api/service.dart';
 
 class NewsListPresenter implements AnimatedBottomNavigationBarDelegate, MainMenuDelegate
 {

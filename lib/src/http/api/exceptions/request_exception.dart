@@ -1,4 +1,4 @@
-part of '../api.dart';
+part of '../service.dart';
 
 class RequestException implements Exception
 {
@@ -6,12 +6,10 @@ class RequestException implements Exception
 
     final String message;
 
-    final Request request;
+    RequestException(this.code, this.message);
 
-    final Response response;
-
-    RequestException(this.code, this.message, {this.request, this.response});
-
-    int errCode() => code;
-    String errMsg() => message;
+    String toString()
+    {
+        return message;
+    }
 }

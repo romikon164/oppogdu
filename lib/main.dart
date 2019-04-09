@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:oppo_gdu/src/support/routing/router.dart';
-import 'package:oppo_gdu/src/http/api/api.dart';
+import 'package:oppo_gdu/src/http/api/service.dart';
 import 'package:oppo_gdu/src/ui/themes/theme.dart';
+import 'package:oppo_gdu/src/support/auth/service.dart';
 
 void main() => runApp(Application());
 
@@ -12,13 +13,13 @@ class Application extends StatelessWidget
     Widget build(BuildContext context)
     {
 
-        Api.buildInstance(
-            apiBaseUrl: "http://api.oppo-gdu.ru",
+        ApiService.buildInstance(
+            baseUrl: "http://api.oppo-gdu.ru",
             clientId: 2,
             clientSecret: "o9SRuHh8SDzVPB7DoR8E64WIBG44nfkGLd2vySRe"
         );
 
-        Api.getInstance().auth.attemptAuthForSharedPreferences();
+        AuthService.instance.initService();
 
         Router router = Router();
 

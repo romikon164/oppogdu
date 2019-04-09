@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:oppo_gdu/src/support/routing/router.dart';
 import 'package:oppo_gdu/src/ui/views/auth/login/login_view.dart';
 import 'package:validators/validators.dart' as Validator;
-import 'package:oppo_gdu/src/http/api/api.dart';
+import 'package:oppo_gdu/src/http/api/service.dart';
 import 'package:oppo_gdu/src/http/api/auth.dart';
 
 class LoginPresenter

@@ -40,7 +40,7 @@ class ThemeBuilder
             scaffoldBackgroundColor: Color(0xFFFFFFFF),
             secondaryHeaderColor: Color(0xFFFFFFFF),
             selectedRowColor: Color(0xFFFFFFFF),
-            sliderTheme: _buildSliderTheme(),
+            // sliderTheme: _buildSliderTheme(),
             splashColor: Color(0xFFFFFFFF),
             splashFactory: _buildSplashFactory(),
             tabBarTheme: _buildTabBarTheme(),
@@ -109,12 +109,37 @@ class ThemeBuilder
 
     ChipThemeData _buildChipTheme()
     {
-        return ChipThemeData();
+        return ChipThemeData(
+            backgroundColor: Color(0xFFFFFFFF),
+            brightness: Brightness.dark,
+            disabledColor: Color(0xFFFFFFFF),
+            labelPadding: EdgeInsets.all(0),
+            labelStyle: TextStyle(),
+            padding: EdgeInsets.all(0),
+            secondaryLabelStyle: TextStyle(),
+            secondarySelectedColor: Color(0xFFFFFFFF),
+            selectedColor: Color(0xFFFFFFFF),
+            shape: BeveledRectangleBorder()
+        );
     }
 
     ColorScheme _buildColorScheme()
     {
-        return ColorScheme();
+        return ColorScheme(
+            background: Color(0xFFFFFFFF),
+            brightness: Brightness.dark,
+            error: Color(0xFFFFFFFF),
+            onBackground: Color(0xFFFFFFFF),
+            onError: Color(0xFFFFFFFF),
+            onPrimary: Color(0xFFFFFFFF),
+            onSecondary: Color(0xFFFFFFFF),
+            onSurface: Color(0xFFFFFFFF),
+            primary: Color(0xFFFFFFFF),
+            primaryVariant: Color(0xFFFFFFFF),
+            secondary: Color(0xFFFFFFFF),
+            secondaryVariant: Color(0xFFFFFFFF),
+            surface: Color(0xFFFFFFFF),
+        );
     }
 
     DialogTheme _buildDialogTheme()
@@ -151,11 +176,6 @@ class ThemeBuilder
     TextTheme _buildPrimaryTextTheme()
     {
         return TextTheme();
-    }
-
-    SliderThemeData _buildSliderTheme()
-    {
-        return SliderThemeData();
     }
 
     InteractiveInkFeatureFactory _buildSplashFactory()

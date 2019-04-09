@@ -1,1 +1,1 @@
-part of 'api.dart';
+part of 'service.dart';
