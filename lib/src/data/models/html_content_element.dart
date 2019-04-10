@@ -1,4 +1,5 @@
-import "package:oppo_gdu/src/data/models/model.dart";
+import "model.dart";
+import 'model_collection.dart';
 
 class HtmlContentElement extends Model
 {
@@ -10,64 +11,51 @@ class HtmlContentElement extends Model
 
     String title;
 
-    HtmlContentElementCollection children;
+    ModelCollection<HtmlContentElement> children;
 
     HtmlContentElement({this.type, this.content, this.link, this.title, this.children});
 
-    factory HtmlContentElement.fromJson(Map<String, dynamic> json)
+    factory HtmlContentElement.fromMap(Map<String, dynamic> map)
     {
         return HtmlContentElement(
-            type: json["type"] as String,
-            content: json["content"] as String,
-            link: json["link"] as String,
-            title: json["title"] as String,
-            children: HtmlContentElementCollection.fromJson(json["children"] as List<dynamic>),
+            type: map["type"] as String,
+            content: map["content"] as String,
+            link: map["link"] as String,
+            title: map["title"] as String,
+            children: HtmlContentElement.fromList(map["children"]),
         );
     }
 
-    Map<String, dynamic> toJson()
+    Map<String, dynamic> toMap()
     {
-        Map<String, dynamic> json = Map<String, dynamic>();
+        Map<String, dynamic> map = Map<String, dynamic>();
 
-        json["type"] = type;
+        map["type"] = type;
 
         if(content != null) {
-            json["content"] = content;
+            map["content"] = content;
         }
 
         if(link != null) {
-            json["link"] = link;
+            map["link"] = link;
         }
 
         if(title != null) {
-            json["title"] = title;
+            map["title"] = title;
         }
 
         if(children != null) {
-            json["children"] = children.toJson();
+            map["children"] = children.map((item) => item.toMap());
         }
 
-        return json;
+        return map;
     }
-}
 
-class HtmlContentElementCollection extends ModelCollection<HtmlContentElement>
-{
-    HtmlContentElementCollection(List<HtmlContentElement> items): super(items);
-
-    factory HtmlContentElementCollection.fromJson(List<dynamic> json)
-    {
-        if(json == null) {
-            return HtmlContentElementCollection([]);
+    static List<HtmlContentElement> fromList(List<dynamic> list) {
+        if(list == null) {
+            return [];
         }
 
-        return HtmlContentElementCollection(
-            json.map((item) => HtmlContentElement.fromJson(item as Map<String, dynamic>)).toList()
-        );
-    }
-
-    List<dynamic> toJson()
-    {
-        return map((item) => item.toJson()).toList();
+        return list.map<HtmlContentElement>((item) => HtmlContentElement.fromMap(item as Map<String, dynamic>));
     }
 }

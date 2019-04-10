@@ -9,4 +9,8 @@ abstract class Model
     }
 
     Map<String, dynamic> toMap();
+
+    static List<Model> fromList(List<dynamic> list) {
+        throw Exception("Model.fromList is not defined");
+    }
 }

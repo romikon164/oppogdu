@@ -9,108 +9,48 @@ import 'package:oppo_gdu/src/ui/components/bottom_navigation_bar.dart';
 import 'package:oppo_gdu/src/ui/components/main_menu_component.dart';
 import 'package:oppo_gdu/src/data/models/users/user_profile.dart';
 import 'package:oppo_gdu/src/http/api/service.dart';
+import '../streamable_contract.dart';
+import 'package:oppo_gdu/src/support/routing/router_contract.dart';
+import 'package:oppo_gdu/src/ui/views/view_contract.dart';
+import 'package:rxdart/rxdart.dart';
+import '../streamable_listenable_contract.dart';
 
-class NewsListPresenter implements AnimatedBottomNavigationBarDelegate, MainMenuDelegate
+class NewsListPresenter extends StreamablePresenterContract<News>
 {
-
-    final Router router;
-
-    NewsListView view;
-
-    NewsListViewDelegate viewDelegate;
-
-    NewsRepository repository;
-
-    final NewsListConfiguration configuration;
-
-    List<News> news = [];
-
-    bool isLoading = false;
-
-    NewsListPresenter({@required this.router, this.configuration});
-
-    Future<void> didInitState() async
-    {
-        await didLoad();
+    NewsListPresenter(RouterContract router): super(router) {
+        _stream = ReplaySubject<News>();
     }
 
-    Future<void> didTapListItem(News news) async
-    {
-        // router.presentNewsDetailPresenter(news);
+    NewsListView _view;
+
+    ViewContract get view => _view;
+
+    set view(ViewContract view) {
+        _view = view;
+        _repository;
     }
 
-    Future<void> didLoad() async
+    ReplaySubject<News> _sink;
+
+    Sink<News> get sink => _sink;
+
+    NewsApiRepository _apiRepository = NewsApiRepository();
+
+    NewsDatabaseRepository _databaseRepository = NewsDatabaseRepository();
+
+    StreamableListenableContract _listener;
+
+    void onInitState(StreamableListenableContract listener)
     {
-        if(isLoading) return ;
-
-        isLoading = true;
-
-        List<News> loadedNews = [];
-
-        try {
-            if(news.isEmpty) {
-                loadedNews = await repository.fetch(configuration.loadLimit);
-            } else {
-                loadedNews = await repository.fetchAfter(news.last, configuration.loadLimit);
-            }
-        } catch (e) {
-            viewDelegate?.onLoadFail();
-
-            isLoading = false;
-            return ;
-        }
-
-        news.addAll(loadedNews);
-
-        if (loadedNews.isEmpty) {
-            viewDelegate?.onLoadFinish();
-        } else {
-            viewDelegate?.onLoadComplete(news);
-        }
-
-        isLoading = false;
+        _listener = listener;
     }
 
-    Future<void> didRefresh() async
+    void didRefresh()
     {
-        news = [];
-        await didLoad();
+        _stream.
     }
 
-    // AnimatedBottomNavigationBar implements
-    void onNewsTap()
-    {
-
-    }
-
-    void onSportComplexTap()
-    {
-
-    }
-
-    void onCallbackTap()
-    {
-
-    }
-
-    // MainMenuDelegate implements
-    UserProfile getUserProfile()
-    {
-        return Api.getInstance().auth.getCurrentUserProfile();
-    }
-
-    void onUserProfileTap()
-    {
-
-    }
-
-    void onUserLoginTap()
-    {
-        router.pop();
-        router.presentLogin();
-    }
-
-    void onPhotoGalleryTap()
+    void onEndOfData()
     {
 
     }

@@ -1,5 +1,7 @@
 import "package:oppo_gdu/src/data/models/model.dart";
 import "package:oppo_gdu/src/data/models/html_content_element.dart";
+import 'package:oppo_gdu/src/support/datetime/formatter.dart';
+import '../model_collection.dart';
 
 class News extends Model
 {
@@ -11,56 +13,45 @@ class News extends Model
 
     String thumb;
 
-    HtmlContentElementCollection content;
+    ModelCollection<HtmlContentElement> content;
 
     DateTime createdAt;
 
     News({this.id, this.name, this.image, this.thumb, this.content, this.createdAt});
 
-    factory News.fromJson(Map<String, dynamic> json)
+    factory News.fromMap(Map<String, dynamic> map)
     {
         return News(
-            id: json["id"] as int,
-            name: json["name"] as String,
-            image: json["image"] as String,
-            thumb: json["thumb"] as String,
-            content: HtmlContentElementCollection.fromJson(json["content"] as List<dynamic>),
-            createdAt: DateTime.fromMillisecondsSinceEpoch(((json["created_at"] as int) ?? 0) * 1000)
+            id: map["id"] as int,
+            name: map["name"] as String,
+            image: map["image"] as String,
+            thumb: map["thumb"] as String,
+            content: ModelCollection<HtmlContentElement>(
+                HtmlContentElement.fromList(map["content"])
+            ),
+            createdAt: DateTimeFormatter.dateTimeFromSeconds(map["created_at"])
         );
     }
 
-    Map<String, dynamic> toJson()
+    Map<String, dynamic> toMap()
     {
-        Map<String, dynamic> json = Map<String, dynamic>();
+        Map<String, dynamic> map = Map<String, dynamic>();
 
-        json["id"] = id;
-        json["name"] = name;
-        json["image"] = image;
-        json["thumb"] = thumb;
-        json["content"] = thumb;
-        json["created_at"] = createdAt.millisecondsSinceEpoch;
+        map["id"] = id;
+        map["name"] = name;
+        map["image"] = image;
+        map["thumb"] = thumb;
+        map["content"] = thumb;
+        map["created_at"] = createdAt.millisecondsSinceEpoch;
 
-        return json;
+        return map;
     }
-}
 
-class NewsCollection extends ModelCollection<News>
-{
-    NewsCollection(List<News> items): super(items);
-
-    factory NewsCollection.fromJson(List<dynamic> json)
-    {
-        if(json == null) {
-            return NewsCollection([]);
+    static List<News> fromList(List<dynamic> list) {
+        if(list == null) {
+            return [];
         }
 
-        return NewsCollection(
-          json.map((item) => News.fromJson(item as Map<String, dynamic>)).toList()
-        );
-    }
-
-    List<dynamic> toJson()
-    {
-        return map((item) => item.toJson()).toList();
+        return list.map<News>((news) => News.fromMap(news as Map<String, dynamic>));
     }
 }

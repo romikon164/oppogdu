@@ -8,10 +8,12 @@ import 'package:oppo_gdu/src/ui/views/news/news_list_view_delegate.dart';
 import 'package:oppo_gdu/src/ui/components/bottom_navigation_bar.dart';
 import 'package:flutter/services.dart';
 import 'package:oppo_gdu/src/ui/components/main_menu_component.dart';
+import '../streamable_delegate.dart';
+import '../view_contract.dart';
 
 typedef void NewsListItemOnTapCallback(News news);
 
-class NewsListView extends StatefulWidget
+class NewsListView extends StatefulWidget implements ViewContract
 {
     final NewsListPresenter presenter;
 
