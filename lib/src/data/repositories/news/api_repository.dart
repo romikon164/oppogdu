@@ -10,6 +10,8 @@ class NewsApiRepository extends RepositoryContract<News>
 {
     ApiService _apiService = ApiService.instance;
 
+    int get pageSize => 15;
+
     Future<News> retrieve(int id) async
     {
         Map<String, dynamic> rawNews;
@@ -27,9 +29,13 @@ class NewsApiRepository extends RepositoryContract<News>
         return News.fromMap(rawNews);
     }
 
-    Future<ModelCollection<News>> retrieveAll({int offset = 0, int limit}) async
+    Future<ModelCollection<News>> retrieveAll({int page = 0, int withStartIndex}) async
     {
-        Map<String, dynamic> rawNews = await _apiService.retrieveNewsList(page);
+        Map<String, dynamic> rawNewsWithMeta = await _apiService.retrieveNewsList(page, withStartIndex: withStartIndex);
+
+        List<dynamic> rawNews = rawNewsWithMeta["data"] as List<dynamic>;
+
+        return News.fromList(rawNews);
     }
 
     Future<void> persists(News model) async

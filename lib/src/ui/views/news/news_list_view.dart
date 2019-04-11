@@ -1,50 +1,83 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'dart:async';
 import 'package:oppo_gdu/src/presenters/news/news_list_presenter.dart';
+import 'package:oppo_gdu/src/presenters/streamable_listenable_contract.dart';
 import 'package:oppo_gdu/src/data/models/news/news.dart';
 import 'package:oppo_gdu/src/ui/views/news/news_list_item_view.dart';
 import 'package:oppo_gdu/src/ui/views/news/news_list_item_without_image_view.dart';
-import 'package:oppo_gdu/src/ui/views/news/news_list_view_delegate.dart';
-import 'package:oppo_gdu/src/ui/components/bottom_navigation_bar.dart';
-import 'package:flutter/services.dart';
+import 'package:oppo_gdu/src/ui/components/navigation/bottom/widget.dart';
 import 'package:oppo_gdu/src/ui/components/main_menu_component.dart';
-import '../streamable_delegate.dart';
 import '../view_contract.dart';
+import '../streamable_delegate.dart';
+import 'package:oppo_gdu/src/presenters/streamable_contract.dart';
 
 typedef void NewsListItemOnTapCallback(News news);
 
 class NewsListView extends StatefulWidget implements ViewContract
 {
-    final NewsListPresenter presenter;
+    final StreamablePresenterContract<News> presenter;
 
-    NewsListView({Key key, @required this.presenter}): super(key: key)
-    {
-        presenter.view = this;
-    }
+    NewsListView({Key key, @required this.presenter}): super(key: key);
 
     @override
     _NewsListState createState() => _NewsListState();
 }
 
-class _NewsListState extends State<NewsListView> implements NewsListViewDelegate
+class _NewsListState extends State<NewsListView> implements StreamableListenableContract<News>
 {
-    List<News> news = [];
+    Stream<News> _stream;
 
+    StreamSubscription<News> _subscription;
+
+    List<News> _newsList = [];
+
+    bool _isLoading = false;
     bool _isFinish = false;
     bool _isError = false;
 
     AnimatedBottomNavigationBarController _bottomNavigationBarController;
+
+    set stream(Stream<News> newStream)
+    {
+        if(_subscription != null) {
+            _subscription.cancel();
+        }
+
+        _stream = newStream;
+        _subscription = _stream.listen((newsItem) {
+            setState(() {
+                _newsList.add(newsItem);
+            });
+        }, onDone: () {
+            setState(() {
+                _isFinish = true;
+                _isError = false;
+            });
+        }, onError: () {
+            setState(() {
+                _isError = true;
+            });
+        });
+    }
 
     @override
     void initState()
     {
         super.initState();
 
-        widget.presenter?.viewDelegate = this;
-        widget.presenter?.didInitState();
+        widget.presenter?.onInitState(this);
 
         _bottomNavigationBarController = AnimatedBottomNavigationBarController();
         _bottomNavigationBarController.delegate = widget.presenter;
+    }
+
+    @override
+    void didChangeDependencies()
+    {
+        super.didChangeDependencies();
+        widget.presenter?.onInitState(this);
     }
 
     @override
@@ -52,12 +85,12 @@ class _NewsListState extends State<NewsListView> implements NewsListViewDelegate
     {
         super.didUpdateWidget(oldWidget);
 
-        widget.presenter?.viewDelegate = this;
+        widget.presenter?.onInitState(this);
     }
 
     @override
     void dispose() {
-        widget.presenter?.viewDelegate = null;
+        widget.presenter?.onDisposeState();
 
         super.dispose();
     }
@@ -76,13 +109,9 @@ class _NewsListState extends State<NewsListView> implements NewsListViewDelegate
                 headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
                     return [
                         SliverAppBar(
-                            title: Text(widget.presenter?.configuration?.title),
+                            title: Text("Новости"),
                             floating: true,
                             snap: true,
-                            backgroundColor: Theme.of(context).appBarTheme.color,
-                            brightness: Theme.of(context).appBarTheme.brightness,
-                            iconTheme: Theme.of(context).appBarTheme.iconTheme,
-                            textTheme: Theme.of(context).appBarTheme.textTheme,
                         )
                     ];
                 },

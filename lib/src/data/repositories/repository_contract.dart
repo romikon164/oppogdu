@@ -3,9 +3,11 @@ import '../models/model_collection.dart';
 
 abstract class RepositoryContract<T extends Model>
 {
+    int get pageSize;
+
     Future<T> retrieve(int id);
 
-    Future<ModelCollection<T>> retrieveAll({int offset = 0, int limit});
+    Future<ModelCollection<T>> retrieveAll({int page = 0, int withStartIndex});
 
     Future<void> persists(T model);
 

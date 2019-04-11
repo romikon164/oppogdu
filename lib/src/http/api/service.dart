@@ -137,10 +137,10 @@ class ApiService
         return convert.jsonDecode(response.body);
     }
 
-    Future<Map<String, dynamic>> retrieveNewsList(int page) async
+    Future<Map<String, dynamic>> retrieveNewsList(int page, {int withStartIndex}) async
     {
         http.Response response = await http.get(
-            "$baseUrl/news?page=$page",
+            "$baseUrl/news?page=$page&start_from=$withStartIndex",
             headers: {
                 'Accept': 'application/json'
             }

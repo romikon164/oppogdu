@@ -24,7 +24,7 @@ class Application extends StatelessWidget
         Router router = Router();
 
         return MaterialApp(
-            home: router.createNewsListPresenter().view,
+            home: router.createNewsListPresenter().view as StatefulWidget,
             navigatorKey: router.navigatorKey,
             theme: ThemeBuilder().build(),
         );
