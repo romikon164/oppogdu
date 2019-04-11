@@ -3,8 +3,6 @@ import 'package:oppo_gdu/src/ui/views/news/news_list_view.dart';
 import 'package:oppo_gdu/src/ui/views/news/news_list_view_delegate.dart';
 import 'package:oppo_gdu/src/data/models/news/news.dart';
 import 'package:oppo_gdu/src/support/routing/router.dart';
-import 'package:oppo_gdu/src/ui/components/bottom_navigation_bar.dart';
-import 'package:oppo_gdu/src/ui/components/main_menu_component.dart';
 import 'package:oppo_gdu/src/http/api/service.dart';
 import '../streamable_contract.dart';
 import 'package:oppo_gdu/src/support/routing/router_contract.dart';

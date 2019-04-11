@@ -1,25 +1,18 @@
 import '../models/model.dart';
 import '../models/model_collection.dart';
+import 'criteria.dart';
 
-abstract class RepositoryContract<T extends Model>
+abstract class RepositoryContract<T extends Model, K extends CriteriaContract>
 {
-    int get pageSize;
+    Future<ModelCollection<T>> get(K criteria);
 
-    Future<T> retrieve(int id);
+    Future<T> getFirst(K criteria);
 
-    Future<ModelCollection<T>> retrieveAll({int page = 0, int withStartIndex});
+    Future<bool> add(T model);
 
-    Future<void> persists(T model);
+    Future<bool> update(T model);
 
-    Future<void> persistsAll(List<T> models);
+    Future<bool> delete(T model);
 
-    Future<void> delete(T model);
-
-    Future<void> deleteAll(List<T> models);
-
-    Future<void> update(T model);
-
-    Future<void> updateAll(List<T> models);
-
-    Future<void> truncate();
+    Future<bool> deleteAll();
 }

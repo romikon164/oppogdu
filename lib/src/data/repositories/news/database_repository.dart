@@ -4,6 +4,8 @@ import '../../database/service.dart';
 import '../../database/providers/news.dart';
 import '../../models/model_collection.dart';
 import '../exceptions/not_found.dart';
+import '../database_criteria.dart';
+import '../criteria.dart';
 
 class NewsDatabaseRepository extends DatabaseRepositoryContract<News>
 {
@@ -18,40 +20,51 @@ class NewsDatabaseRepository extends DatabaseRepositoryContract<News>
         _newsProvider = NewsDatabaseProvider(await DatabaseService.instance.database);
     }
 
-    int get pageSize => 15;
-
-    Future<ModelCollection<News>> retrieveAll({int page, int withStartIndex}) async
+    Future<bool> add(News news) async
     {
         if(_newsProvider == null) {
             await _initRepository();
         }
 
-        List<Map<String, dynamic>> rawNews = await _newsProvider.retrieve(
-            where: withStartIndex == null ? null : "id < ?",
-            whereArgs: withStartIndex == null ? [] : ["$withStartIndex"],
-            orderBy: "created_at desc",
-            offset: page * pageSize,
-            limit: pageSize
+        try {
+            news.id = await _newsProvider.persists(news.toMap());
+            return true;
+        } catch(e) {
+            return false;
+        }
+    }
+
+    Future<ModelCollection<News>> get(CriteriaContract criteria) async
+    {
+        DatabaseCriteria databaseCriteria = criteria as DatabaseCriteria;
+
+        if(_newsProvider == null) {
+            await _initRepository();
+        }
+
+        List<Map<String, dynamic>> rawNewses = await _newsProvider.retrieve(
+            where: databaseCriteria.getWhere(),
+            orderBy: databaseCriteria.getSort(),
+            offset: databaseCriteria.getOffset(),
+            limit: databaseCriteria.getLimit()
         );
 
         return ModelCollection<News>(
-            rawNews.map<News>((newsItem) => News.fromMap(newsItem))
+            rawNewses.map<News>((news) => News.fromMap(news))
         );
     }
 
-    Future<News> retrieve(int id) async
+    Future<News> getFirst(CriteriaContract criteria) async
     {
-        if(_newsProvider == null) {
-            await _initRepository();
-        }
+        criteria.take(1);
 
-        List<Map<String, dynamic>> rawNews = await _newsProvider.retrieve(where: "id = ?", whereArgs: ["$id"]);
+        ModelCollection<News> newses = await get(criteria);
 
-        if(rawNews.isEmpty) {
+        if(newses.isEmpty) {
             throw RepositoryNotFoundException();
+        } else {
+            return newses.first;
         }
-
-        return News.fromMap(rawNews.first);
     }
 
     Future<void> persists(News news) async
@@ -70,62 +83,24 @@ class NewsDatabaseRepository extends DatabaseRepositoryContract<News>
         }
     }
 
-    Future<void> delete(News model) async
+    Future<bool> delete(News model) async
     {
-
+        return false;
     }
 
-    Future<void> deleteAll(List<News> models) async
-    {
-
-    }
-
-    Future<void> update(News model) async
-    {
-
-    }
-
-    Future<void> updateAll(List<News> models) async
-    {
-
-    }
-
-    Future<void> truncate() async
+    Future<bool> deleteAll() async
     {
         if(_newsProvider == null) {
             await _initRepository();
         }
 
-        _newsProvider.truncate();
+        await _newsProvider.truncate();
+
+        return true;
     }
 
-    Future<News> retrieveLastSavedModel() async
+    Future<bool> update(News model) async
     {
-        if(_newsProvider == null) {
-            await _initRepository();
-        }
-
-        List<Map<String, dynamic>> rawNewsList = await _newsProvider.retrieve(orderBy: "id desc", limit: 1);
-
-        if(rawNewsList.length == 0) {
-            throw RepositoryNotFoundException();
-        }
-
-        return News.fromMap(rawNewsList[0]);
-    }
-
-    Future<News> retrieveFirstSavedModel() async
-    {
-        if(_newsProvider == null) {
-            await _initRepository();
-        }
-
-        List<Map<String, dynamic>> rawNewsList = await _newsProvider.retrieve(orderBy: "id asc", limit: 1);
-
-        if(rawNewsList.length == 0) {
-            throw RepositoryNotFoundException();
-        }
-
-        return News.fromMap(rawNewsList[0]);
+        return false;
     }
 }

@@ -7,7 +7,5 @@ import 'package:oppo_gdu/src/support/routing/router_contract.dart';
 
 abstract class StreamablePresenterContract<T extends Model> extends Presenter implements ViewStreamableDelegate<T>
 {
-    StreamController<T> get streamController;
-
     StreamablePresenterContract(RouterContract router): super(router);
 }
