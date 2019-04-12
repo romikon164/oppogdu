@@ -5,7 +5,5 @@ abstract class PresenterContract
 {
     RouterContract get router;
 
-    set view(ViewContract view);
-
     ViewContract get view;
 }

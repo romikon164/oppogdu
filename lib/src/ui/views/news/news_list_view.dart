@@ -13,20 +13,29 @@ import '../view_contract.dart';
 import '../streamable_delegate.dart';
 import 'package:oppo_gdu/src/presenters/streamable_contract.dart';
 import '../../components/lists/streamable.dart';
+import 'package:oppo_gdu/src/presenters/presenter.dart';
+import 'package:oppo_gdu/src/support/routing/router_contract.dart';
 
 typedef void NewsListItemOnTapCallback(News news);
 
+abstract class NewsListDelegate extends Presenter
+{
+    NewsListDelegate(RouterContract router): super(router);
+
+    void onInitState();
+}
+
 class NewsListView extends StatefulWidget implements ViewContract
 {
-    final StreamablePresenterContract<News> presenter;
+    final NewsListDelegate delegate;
 
-    NewsListView({Key key, @required this.presenter}): super(key: key);
+    NewsListView({Key key, @required this.delegate}): super(key: key);
 
     @override
     _NewsListState createState() => _NewsListState();
 }
 
-class _NewsListState extends State<NewsListView> implements StreamableListenableContract<News>
+class _NewsListState extends State<NewsListView>
 {
     Stream<News> _stream;
 
@@ -38,7 +47,7 @@ class _NewsListState extends State<NewsListView> implements StreamableListenable
     bool _isFinish = false;
     bool _isError = false;
 
-    AnimatedBottomNavigationBarController _bottomNavigationBarController;
+    BottomNavigationController _bottomNavigationBarController;
 
     set stream(Stream<News> newStream)
     {

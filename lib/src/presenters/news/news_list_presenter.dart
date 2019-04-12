@@ -12,163 +12,118 @@ import '../streamable_listenable_contract.dart';
 import 'package:oppo_gdu/src/data/repositories/news/api_repository.dart';
 import 'package:oppo_gdu/src/data/repositories/news/database_repository.dart';
 import 'package:rxdart/rxdart.dart';
+import '../presenter.dart';
+import 'package:oppo_gdu/src/ui/components/lists/streamable.dart';
+import 'package:oppo_gdu/src/data/repositories/database_criteria.dart';
+import 'package:oppo_gdu/src/data/repositories/criteria.dart';
+import 'package:oppo_gdu/src/data/repositories/api_criteria.dart';
 
-class NewsListPresenter extends StreamablePresenterContract<News>
+class NewsListPresenter extends NewsListDelegate implements StreamableListViewDelegate
 {
-    StreamController<News> _streamController;
-
     NewsListView _view;
 
-    NewsApiRepository _apiRepository = NewsApiRepository();
+    PublishSubject<News> _newsStream;
 
-    NewsDatabaseRepository _databaseRepository = NewsDatabaseRepository();
-
-    StreamableListenableContract<News> _listener;
-
-    NewsListPresenter(RouterContract router): super(router);
-
-    StreamController<News> get streamController => _streamController;
+    NewsListPresenter(RouterContract router): super(router) {
+        _view = NewsListView(delegate: this);
+    }
 
     ViewContract get view => _view;
 
-    int _currentNewsPage;
+    News _streamStartWith;
 
-    set view(ViewContract view) {
-        _view = view;
+    int _pageSize = 15;
 
-    }
+    int _currentPage;
 
-    void onInitState(StreamableListenableContract<News> listener)
+    NewsDatabaseRepository _databaseRepository = NewsDatabaseRepository();
+
+    NewsApiRepository _apiRepository = NewsApiRepository();
+
+    void onInitState()
     {
-        _listener = listener;
-
-        _startStream();
-
-        _listener.stream = _streamController.stream;
+        _startNewsStream();
     }
 
     void didRefresh()
     {
-        _streamController.close();
-        _startStream();
+        _newsStream.close();
+        _startNewsStream();
     }
 
-    void onEndOfData()
+    void didScrollToEnd()
     {
-        _addNewsToStreamFromDatabase(page: _currentNewsPage + 1);
+        _loadNews(_currentPage + 1);
     }
 
-    Future<void> _startStream() async
+    Future<void> _startNewsStream() async
     {
-        print("start news stream");
+        _newsStream = PublishSubject<News>();
 
-        _streamController = StreamController<News>();
+        try {
+            _streamStartWith = await _databaseRepository.getFirst(
+                DatabaseCriteria().sortByDesc("created_at")
+            );
+        } catch(e) {
+            _streamStartWith = null;
+        }
 
-        _attemptLoadFreshNewsFromApiService();
-        _addNewsToStreamFromDatabase();
+        _loadNews(1);
+
+        _loadFreshNewsFromApi();
     }
 
-    Future<void> _addNewsToStreamFromDatabase({int page = 1, int withStartIndex}) async
+    Future<void> _loadNews(int page) async
     {
-        print("loading page #$page from datebase");
-
-        _currentNewsPage = page;
-
-        List<News> newsList = await _databaseRepository.retrieveAll(page: page, withStartIndex: withStartIndex);
-
-        if(newsList.length == 0) {
-            print("page #$page not found in database");
-
-            try {
-                News firstSavedNews = await _databaseRepository.retrieveFirstSavedModel();
-                newsList = await _attemptLoadNewsFromApiService(page: 1, withStartIndex: firstSavedNews.id);
-            } catch(e) {
-                newsList = await _attemptLoadNewsFromApiService(page: 1);
-            }
-
-            if(newsList.length == 0) {
-                _streamController.close();
-
+        _currentPage = page;
+        
+        List<News> newses = await _loadNewsFromDatabase(page);
+        
+        if(newses.isEmpty) {
+            newses = await _loadNewsFromApi();
+            
+            if(newses.isEmpty) {
+                _newsStream.close();
+                
                 return ;
             }
 
-            _databaseRepository.persistsAll(newsList);
+            _cacheNewsToDatabase(newses);
+        }
+        
+        newses.forEach((news) => _newsStream.add(news));
+    }
+    
+    Future<List<News>> _loadNewsFromDatabase(int page) async
+    {
+        DatabaseCriteria criteria = DatabaseCriteria()
+            .sortByDesc("created_at")
+            .skip((page - 1) * _pageSize)
+            .take(_pageSize);
+
+        if(_streamStartWith != null) {
+            criteria.where("id", CriteriaOperator.lessOrEqual, _streamStartWith.id);
         }
 
-        for(News newsItem in newsList) {
-            _streamController.add(newsItem);
-        }
+        return await _databaseRepository.get(criteria);
     }
 
-    Future<void> _attemptLoadFreshNewsFromApiService() async
+    Future<List<News>> _loadNewsFromApi() async
     {
-        int lastSavedNewsId;
+        ApiCriteria criteria = ApiCriteria()
+            .sortByDesc("created_at")
+            .skip((page - 1) * _pageSize)
+            .take(_pageSize);
 
-        try {
-            News lastSavedNews = await _databaseRepository.retrieveLastSavedModel();
-            lastSavedNewsId = lastSavedNews.id;
-            print("load fresh data from api with last saved id #$lastSavedNewsId");
-        } catch(e) {
-            print("load last saved id error \"${e.toString()}\"");
-            return ;
+        if(_streamStartWith != null) {
+            criteria.where("right_bound", CriteriaOperator.equal, _streamStartWith.id);
         }
 
-        try {
-            List<News> freshNewsList = await _loadFreshNewsFromApiService(lastSavedNewsId);
-            _addFreshNewsToDatabase(freshNewsList);
-        } catch(e) {
-            print("error network \"${e.toString()}\"");
-            _listener.onNetworkError();
-        }
+        return await _apiRepository.get(criteria);
     }
 
-    Future<List<News>> _loadFreshNewsFromApiService(int lastSavedNewsId, [int page = 1]) async
+    Future<void> _cacheNewsToDatabase(List<News> newses) async
     {
-        List<News> newsList = await _apiRepository.retrieveAll(page: page);
-        List<News> newsListForAddingToDatabase = List<News>();
-
-        for(News newsItem in newsList) {
-            if(newsItem.id == lastSavedNewsId) {
-                return newsListForAddingToDatabase;
-            }
-
-            newsListForAddingToDatabase.add(newsItem);
-        }
-
-        newsListForAddingToDatabase.addAll(
-            await _loadFreshNewsFromApiService(lastSavedNewsId, page + 1)
-        );
-
-        return newsListForAddingToDatabase;
-    }
-
-    Future<void> _addFreshNewsToDatabase(List<News> newsList) async
-    {
-        await _databaseRepository.persistsAll(newsList);
-
-        if(_streamController != null && !_streamController.isClosed) {
-            _streamController.close();
-        }
-
-        _streamController = StreamController<News>();
-
-        for(int i = 1; i < _currentNewsPage; i++) {
-            await _addNewsToStreamFromDatabase(page: 1);
-        }
-
-        if(_listener != null) {
-            _listener.stream = _streamController.stream;
-            _listener.onRefresh();
-        }
-    }
-
-    Future<List<News>> _attemptLoadNewsFromApiService({int page = 1, int withStartIndex}) async
-    {
-        try {
-            return await _apiRepository.retrieveAll(page: page, withStartIndex: withStartIndex);
-        } catch(e) {
-            print("error network \"${e.toString()}\"");
-            return [];
-        }
+        newses.forEach((news) => _databaseRepository.add(news));
     }
 }
