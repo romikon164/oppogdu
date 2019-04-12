@@ -1,75 +1,63 @@
 import '../repository_contract.dart';
-import '../../models/model.dart';
 import '../../models/model_collection.dart';
 import 'package:oppo_gdu/src/http/api/service.dart';
 import '../exceptions/not_found.dart';
 import '../../models/news/news.dart';
+import '../api_criteria.dart';
 
 
-class NewsApiRepository extends RepositoryContract<News>
+class NewsApiRepository extends RepositoryContract<News, ApiCriteria>
 {
     ApiService _apiService = ApiService.instance;
 
-    int get pageSize => 15;
-
-    Future<News> retrieve(int id) async
+    Future<ModelCollection<News>> get(ApiCriteria criteria) async
     {
-        Map<String, dynamic> rawNews;
+        NewsRetrieveApiParameters parameters = NewsRetrieveApiParameters(
+            offset: criteria.getOffset(),
+            limit: criteria.getLimit(),
+            sortBy: criteria.getSortBy(),
+            sortDir: criteria.getSortDirection(),
+            leftBound: criteria.getFilterValueByName("left_bound") as int,
+            rightBound: criteria.getFilterValueByName("right_bound") as int,
+        );
 
-        try {
-            rawNews = await _apiService.retrieveNewsDetail(id);
-        } on RequestException catch(e) {
-            if(e.code == ResponseStatusCodes.NOT_FOUND) {
-                throw RepositoryNotFoundException();
-            } else {
-                throw e;
-            }
+        Map<String, dynamic> rawNewsWithMeta = await _apiService.retrieveNewsList(parameters);
+
+        List<dynamic> rawNewses = rawNewsWithMeta["data"] as List<dynamic>;
+
+        return News.fromList(rawNewses);
+    }
+
+    Future<News> getFirst(ApiCriteria criteria) async
+    {
+        criteria.take(1);
+
+        ModelCollection<News> newses = await get(criteria);
+
+        if(newses.isEmpty) {
+            throw RepositoryNotFoundException();
+        } else {
+            return newses.first;
         }
-
-        return News.fromMap(rawNews);
     }
 
-    Future<ModelCollection<News>> retrieveAll({int page = 0, int withStartIndex}) async
+    Future<bool> add(News news) async
     {
-        Map<String, dynamic> rawNewsWithMeta = await _apiService.retrieveNewsList(page, withStartIndex: withStartIndex);
-
-        List<dynamic> rawNews = rawNewsWithMeta["data"] as List<dynamic>;
-
-        return News.fromList(rawNews);
+        return false;
     }
 
-    Future<void> persists(News model) async
+    Future<bool> delete(News model) async
     {
-
+        return false;
     }
 
-    Future<void> persistsAll(List<News> models) async
+    Future<bool> deleteAll() async
     {
-
+        return false;
     }
 
-    Future<void> delete(News model) async
+    Future<bool> update(News model) async
     {
-
-    }
-
-    Future<void> deleteAll(List<News> models) async
-    {
-
-    }
-
-    Future<void> update(News model) async
-    {
-
-    }
-
-    Future<void> updateAll(List<News> models) async
-    {
-
-    }
-
-    Future<void> truncate() async
-    {
-
+        return false;
     }
 }

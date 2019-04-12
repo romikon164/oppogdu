@@ -8,6 +8,8 @@ part 'exceptions/request_exception.dart';
 part 'exceptions/auth_invalid_credentials_exception.dart';
 part 'exceptions/request_unprocessable_entity_exception.dart';
 part 'exceptions/authentication_exception.dart';
+part 'parameters/retrieve.dart';
+part 'parameters/news_retrieve.dart';
 
 class ApiService
 {
@@ -137,10 +139,17 @@ class ApiService
         return convert.jsonDecode(response.body);
     }
 
-    Future<Map<String, dynamic>> retrieveNewsList(int page, {int withStartIndex}) async
+    Future<Map<String, dynamic>> retrieveNewsList(NewsRetrieveApiParameters parameters) async
     {
+        String url = "$baseUrl/news";
+        String queryString = parameters.toQueryString();
+
+        if(queryString.isNotEmpty) {
+            url += "?$queryString";
+        }
+
         http.Response response = await http.get(
-            "$baseUrl/news?page=$page&start_from=$withStartIndex",
+            url,
             headers: {
                 'Accept': 'application/json'
             }

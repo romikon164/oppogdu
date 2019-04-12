@@ -2,9 +2,9 @@
 
 abstract class StreamableListenableContract<T>
 {
-    set stream(Stream<T> value);
+    void onStreamError();
 
-    void onNetworkError();
+    void onStreamReceivedData(T data, [bool toEnd = true]);
 
-    void onRefresh();
+    void onStreamEndOfData();
 }
