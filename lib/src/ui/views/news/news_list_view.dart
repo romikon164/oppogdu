@@ -8,10 +8,11 @@ import 'package:oppo_gdu/src/data/models/news/news.dart';
 import 'package:oppo_gdu/src/ui/views/news/news_list_item_view.dart';
 import 'package:oppo_gdu/src/ui/views/news/news_list_item_without_image_view.dart';
 import 'package:oppo_gdu/src/ui/components/navigation/bottom/widget.dart';
-import 'package:oppo_gdu/src/ui/components/main_menu_component.dart';
+import 'package:oppo_gdu/src/ui/components/navigation/drawer/widget.dart';
 import '../view_contract.dart';
 import '../streamable_delegate.dart';
 import 'package:oppo_gdu/src/presenters/streamable_contract.dart';
+import '../../components/lists/streamable.dart';
 
 typedef void NewsListItemOnTapCallback(News news);
 
@@ -117,43 +118,27 @@ class _NewsListState extends State<NewsListView> implements StreamableListenable
                 },
                 body: Builder(
                     builder: (BuildContext context) {
-                        return NotificationListener<ScrollNotification>(
-                            child: RefreshIndicator(
-                                child: CustomScrollView(
-                                    slivers: [
-                                        SliverList(
-                                            delegate: SliverChildBuilderDelegate(_buildItem),
-                                        )
-                                    ],
-                                ),
-                                onRefresh: _didRefresh
+                        return NotificationListener<UserScrollNotification>(
+                            child: StreamableListView(
+                                sortCompare: _newsSortCompare,
+                                delegate: widget?.presenter,
+                                itemBuilder: _buildItem,
+                                observable: null
                             ),
-                            onNotification: _didScrollNotification,
+                            onNotification: _onUserScroll,
                         );
                     },
                 )
             ),
-            bottomNavigationBar: AnimatedBottomNavigationBar(
+            bottomNavigationBar: BottomNavigationWidget(
                 controller: _bottomNavigationBarController,
-                currentIndex: AnimatedBottomNavigationBar.newsItem,
+                currentIndex: BottomNavigationWidget.newsItem,
             ),
-            drawer: MainMenuComponent(
+            drawer: DrawerNavigationWidget(
                 delegate: widget.presenter,
-                currentIndex: MainMenuComponent.newsItem
+                currentIndex: DrawerNavigationWidget.newsItem
             ),
         );
-    }
-
-    bool _didScrollNotification(ScrollNotification scrollNotification) {
-        if(scrollNotification is UserScrollNotification) {
-            _onUserScroll(scrollNotification);
-        }
-
-        if(scrollNotification is ScrollUpdateNotification) {
-            _onUpdateScroll(scrollNotification);
-        }
-
-        return true;
     }
 
     void _onUserScroll(UserScrollNotification notification)
@@ -167,57 +152,11 @@ class _NewsListState extends State<NewsListView> implements StreamableListenable
         }
     }
 
-    void _onUpdateScroll(ScrollUpdateNotification notification)
+    Widget _buildItem(BuildContext context, News news)
     {
-        if(notification.metrics.pixels >= notification.metrics.maxScrollExtent) {
-            if(!_isFinish && !_isError) {
-                widget.presenter?.didLoad();
-            }
-        }
-    }
-
-    Future<void> _didRefresh() async
-    {
-        news = [];
-        await widget.presenter?.didRefresh();
-    }
-
-    void onLoadComplete(List<News> newNews)
-    {
-        setState(() {
-            news = newNews;
-            _isError = false;
-            _isFinish = false;
-        });
-    }
-
-    void onLoadFinish()
-    {
-        setState(() {
-            _isFinish = true;
-            _isError = false;
-        });
-    }
-
-    void onLoadFail()
-    {
-        setState(() {
-            _isError = true;
-            _isFinish = false;
-        });
-    }
-
-    Widget _buildItem(BuildContext context, int index)
-    {
-        if(index >= news.length) {
-            return _buildFooter(context, index);
-        }
-
-        News newsItem = news[index];
-
-        return newsItem.thumb == null
-            ? NewsListItemWithoutImageView(news: newsItem, onTap: widget.presenter?.didTapListItem)
-            : NewsListItemView(news: newsItem, onTap: widget.presenter?.didTapListItem);
+        return news.thumb == null
+            ? NewsListItemWithoutImageView(news: news)
+            : NewsListItemView(news: news);
     }
 
     Widget _buildFooter(BuildContext context, int index)

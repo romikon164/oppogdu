@@ -13,6 +13,7 @@ import 'dart:async';
 import '../streamable_listenable_contract.dart';
 import 'package:oppo_gdu/src/data/repositories/news/api_repository.dart';
 import 'package:oppo_gdu/src/data/repositories/news/database_repository.dart';
+import 'package:rxdart/rxdart.dart';
 
 class NewsListPresenter extends StreamablePresenterContract<News>
 {
@@ -36,6 +37,7 @@ class NewsListPresenter extends StreamablePresenterContract<News>
 
     set view(ViewContract view) {
         _view = view;
+
     }
 
     void onInitState(StreamableListenableContract<News> listener)
