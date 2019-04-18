@@ -3,6 +3,11 @@ import 'model_collection.dart';
 
 class HtmlContentElement extends Model
 {
+    static const TYPE_TEXT = "default";
+    static const TYPE_LINK = "link";
+    static const TYPE_IMAGE = "image";
+    static const TYPE_TITLE = "heading";
+
     String type;
 
     String content;

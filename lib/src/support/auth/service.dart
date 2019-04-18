@@ -9,11 +9,23 @@ class AuthService
 
     static const SHARED_PREFERENCES_AUTH_USER_KEY = "auth_user_json";
 
-    User user;
+    static AuthService _instance;
 
-    static AuthService get instance => AuthService._();
+    static AuthService get instance {
+        if(_instance == null) {
+            _instance = AuthService._();
+        }
+
+        return _instance;
+    }
     
     AuthService._();
+
+    User user;
+
+    bool _initialized = false;
+
+    bool get initialized => _initialized;
     
     Future<void> initService() async
     {
@@ -28,6 +40,8 @@ class AuthService
                 Map<String, dynamic> userData = convert.jsonDecode(userJson);
                 user = User.fromMap(userData);
             }
+
+            _initialized = true;
 
             String authTokenJson = preferences.getString(
                 AuthService.SHARED_PREFERENCES_AUTH_TOKEN_KEY
@@ -54,15 +68,19 @@ class AuthService
     {
         try {
             Map<String, dynamic> userData = await ApiService.instance.retrieveUserProfile();
+
             user = User.fromMap(userData);
 
             SharedPreferences preferences = await SharedPreferences.getInstance();
 
             String userJson = convert.jsonEncode(userData);
+
             preferences.setString(AuthService.SHARED_PREFERENCES_AUTH_USER_KEY, userJson);
         } catch(e) {
             print(e.toString());
         }
+
+        _initialized = true;
     }
 
     Future<void> updateAuthToken(AuthToken authToken) async
@@ -76,6 +94,8 @@ class AuthService
                 "refresh_token": authToken.refreshToken,
                 "expires_in": authToken.expiresIn
             };
+
+            ApiService.instance.authToken = authToken;
 
             String authTokenJson = convert.jsonEncode(authTokenData);
 
@@ -92,6 +112,8 @@ class AuthService
 
     Future<void> authenticate(String phone, String password) async
     {
+        _initialized = false;
+
         AuthToken authToken = await ApiService.instance.requestToken(
             phone,
             password
@@ -101,5 +123,16 @@ class AuthService
 
         await updateAuthToken(authToken);
         await attemptUpdateUserData();
+    }
+
+    Future<void> logout() async
+    {
+        user = null;
+        ApiService.instance.authToken = null;
+
+        SharedPreferences preferences = await SharedPreferences.getInstance();
+
+        preferences.remove(AuthService.SHARED_PREFERENCES_AUTH_TOKEN_KEY);
+        preferences.remove(AuthService.SHARED_PREFERENCES_AUTH_USER_KEY);
     }
 }

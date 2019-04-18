@@ -49,9 +49,9 @@ class User extends Model
             id: map["id"],
             email: map["email"],
             phone: map["phone"],
-            firstname: map["firstname"],
-            lastname: map["lastname"],
-            secondname: map["secondname"],
+            firstname: map["first_name"],
+            lastname: map["last_name"],
+            secondname: map["second_name"],
             photo: map["photo"],
         );
     }
@@ -62,9 +62,9 @@ class User extends Model
             "id": id,
             "email": email,
             "phone": phone,
-            "firstname": firstname,
-            "lastname": lastname,
-            "secondname": secondname,
+            "first_name": firstname,
+            "last_name": lastname,
+            "second_name": secondname,
             "photo": photo,
         };
     }

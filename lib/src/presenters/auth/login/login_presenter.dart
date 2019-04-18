@@ -1,9 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:oppo_gdu/src/support/routing/router.dart';
 import 'package:oppo_gdu/src/ui/views/auth/login/login_view.dart';
-import 'package:validators/validators.dart' as Validator;
 import 'package:oppo_gdu/src/http/api/service.dart';
-import '../../presenter.dart';
 import 'package:oppo_gdu/src/support/routing/router_contract.dart';
 import 'package:oppo_gdu/src/ui/views/view_contract.dart';
 import '../../form_presenter.dart';
@@ -29,7 +25,7 @@ class LoginPresenter extends FormPresenter
     @override
     void didClosePressed()
     {
-        router.presentNewsList();
+        router.presentHomeScreen();
     }
 
     void onFormInitState(FormPresenterDelegate newDelegate)

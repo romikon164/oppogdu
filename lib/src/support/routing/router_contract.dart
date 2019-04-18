@@ -4,8 +4,9 @@ abstract class RouterContract
 {
     void pop();
     void push(PresenterContract presenter);
+    void presentHomeScreen();
     void presentLogin();
     void presentRegister();
     void presentNewsList();
-    void presentNewsDetail();
+    void presentNewsDetail(int newsId);
 }

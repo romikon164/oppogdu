@@ -1,5 +1,3 @@
-import 'package:rxdart/rxdart.dart';
-import 'dart:async';
 import 'presenter.dart';
 import 'package:oppo_gdu/src/ui/views/streamable_delegate.dart';
 import 'package:oppo_gdu/src/data/models/model.dart';

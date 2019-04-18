@@ -58,11 +58,22 @@ class BottomNavigationWidgetState extends State<BottomNavigationWidget>
     Widget build(BuildContext context)
     {
         return AnimatedSize(
+            alignment: Alignment.topCenter,
             duration: Duration(milliseconds: 500),
             vsync: this,
             curve: Curves.fastOutSlowIn,
             child: Container(
-                color: Theme.of(context).cardColor,
+                decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor,
+                    boxShadow: [
+                        BoxShadow(
+                            color: Color(0x807E7E7E),
+                            offset: Offset(0.0, 0.0),
+                            blurRadius: 2.0,
+                            spreadRadius: 0.0
+                        )
+                    ]
+                ),
                 width: MediaQuery.of(context).size.width,
                 height: _bottomNavigationVisible ? 60 : 0,
                 child: Row(

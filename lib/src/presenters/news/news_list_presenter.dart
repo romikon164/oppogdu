@@ -47,6 +47,11 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
 //        }
     }
 
+    void didNewsListItemPressed(News news)
+    {
+        router.presentNewsDetail(news.id);
+    }
+
     Future<Observable<News>> didRefresh() async
     {
         _newsStream = PublishSubject<News>();

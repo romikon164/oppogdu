@@ -2,6 +2,7 @@ import 'package:oppo_gdu/src/presenters/contract.dart';
 import 'package:oppo_gdu/src/ui/components/navigation/drawer/delegate.dart';
 import 'package:oppo_gdu/src/ui/components/navigation/bottom/delegate.dart';
 import 'package:oppo_gdu/src/support/routing/router_contract.dart';
+import 'package:oppo_gdu/src/support/auth/service.dart';
 
 abstract class Presenter implements PresenterContract, DrawerNavigationDelegate, BottomNavigationDelegate
 {
@@ -36,7 +37,8 @@ abstract class Presenter implements PresenterContract, DrawerNavigationDelegate,
 
     void didDrawerNavigationLogoutPressed() {
         router.pop();
-        // TODO
+
+        AuthService.instance.logout();
     }
 
     void didDrawerNavigationNewsPressed() {

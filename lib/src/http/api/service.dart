@@ -49,7 +49,7 @@ class ApiService
                 'Accept': 'application/json',
             },
             body: {
-                'client_id': clientId,
+                'client_id': clientId.toString(),
                 'client_secret': clientSecret,
                 'grant_type': 'password',
                 'email': email,
@@ -61,7 +61,17 @@ class ApiService
 
         if(response.statusCode == ResponseStatusCodes.UNPROCESSABLE_ENTITY) {
             Map<String, dynamic> json = convert.jsonDecode(response.body);
-            throw RequestUnprocessableEntityException(json["message"], json["erros"]);
+            Map<String, List<String>> errors = Map<String, List<String>>();
+
+            if(json["errors"] is Map<String, dynamic>) {
+                for(String field in (json["errors"] as Map<String, dynamic>).keys) {
+                    if(json["errors"][field] is List<dynamic>) {
+                        errors[field] = (json["errors"][field] as List<dynamic>).map<String>((item) => item as String).toList();
+                    }
+                }
+            }
+
+            throw RequestUnprocessableEntityException(json["message"], errors);
         } else if(response.statusCode != ResponseStatusCodes.OK) {
             throw RequestException(
               response.statusCode,
@@ -97,7 +107,6 @@ class ApiService
         if(response.statusCode == ResponseStatusCodes.UNAUTHORIZED) {
             throw AuthInvalidCredentialsException();
         } else if(response.statusCode != ResponseStatusCodes.OK) {
-            print("http error code ${response.statusCode} \"${response.body}\"");
             throw RequestException(
                 response.statusCode,
                 "ApiService.requestToken http request exception"
@@ -121,7 +130,7 @@ class ApiService
         }
 
         http.Response response = await http.get(
-            "$baseUrl/profile",
+            "$baseUrl/oauth/profile",
             headers: {
                 'Accept': 'application/json',
                 'Authorization': "Bearer ${authToken.accessToken}"
