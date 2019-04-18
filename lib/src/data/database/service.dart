@@ -10,9 +10,17 @@ class DatabaseService
 {
     static const String DATABASE_FILENAME = "oppo_gdu_database.sql";
 
+    static DatabaseService _instance;
+
     DatabaseService._();
 
-    static DatabaseService get instance => DatabaseService._();
+    static DatabaseService get instance {
+        if(_instance == null) {
+            _instance = DatabaseService._();
+        }
+
+        return _instance;
+    }
 
     Database _database;
 
@@ -33,7 +41,8 @@ class DatabaseService
             String databasePath = join(documentsDirectory.path, DatabaseService.DATABASE_FILENAME);
 
             OpenDatabaseOptions databaseOptions = OpenDatabaseOptions(
-                onCreate: _createDatabaseWithProviders()
+                version: 1,
+                onCreate: _createDatabaseWithProviders
             );
 
             _database = await databaseFactory.openDatabase(databasePath, options: databaseOptions);
@@ -42,26 +51,46 @@ class DatabaseService
         }
     }
 
-    FutureOr<void> _createDatabaseWithProviders() async
+    FutureOr<void> _createDatabaseWithProviders(Database db, int version) async
     {
         for(DatabaseProviderContract provider in providers.values) {
+            provider.database = db;
             await provider.createTable();
         }
     }
 
     void addDatabaseProvider(String name, DatabaseProviderContract provider)
     {
-        if(_database != null || _database.isOpen) {
+        if(_database != null && _database.isOpen) {
             throw Exception("Database is opened");
         }
 
         providers[name] = provider;
     }
 
-    DatabaseProviderContract getDatabaseProvider(String name)
+    Future<DatabaseProviderContract> getDatabaseProvider(String name) async
     {
         if(providers.containsKey(name)) {
-            return providers[name];
+            DatabaseProviderContract provider = providers[name];
+
+            if(_database != null) {
+                provider.database = _database;
+                return provider;
+            }
+
+            int attempts = 0;
+            int maxAttempts = 5;
+
+            while(provider.database == null) {
+                await Future.delayed(Duration(milliseconds: 100));
+                attempts++;
+
+                if(attempts > maxAttempts) {
+                    throw Exception("Database connection timeout");
+                }
+            }
+
+            return provider;
         }
 
         throw ArgumentError.value(name, "name");

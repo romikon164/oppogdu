@@ -84,4 +84,22 @@ class AuthService
             print(e.toString());
         }
     }
+
+    bool isAuthenticated()
+    {
+        return user != null;
+    }
+
+    Future<void> authenticate(String phone, String password) async
+    {
+        AuthToken authToken = await ApiService.instance.requestToken(
+            phone,
+            password
+        );
+
+        ApiService.instance.authToken = authToken;
+
+        await updateAuthToken(authToken);
+        await attemptUpdateUserData();
+    }
 }

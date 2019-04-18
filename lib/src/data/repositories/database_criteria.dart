@@ -76,6 +76,6 @@ class DatabaseCriteria extends CriteriaContract
     }
 
     String getWhere() {
-        return _wheres.join(" AND ");
+        return _wheres.isEmpty ? null : _wheres.join(" AND ");
     }
 }

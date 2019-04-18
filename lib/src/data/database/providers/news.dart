@@ -1,9 +1,8 @@
 import '../service.dart';
-import 'package:sqflite/sqflite.dart';
 
 class NewsDatabaseProvider extends DatabaseProviderContract
 {
-    NewsDatabaseProvider(Database database) : super(database);
+    NewsDatabaseProvider() : super();
 
     String get table => "news";
 
@@ -12,9 +11,10 @@ class NewsDatabaseProvider extends DatabaseProviderContract
     {
         database.execute("""
             CREATE TABLE IF NOT EXISTS $table (
+                id UNSIGNED INTEGER NOT NULL,
                 name VARCHAR(255) NOT NULL,
-                image VARCHAR(255) NOT NULL,
-                thumb VARCHAR(255) NOT NULL,
+                image VARCHAR(255),
+                thumb VARCHAR(255),
                 content TEXT,
                 created_at integer
             )

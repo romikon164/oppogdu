@@ -15,6 +15,7 @@ import 'package:oppo_gdu/src/presenters/streamable_contract.dart';
 import '../../components/lists/streamable.dart';
 import 'package:oppo_gdu/src/presenters/presenter.dart';
 import 'package:oppo_gdu/src/support/routing/router_contract.dart';
+import 'package:rxdart/rxdart.dart';
 
 typedef void NewsListItemOnTapCallback(News news);
 
@@ -22,7 +23,11 @@ abstract class NewsListDelegate extends Presenter
 {
     NewsListDelegate(RouterContract router): super(router);
 
+    Observable<News> get stream;
+
     void onInitState();
+
+    void onDisposeState();
 }
 
 class NewsListView extends StatefulWidget implements ViewContract
@@ -37,70 +42,34 @@ class NewsListView extends StatefulWidget implements ViewContract
 
 class _NewsListState extends State<NewsListView>
 {
-    Stream<News> _stream;
-
-    StreamSubscription<News> _subscription;
-
-    List<News> _newsList = [];
-
-    bool _isLoading = false;
-    bool _isFinish = false;
-    bool _isError = false;
-
     BottomNavigationController _bottomNavigationBarController;
-
-    set stream(Stream<News> newStream)
-    {
-        if(_subscription != null) {
-            _subscription.cancel();
-        }
-
-        _stream = newStream;
-        _subscription = _stream.listen((newsItem) {
-            setState(() {
-                _newsList.add(newsItem);
-            });
-        }, onDone: () {
-            setState(() {
-                _isFinish = true;
-                _isError = false;
-            });
-        }, onError: () {
-            setState(() {
-                _isError = true;
-            });
-        });
-    }
 
     @override
     void initState()
     {
         super.initState();
 
-        widget.presenter?.onInitState(this);
+        widget.delegate?.onInitState();
 
-        _bottomNavigationBarController = AnimatedBottomNavigationBarController();
-        _bottomNavigationBarController.delegate = widget.presenter;
+        _bottomNavigationBarController = BottomNavigationController();
+        _bottomNavigationBarController.delegate = widget.delegate;
     }
 
     @override
     void didChangeDependencies()
     {
         super.didChangeDependencies();
-        widget.presenter?.onInitState(this);
     }
 
     @override
     void didUpdateWidget(NewsListView oldWidget)
     {
         super.didUpdateWidget(oldWidget);
-
-        widget.presenter?.onInitState(this);
     }
 
     @override
     void dispose() {
-        widget.presenter?.onDisposeState();
+        widget.delegate?.onDisposeState();
 
         super.dispose();
     }
@@ -130,9 +99,9 @@ class _NewsListState extends State<NewsListView>
                         return NotificationListener<UserScrollNotification>(
                             child: StreamableListView(
                                 sortCompare: _newsSortCompare,
-                                delegate: widget?.presenter,
+                                delegate: widget.delegate as StreamableListViewDelegate,
                                 itemBuilder: _buildItem,
-                                observable: null
+                                observable: widget.delegate?.stream,
                             ),
                             onNotification: _onUserScroll,
                         );
@@ -144,13 +113,30 @@ class _NewsListState extends State<NewsListView>
                 currentIndex: BottomNavigationWidget.newsItem,
             ),
             drawer: DrawerNavigationWidget(
-                delegate: widget.presenter,
+                delegate: widget.delegate,
                 currentIndex: DrawerNavigationWidget.newsItem
             ),
         );
     }
 
-    void _onUserScroll(UserScrollNotification notification)
+    int _newsSortCompare(News a, News b)
+    {
+        if(a.createdAt == null && b.createdAt == null) {
+            return 0;
+        }
+
+        if(a.createdAt == null) {
+            return -1;
+        }
+
+        if(b.createdAt == null) {
+            return 1;
+        }
+
+        return a.createdAt.microsecondsSinceEpoch - b.createdAt.microsecondsSinceEpoch;
+    }
+
+    bool _onUserScroll(UserScrollNotification notification)
     {
         if(notification.direction == ScrollDirection.forward) {
             _bottomNavigationBarController.show();
@@ -159,67 +145,12 @@ class _NewsListState extends State<NewsListView>
         if(notification.direction == ScrollDirection.reverse) {
             _bottomNavigationBarController.hide();
         }
+
+        return true;
     }
 
     Widget _buildItem(BuildContext context, News news)
     {
-        return news.thumb == null
-            ? NewsListItemWithoutImageView(news: news)
-            : NewsListItemView(news: news);
-    }
-
-    Widget _buildFooter(BuildContext context, int index)
-    {
-        if(_isFinish) {
-            return null;
-        }
-
-        if(index == news.length) {
-
-            if(_isError) {
-                return _buildErrorMessage(context);
-            }
-
-            return _buildProgressIndicator(context);
-
-        }
-
-        return null;
-    }
-
-    Widget _buildErrorMessage(BuildContext context)
-    {
-        return Container(
-            width: MediaQuery.of(context).size.width,
-            height: 48,
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                    Text(widget.presenter?.configuration?.errorMessage),
-                    InkWell(
-                        onTap: () {
-                            setState(() {
-                                _isError = false;
-                                _isFinish = false;
-                                widget.presenter?.didLoad();
-                            });
-                        },
-                        child: Text(widget.presenter?.configuration?.updateLabel),
-                    )
-                ],
-            ),
-        );
-    }
-
-    Widget _buildProgressIndicator(BuildContext context)
-    {
-        return SizedBox(
-            width: MediaQuery.of(context).size.width,
-            height: 48,
-            child: Align(
-                alignment: Alignment.center,
-                child: CircularProgressIndicator(),
-            ),
-        );
+        return NewsListItemView(news: news);
     }
 }

@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:oppo_gdu/src/presenters/auth/login/login_presenter.dart';
+import '../../view_contract.dart';
+import 'package:oppo_gdu/src/presenters/form_presenter.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
-class LoginView extends StatefulWidget
+class LoginView extends StatefulWidget implements ViewContract
 {
-    final LoginPresenter presenter;
+    final FormPresenter presenter;
 
-    LoginView({Key key, @required this.presenter}): super(key: key)
-    {
-        presenter.view = this;
-    }
+    LoginView({Key key, @required this.presenter}): super(key: key);
 
     @override
     _LoginViewState createState() => _LoginViewState();
 }
 
-class _LoginViewState extends State<LoginView> implements LoginPresenterDelegate
+class _LoginViewState extends State<LoginView> implements FormPresenterDelegate
 {
     GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -27,7 +27,7 @@ class _LoginViewState extends State<LoginView> implements LoginPresenterDelegate
     {
         super.initState();
 
-        widget.presenter?.delegate = this;
+        widget.presenter?.onFormInitState(this);
     }
 
     @override
@@ -35,15 +35,53 @@ class _LoginViewState extends State<LoginView> implements LoginPresenterDelegate
     {
         super.didUpdateWidget(oldWidget);
 
-        widget.presenter?.delegate = this;
+        widget.presenter?.onFormInitState(this);
+    }
+
+    @override
+    void didChangeDependencies()
+    {
+        super.didChangeDependencies();
+
+        widget.presenter?.onFormInitState(this);
     }
 
     @override
     void dispose()
     {
-        widget.presenter?.delegate = null;
-
         super.dispose();
+    }
+
+    void onFormSendFailure(String error) async
+    {
+        print("login send failure");
+
+        _closeLoadingIndicator();
+
+        await Fluttertoast.cancel();
+
+        Fluttertoast.showToast(
+            msg: error,
+            fontSize: 12,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIos: 3,
+        );
+    }
+
+    void onFormSendSuccess() async
+    {
+        print("login send success");
+
+        _closeLoadingIndicator();
+
+        await Fluttertoast.cancel();
+
+        Fluttertoast.showToast(
+            msg: "Вы успешно авторизовались",
+            fontSize: 12,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIos: 3,
+        );
     }
 
     @override
@@ -59,7 +97,7 @@ class _LoginViewState extends State<LoginView> implements LoginPresenterDelegate
                         size: Theme.of(context).appBarTheme.iconTheme.size,
                         color: Theme.of(context).appBarTheme.iconTheme.color
                     ),
-                    onTap: widget.presenter.onAppBarClose,
+                    onTap: widget.presenter.didClosePressed,
                 ),
             ),
             body: Form(
@@ -83,8 +121,12 @@ class _LoginViewState extends State<LoginView> implements LoginPresenterDelegate
                                     prefixIcon: Icon(Icons.phone),
                                     prefixText: "+7",
                                 ),
-                                validator: widget.presenter.didPhoneFieldValidate,
-                                onSaved: widget.presenter.onPhoneFieldSaved,
+                                validator: (String phone) {
+                                    return widget.presenter.onFormValidateField("phone", phone);
+                                },
+                                onSaved: (String phone) {
+                                    widget.presenter.onFormSaveField("phone", "7$phone");
+                                },
                             ),
                         ),
                         new Padding(
@@ -95,8 +137,12 @@ class _LoginViewState extends State<LoginView> implements LoginPresenterDelegate
                                     prefixIcon: Icon(Icons.vpn_key),
                                     labelText: "Пароль",
                                 ),
-                                validator: widget.presenter.didPasswordFieldValidate,
-                                onSaved: widget.presenter.onPasswordFieldSaved,
+                                validator: (String password) {
+                                    return widget.presenter.onFormValidateField("password", password);
+                                },
+                                onSaved: (String password) {
+                                    widget.presenter.onFormSaveField("password", password);
+                                },
                             ),
                         ),
                         new Padding(
@@ -105,7 +151,14 @@ class _LoginViewState extends State<LoginView> implements LoginPresenterDelegate
                                 onPressed: () {
                                     FocusScope.of(context).requestFocus(FocusNode());
 
-                                    widget.presenter.onLoginPressed(context, _formKey);
+                                    if(_formKey.currentState.validate()) {
+
+                                        _showLoadingIndicator(context);
+
+                                        _formKey.currentState.save();
+
+                                        widget.presenter?.onFormSubmit();
+                                    }
                                 },
                                 child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -148,7 +201,7 @@ class _LoginViewState extends State<LoginView> implements LoginPresenterDelegate
         );
     }
 
-    void showLoadingIndicator(BuildContext context)
+    void _showLoadingIndicator(BuildContext context)
     {
         if(!_loading) {
             _loading = true;
@@ -168,7 +221,7 @@ class _LoginViewState extends State<LoginView> implements LoginPresenterDelegate
                                         padding: EdgeInsets.all(16),
                                         child: CircularProgressIndicator(),
                                     ),
-                                    Text("Пожалуйста, подождите"),
+                                    Text("Выполняется вход"),
                                 ],
                             ),
                         ),
@@ -178,40 +231,12 @@ class _LoginViewState extends State<LoginView> implements LoginPresenterDelegate
         }
     }
 
-    void closeLoadingIndicator(BuildContext context)
+    void _closeLoadingIndicator()
     {
         if(_loading) {
+            widget.presenter?.router?.pop();
+
             _loading = false;
-
-            Navigator.of(context).pop();
         }
-    }
-
-    void onLoginBefore(BuildContext context)
-    {
-        showLoadingIndicator(context);
-    }
-
-    void onLoginComplete(BuildContext context)
-    {
-        closeLoadingIndicator(context);
-
-        widget.presenter?.onAppBarClose();
-    }
-
-    void onLoginFail(BuildContext context, String message)
-    {
-        closeLoadingIndicator(context);
-
-        _scaffoldKey.currentState.showSnackBar(
-            SnackBar(
-                action: SnackBarAction(
-                    label: "закрыть",
-                    onPressed: () {},
-                ),
-                content: Text(message),
-                duration: Duration(seconds: 5),
-            )
-        );
     }
 }

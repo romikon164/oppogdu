@@ -14,6 +14,11 @@ abstract class Presenter implements PresenterContract, DrawerNavigationDelegate,
 
     RouterContract get router => _router;
 
+    void didClosePressed()
+    {
+        router.pop();
+    }
+
     void didDrawerNavigationProfilePressed() {
         router.pop();
         // router.presentProfile();

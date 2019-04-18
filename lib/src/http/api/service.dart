@@ -97,6 +97,7 @@ class ApiService
         if(response.statusCode == ResponseStatusCodes.UNAUTHORIZED) {
             throw AuthInvalidCredentialsException();
         } else if(response.statusCode != ResponseStatusCodes.OK) {
+            print("http error code ${response.statusCode} \"${response.body}\"");
             throw RequestException(
                 response.statusCode,
                 "ApiService.requestToken http request exception"

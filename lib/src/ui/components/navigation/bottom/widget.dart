@@ -62,6 +62,7 @@ class BottomNavigationWidgetState extends State<BottomNavigationWidget>
             vsync: this,
             curve: Curves.fastOutSlowIn,
             child: Container(
+                color: Theme.of(context).cardColor,
                 width: MediaQuery.of(context).size.width,
                 height: _bottomNavigationVisible ? 60 : 0,
                 child: Row(
@@ -123,8 +124,8 @@ class BottomNavigationWidgetState extends State<BottomNavigationWidget>
                                 title,
                                 overflow: TextOverflow.ellipsis,
                                 style: active
-                                    ? Theme.of(context).accentTextTheme.display1
-                                    : Theme.of(context).textTheme.display1
+                                    ? Theme.of(context).accentTextTheme.button
+                                    : Theme.of(context).textTheme.button
                             )
                         ],
                     ),

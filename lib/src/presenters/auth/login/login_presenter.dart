@@ -3,83 +3,72 @@ import 'package:oppo_gdu/src/support/routing/router.dart';
 import 'package:oppo_gdu/src/ui/views/auth/login/login_view.dart';
 import 'package:validators/validators.dart' as Validator;
 import 'package:oppo_gdu/src/http/api/service.dart';
-import 'package:oppo_gdu/src/http/api/auth.dart';
+import '../../presenter.dart';
+import 'package:oppo_gdu/src/support/routing/router_contract.dart';
+import 'package:oppo_gdu/src/ui/views/view_contract.dart';
+import '../../form_presenter.dart';
+import 'package:oppo_gdu/src/support/auth/service.dart';
 
-class LoginPresenter
+class LoginPresenter extends FormPresenter
 {
-    final Router router;
+    LoginView _view;
 
-    LoginView view;
+    FormPresenterDelegate _delegate;
 
-    LoginPresenterDelegate delegate;
+    String _phone;
 
-    Api _api = Api.getInstance();
+    String _password;
 
-    AuthRequestTokenData _authData = AuthRequestTokenData();
-
-    LoginPresenter({@required this.router});
-
-    void onAppBarClose()
+    LoginPresenter(RouterContract router): super(router)
     {
-        router.pop();
+        _view = LoginView(presenter: this);
     }
 
-    void onLoginPressed(BuildContext context, GlobalKey<FormState> formState) async
+    ViewContract get view => _view;
+
+    @override
+    void didClosePressed()
     {
-        if(formState.currentState.validate()) {
+        router.presentNewsList();
+    }
 
-            formState.currentState.save();
+    void onFormInitState(FormPresenterDelegate newDelegate)
+    {
+        _delegate = newDelegate;
+    }
 
-            delegate?.onLoginBefore(context);
+    String onFormValidateField(String field, String value)
+    {
+        print("validate $field with value $value");
 
-            AuthToken token = await _api.auth.requestToken(_authData);
+        return value.isEmpty
+            ? "Поле обязательно"
+            : null;
+    }
 
-            if(token != null) {
-                if(await _api.auth.authByToken(token)) {
-                    delegate?.onLoginComplete(context);
-
-                    return ;
-                }
-            }
-
-            delegate?.onLoginFail(context, "Неверный логин / пароль");
+    void onFormSaveField(String field, String value)
+    {
+        if(field == "phone") {
+            _phone = value;
+        } else if(field == "password") {
+            _password = value;
         }
     }
-
-    String didPhoneFieldValidate(String phone)
+    
+    Future<void> onFormSubmit() async
     {
-//        if(phone.isEmpty || !Validator.isNumeric(phone)) {
-//            return "Номер телефона может состоять только из цифр";
-//        }
+        try {
+            print("auth with phone $_phone and password $_password");
 
-        return null;
+            await AuthService.instance.authenticate(_phone, _password);
+            print("login success");
+            _delegate.onFormSendSuccess();
+        } on AuthInvalidCredentialsException {
+            print("login error");
+            _delegate.onFormSendFailure("Неверный телефон/пароль");
+        } catch(e) {
+            print("http error \"${e.toString()}\"");
+            _delegate.onFormSendFailure("Возникла ошибка при отправке данных");
+        }
     }
-
-    String didPasswordFieldValidate(String password)
-    {
-//        if(!Validator.isLength(password, 8)) {
-//            return "Пароль должен быть больше 8 символов длиной";
-//        }
-
-        return null;
-    }
-
-    void onPhoneFieldSaved(String phone)
-    {
-        _authData.username = "7$phone";
-    }
-
-    void onPasswordFieldSaved(String password)
-    {
-        _authData.password = password;
-    }
-}
-
-abstract class LoginPresenterDelegate
-{
-    void onLoginBefore(BuildContext context);
-
-    void onLoginFail(BuildContext context, String message);
-
-    void onLoginComplete(BuildContext context);
 }

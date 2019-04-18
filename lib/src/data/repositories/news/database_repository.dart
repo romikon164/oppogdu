@@ -6,6 +6,7 @@ import '../../models/model_collection.dart';
 import '../exceptions/not_found.dart';
 import '../database_criteria.dart';
 import '../criteria.dart';
+import 'dart:convert' as convert;
 
 class NewsDatabaseRepository extends DatabaseRepositoryContract<News>
 {
@@ -17,7 +18,7 @@ class NewsDatabaseRepository extends DatabaseRepositoryContract<News>
 
     Future<void> _initRepository() async
     {
-        _newsProvider = NewsDatabaseProvider(await DatabaseService.instance.database);
+        _newsProvider = await DatabaseService.instance.getDatabaseProvider("news");
     }
 
     Future<bool> add(News news) async
@@ -27,9 +28,16 @@ class NewsDatabaseRepository extends DatabaseRepositoryContract<News>
         }
 
         try {
-            news.id = await _newsProvider.persists(news.toMap());
+            Map<String, dynamic> rawNews = news.toMap();
+
+            if(rawNews.containsKey("content") && rawNews["content"] is List<dynamic>) {
+                rawNews["content"] = convert.jsonEncode(rawNews["content"]);
+            }
+
+            news.id = await _newsProvider.persists(rawNews);
             return true;
         } catch(e) {
+            print(e.toString());
             return false;
         }
     }
@@ -42,15 +50,23 @@ class NewsDatabaseRepository extends DatabaseRepositoryContract<News>
             await _initRepository();
         }
 
-        List<Map<String, dynamic>> rawNewses = await _newsProvider.retrieve(
+        List<Map<String, dynamic>> rawNewses = (await _newsProvider.retrieve(
             where: databaseCriteria.getWhere(),
             orderBy: databaseCriteria.getSort(),
             offset: databaseCriteria.getOffset(),
             limit: databaseCriteria.getLimit()
-        );
+        )).map((item) {
+            if(item.containsKey("content") && item["content"] != null) {
+                Map<String, dynamic> newItem = Map<String, dynamic>.from(item);
+                newItem["content"] = convert.jsonDecode(newItem["content"]);
+                return newItem;
+            }
+
+            return item;
+        }).toList();
 
         return ModelCollection<News>(
-            rawNewses.map<News>((news) => News.fromMap(news))
+            rawNewses.map<News>((news) => News.fromMap(news)).toList()
         );
     }
 

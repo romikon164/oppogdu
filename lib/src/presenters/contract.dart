@@ -6,4 +6,6 @@ abstract class PresenterContract
     RouterContract get router;
 
     ViewContract get view;
+
+    void didClosePressed();
 }

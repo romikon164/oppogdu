@@ -5,15 +5,15 @@ class ThemeBuilder
     ThemeData build()
     {
         return ThemeData(
-            accentColor: Color(0xFFFFFFFF),
-            accentColorBrightness: Brightness.dark,
+            accentColor: Color(0xFF0072C5),
+            accentColorBrightness: Brightness.light,
             accentIconTheme: _buildAccentIconTheme(),
             accentTextTheme: _buildAccentTextTheme(),
             appBarTheme: _buildAppBarTheme(),
-            backgroundColor: Color(0xFFFFFFFF),
+            backgroundColor: Color(0xFF000000),
             bottomAppBarColor: Color(0xFFFFFFFF),
             bottomAppBarTheme: _buildBottomAppBarTheme(),
-            brightness: Brightness.dark,
+            brightness: Brightness.light,
             buttonColor: Color(0xFFFFFFFF),
             buttonTheme: _buildButtonTheme(),
             canvasColor: Color(0xFFFFFFFF),
@@ -28,20 +28,19 @@ class ThemeBuilder
             highlightColor: Color(0xFFFFFFFF),
             hintColor: Color(0xFFFFFFFF),
             iconTheme: _buildIconTheme(),
-            indicatorColor: Color(0xFFFFFFFF),
+            indicatorColor: Color(0xFF0072C5),
             inputDecorationTheme: _buildInputDecorationTheme(),
             materialTapTargetSize: MaterialTapTargetSize.padded,
             pageTransitionsTheme: _buildPageTransitionsTheme(),
-            primaryColor: Color(0xFFFFFFFF),
-            primaryColorBrightness: Brightness.dark,
-            primaryColorDark: Color(0xFFFFFFFF),
+            primaryColor: Color(0xFF0072C5),
+            primaryColorBrightness: Brightness.light,
+            primaryColorDark: Color(0xFF0072C5),
             primaryIconTheme: _buildPrimaryIconTheme(),
             primaryTextTheme: _buildPrimaryTextTheme(),
-            scaffoldBackgroundColor: Color(0xFFFFFFFF),
+            scaffoldBackgroundColor: Color(0xFFEEEEEE),
             secondaryHeaderColor: Color(0xFFFFFFFF),
             selectedRowColor: Color(0xFFFFFFFF),
-            // sliderTheme: _buildSliderTheme(),
-            splashColor: Color(0xFFFFFFFF),
+            splashColor: Color(0xFFBBBBBB),
             splashFactory: _buildSplashFactory(),
             tabBarTheme: _buildTabBarTheme(),
             textSelectionColor: Color(0xFFFFFFFF),
@@ -56,7 +55,7 @@ class ThemeBuilder
     IconThemeData _buildAccentIconTheme()
     {
         return IconThemeData(
-            color: Color.fromARGB(255, 0, 114, 197),
+            color: Color(0xFF0072C5),
             size: 24,
         );
     }
@@ -67,7 +66,12 @@ class ThemeBuilder
             display1: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.normal,
-                color: Color.fromARGB(255, 0, 114, 197)
+                color: Color(0xFF0072C5)
+            ),
+            button: TextStyle(
+                fontSize: 14,
+                color: Color(0xFF0072C5),
+                fontWeight: FontWeight.normal
             )
         );
     }
@@ -76,13 +80,25 @@ class ThemeBuilder
     {
         return AppBarTheme(
             brightness: Brightness.light,
-            color: Color.fromARGB(255, 0, 114, 197),
+            color: Color(0xFF0072C5),
             iconTheme: IconThemeData(
                 color: Colors.white,
             ),
             actionsIconTheme: IconThemeData(
                 color: Colors.white,
             ),
+            textTheme: TextTheme(
+                title: TextStyle(
+                    color: Color(0xFFFFFFFF),
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                ),
+                subtitle: TextStyle(
+                    color: Color(0xFFFFFFFF),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                ),
+            )
         );
     }
 
@@ -96,14 +112,17 @@ class ThemeBuilder
     ButtonThemeData _buildButtonTheme()
     {
         return ButtonThemeData(
-            buttonColor: Color.fromARGB(255, 0, 114, 197)
+            textTheme: ButtonTextTheme.normal,
+            buttonColor: Color(0xFFEAEAEA)
         );
     }
 
     CardTheme _buildCardTheme()
     {
         return CardTheme(
-
+            color: Color(0xFFFFFFFF),
+            margin: EdgeInsets.fromLTRB(0, 6, 0, 6),
+            shape: BeveledRectangleBorder(),
         );
     }
 
@@ -111,7 +130,7 @@ class ThemeBuilder
     {
         return ChipThemeData(
             backgroundColor: Color(0xFFFFFFFF),
-            brightness: Brightness.dark,
+            brightness: Brightness.light,
             disabledColor: Color(0xFFFFFFFF),
             labelPadding: EdgeInsets.all(0),
             labelStyle: TextStyle(),
@@ -127,7 +146,7 @@ class ThemeBuilder
     {
         return ColorScheme(
             background: Color(0xFFFFFFFF),
-            brightness: Brightness.dark,
+            brightness: Brightness.light,
             error: Color(0xFFFFFFFF),
             onBackground: Color(0xFFFFFFFF),
             onError: Color(0xFFFFFFFF),
@@ -150,7 +169,7 @@ class ThemeBuilder
     IconThemeData _buildIconTheme()
     {
         return IconThemeData(
-            color: Color.fromARGB(255, 90, 90, 90),
+            color: Color(0xFF9B9B9B),
             size: 24,
         );
     }
@@ -170,7 +189,10 @@ class ThemeBuilder
 
     IconThemeData _buildPrimaryIconTheme()
     {
-        return IconThemeData();
+        return IconThemeData(
+            color: Color(0xFFEAEAEA),
+            size: 24
+        );
     }
 
     TextTheme _buildPrimaryTextTheme()
@@ -191,6 +213,12 @@ class ThemeBuilder
     TextTheme _buildTextTheme()
     {
         return TextTheme(
+            headline: TextStyle(
+                color: Color(0xFF000000),
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                fontStyle: FontStyle.normal
+            ),
             subhead: TextStyle(
                 color: Colors.black,
                 fontSize: 14,
@@ -205,8 +233,17 @@ class ThemeBuilder
             display1: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.normal,
-                color: Color.fromARGB(255, 90, 90, 90)
-            )
+                color: Color(0xFFFFFFFF)
+            ),
+            button: TextStyle(
+                color: Color(0xFF9B9B9B),
+                fontSize: 14,
+                fontWeight: FontWeight.normal
+            ),
+            caption: TextStyle(
+                color: Color(0xFFFFFFFF),
+                fontSize: 14,
+            ),
         );
     }
 

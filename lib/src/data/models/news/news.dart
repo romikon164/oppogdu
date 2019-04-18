@@ -41,8 +41,8 @@ class News extends Model
         map["name"] = name;
         map["image"] = image;
         map["thumb"] = thumb;
-        map["content"] = thumb;
-        map["created_at"] = createdAt.millisecondsSinceEpoch;
+        map["content"] = content.map<Map<String, dynamic>>((item) => item.toMap()).toList();
+        map["created_at"] = createdAt.millisecondsSinceEpoch ~/ 1000;
 
         return map;
     }
@@ -52,6 +52,6 @@ class News extends Model
             return [];
         }
 
-        return list.map<News>((news) => News.fromMap(news as Map<String, dynamic>));
+        return list.map<News>((news) => News.fromMap(news as Map<String, dynamic>)).toList();
     }
 }

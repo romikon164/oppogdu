@@ -1,18 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:oppo_gdu/src/ui/views/news/news_list_view.dart';
-import 'package:oppo_gdu/src/ui/views/news/news_list_view_delegate.dart';
 import 'package:oppo_gdu/src/data/models/news/news.dart';
-import 'package:oppo_gdu/src/support/routing/router.dart';
-import 'package:oppo_gdu/src/http/api/service.dart';
-import '../streamable_contract.dart';
 import 'package:oppo_gdu/src/support/routing/router_contract.dart';
 import 'package:oppo_gdu/src/ui/views/view_contract.dart';
 import 'dart:async';
-import '../streamable_listenable_contract.dart';
 import 'package:oppo_gdu/src/data/repositories/news/api_repository.dart';
 import 'package:oppo_gdu/src/data/repositories/news/database_repository.dart';
 import 'package:rxdart/rxdart.dart';
-import '../presenter.dart';
 import 'package:oppo_gdu/src/ui/components/lists/streamable.dart';
 import 'package:oppo_gdu/src/data/repositories/database_criteria.dart';
 import 'package:oppo_gdu/src/data/repositories/criteria.dart';
@@ -40,15 +33,27 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
 
     NewsApiRepository _apiRepository = NewsApiRepository();
 
+    Observable<News> get stream => _newsStream;
+
     void onInitState()
     {
         _startNewsStream();
     }
 
-    void didRefresh()
+    void onDisposeState()
     {
-        _newsStream.close();
+//        if(_newsStream != null) {
+//            _newsStream.close();
+//        }
+    }
+
+    Future<Observable<News>> didRefresh() async
+    {
+        _newsStream = PublishSubject<News>();
+
         _startNewsStream();
+
+        return _newsStream;
     }
 
     void didScrollToEnd()
@@ -58,7 +63,9 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
 
     Future<void> _startNewsStream() async
     {
-        _newsStream = PublishSubject<News>();
+        if(_newsStream == null) {
+            _newsStream = PublishSubject<News>();
+        }
 
         try {
             _streamStartWith = await _databaseRepository.getFirst(
@@ -80,15 +87,19 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
         List<News> newses = await _loadNewsFromDatabase(page);
         
         if(newses.isEmpty) {
-            newses = await _loadNewsFromApi();
-            
-            if(newses.isEmpty) {
-                _newsStream.close();
-                
-                return ;
-            }
+            try {
+                newses = await _loadNewsFromApi(page);
 
-            _cacheNewsToDatabase(newses);
+                if (newses.isEmpty) {
+                    _newsStream.close();
+
+                    return;
+                }
+
+                _cacheNewsToDatabase(newses);
+            } catch(e) {
+                _newsStream.addError(e);
+            }
         }
         
         newses.forEach((news) => _newsStream.add(news));
@@ -105,10 +116,10 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
             criteria.where("id", CriteriaOperator.lessOrEqual, _streamStartWith.id);
         }
 
-        return await _databaseRepository.get(criteria);
+        return (await _databaseRepository.get(criteria)).delegate;
     }
 
-    Future<List<News>> _loadNewsFromApi() async
+    Future<List<News>> _loadNewsFromApi(int page) async
     {
         ApiCriteria criteria = ApiCriteria()
             .sortByDesc("created_at")
@@ -125,5 +136,24 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
     Future<void> _cacheNewsToDatabase(List<News> newses) async
     {
         newses.forEach((news) => _databaseRepository.add(news));
+    }
+
+    Future<void> _loadFreshNewsFromApi() async
+    {
+        if(_streamStartWith == null) {
+            return ;
+        }
+
+        ApiCriteria criteria = ApiCriteria()
+            .sortByDesc("created_at")
+            .where("left_bound", CriteriaOperator.equal, _streamStartWith.id);
+
+        List<News> newses = await _apiRepository.get(criteria);
+
+        if(newses.isNotEmpty) {
+            _cacheNewsToDatabase(newses);
+
+            newses.forEach((news) => _newsStream.add(news));
+        }
     }
 }

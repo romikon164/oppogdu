@@ -12,6 +12,15 @@ class Router implements RouterContract
 {
     GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
+    void replace(PresenterContract presenter)
+    {
+        navigatorKey.currentState.pushReplacement(
+            MaterialPageRoute(
+                builder: (context) => presenter.view as StatefulWidget
+            )
+        );
+    }
+
     void push(PresenterContract presenter)
     {
         navigatorKey.currentState.pushReplacement(
@@ -28,7 +37,7 @@ class Router implements RouterContract
 
     void presentNewsList()
     {
-        push(createNewsListPresenter());
+        replace(NewsListPresenter(this));
     }
 
     void presentNewsDetail()
@@ -38,31 +47,11 @@ class Router implements RouterContract
 
     void presentLogin()
     {
-
+        replace(LoginPresenter(this));
     }
 
     void presentRegister()
     {
 
-    }
-    
-    NewsListPresenter createNewsListPresenter()
-    {
-        NewsListPresenter newsListPresenter = NewsListPresenter(this);
-
-        NewsListView(presenter: newsListPresenter);
-
-        return newsListPresenter;
-    }
-
-    LoginPresenter createLoginPresenter()
-    {
-        LoginPresenter loginPresenter = LoginPresenter(
-            router: this
-        );
-
-        LoginView(presenter: loginPresenter);
-
-        return loginPresenter;
     }
 }

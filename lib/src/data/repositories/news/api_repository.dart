@@ -25,7 +25,7 @@ class NewsApiRepository extends RepositoryContract<News, ApiCriteria>
 
         List<dynamic> rawNewses = rawNewsWithMeta["data"] as List<dynamic>;
 
-        return News.fromList(rawNewses);
+        return ModelCollection(News.fromList(rawNewses));
     }
 
     Future<News> getFirst(ApiCriteria criteria) async

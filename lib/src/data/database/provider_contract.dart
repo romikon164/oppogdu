@@ -2,15 +2,11 @@ part of 'service.dart';
 
 abstract class DatabaseProviderContract
 {
-    Database _database;
-
     String get table;
 
-    Database get database => _database;
+    Database database;
 
-    DatabaseProviderContract(Database database) {
-        _database = database;
-    }
+    DatabaseProviderContract();
 
     Future<void> createTable();
 
@@ -21,7 +17,7 @@ abstract class DatabaseProviderContract
         int limit,
         int offset
     }) async {
-        return await _database.query(
+        return await database.query(
             table,
             where: where,
             whereArgs: whereArgs,
@@ -33,7 +29,7 @@ abstract class DatabaseProviderContract
 
     Future<int> persists(Map<String, dynamic> row) async
     {
-        return await _database.insert(table, row);
+        return await database.insert(table, row);
     }
 
     Future<List<int>> persistsAll(List<Map<String, dynamic>> rows) async
@@ -51,6 +47,6 @@ abstract class DatabaseProviderContract
 
     Future<void> truncate() async
     {
-        await _database.delete(table);
+        await database.delete(table);
     }
 }

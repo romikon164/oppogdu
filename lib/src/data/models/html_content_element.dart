@@ -56,6 +56,6 @@ class HtmlContentElement extends Model
             return [];
         }
 
-        return list.map<HtmlContentElement>((item) => HtmlContentElement.fromMap(item as Map<String, dynamic>));
+        return list.map<HtmlContentElement>((item) => HtmlContentElement.fromMap(item as Map<String, dynamic>)).toList();
     }
 }

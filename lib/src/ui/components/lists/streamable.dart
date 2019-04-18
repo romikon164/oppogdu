@@ -8,12 +8,12 @@ typedef Widget StreamableListViewItemBuilder<T>(BuildContext context, T item);
 
 enum StreamableListViewConnectionState
 {
-    Idle, Wait, Done, Error
+    Idle, Wait, Done, Error, Refresh
 }
 
-abstract class StreamableListViewDelegate
+abstract class StreamableListViewDelegate<T>
 {
-    void didRefresh();
+    Future<Observable<T>> didRefresh();
 
     void didScrollToEnd();
 }
@@ -44,6 +44,8 @@ class StreamableListViewState<T> extends State<StreamableListView<T>> {
 
     List<T> _items = List<T>();
 
+    Observable<T> _stream;
+
     StreamSubscription<T> _subscription;
 
     StreamableListViewConnectionState _connectionState = StreamableListViewConnectionState.Idle;
@@ -51,6 +53,8 @@ class StreamableListViewState<T> extends State<StreamableListView<T>> {
     @override
     void initState() {
         super.initState();
+
+        _stream = widget.observable;
 
         _subscribe();
     }
@@ -71,6 +75,7 @@ class StreamableListViewState<T> extends State<StreamableListView<T>> {
         return NotificationListener<ScrollUpdateNotification>(
             child: RefreshIndicator(
                 child: ListView.builder(
+                    padding: EdgeInsets.fromLTRB(0, 4, 0, 4),
                     itemBuilder: _buildItems
                 ),
                 onRefresh: _onRefresh
@@ -83,11 +88,14 @@ class StreamableListViewState<T> extends State<StreamableListView<T>> {
     {
         _unsubscribe();
 
-        _subscription = widget.observable.listen(
+        _connectionState = StreamableListViewConnectionState.Wait;
+
+        _subscription = _stream.listen(
             (T item) {
-                 _insertNewItem(item);
+                _connectionState = StreamableListViewConnectionState.Idle;
+                _insertNewItem(item);
             },
-            onError: () {
+            onError: (error) {
                 setState(() {
                     _connectionState = StreamableListViewConnectionState.Error;
                 });
@@ -103,6 +111,7 @@ class StreamableListViewState<T> extends State<StreamableListView<T>> {
     void _unsubscribe()
     {
         if(_subscription != null) {
+            print("news unsubscribe");
             _subscription.cancel();
             _subscription = null;
         }
@@ -125,6 +134,8 @@ class StreamableListViewState<T> extends State<StreamableListView<T>> {
     {
         if(index == _items.length) {
             return _buildFooter(context);
+        } else if(index > _items.length) {
+            return null;
         } else {
             return widget?.itemBuilder(context, _items[index]);
         }
@@ -163,17 +174,19 @@ class StreamableListViewState<T> extends State<StreamableListView<T>> {
         );
     }
 
-    void _onRefresh()
+    Future<void> _onRefresh() async
     {
         _items.clear();
+        _unsubscribe();
 
-        widget.delegate?.didRefresh();
+        _stream = await widget.delegate?.didRefresh();
+        _subscribe();
     }
 
     bool _onScrollUpdate(ScrollUpdateNotification event)
     {
         if(event.metrics.pixels >= event.metrics.maxScrollExtent) {
-            if(_connectionState != StreamableListViewConnectionState.Wait) {
+            if(_connectionState == StreamableListViewConnectionState.Idle) {
                 widget.delegate?.didScrollToEnd();
 
                 setState(() {

@@ -83,7 +83,7 @@ class _DrawerNavigationWidgetState extends State<DrawerNavigationWidget>
                     padding: EdgeInsets.fromLTRB(16, 56, 16, 8),
                     child: Text(
                         "Вход / Регистрация",
-                        style: Theme.of(context).primaryTextTheme.subtitle,
+                        style: Theme.of(context).appBarTheme.textTheme.subtitle,
                     ),
                 ),
                 onTap: widget.delegate?.didDrawerNavigationLoginPressed,
