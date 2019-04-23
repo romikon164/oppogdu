@@ -3,17 +3,17 @@ import '../../view_contract.dart';
 import 'package:oppo_gdu/src/presenters/form_presenter.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-class LoginView extends StatefulWidget implements ViewContract
+class RegisterView extends StatefulWidget implements ViewContract
 {
     final FormPresenter presenter;
 
-    LoginView({Key key, @required this.presenter}): super(key: key);
+    RegisterView({Key key, @required this.presenter}): super(key: key);
 
     @override
-    _LoginViewState createState() => _LoginViewState();
+    _RegisterViewState createState() => _RegisterViewState();
 }
 
-class _LoginViewState extends State<LoginView> implements FormPresenterDelegate
+class _RegisterViewState extends State<RegisterView> implements FormPresenterDelegate
 {
     GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -30,7 +30,7 @@ class _LoginViewState extends State<LoginView> implements FormPresenterDelegate
     }
 
     @override
-    void didUpdateWidget(LoginView oldWidget)
+    void didUpdateWidget(RegisterView oldWidget)
     {
         super.didUpdateWidget(oldWidget);
 
@@ -72,7 +72,7 @@ class _LoginViewState extends State<LoginView> implements FormPresenterDelegate
         await Fluttertoast.cancel();
 
         Fluttertoast.showToast(
-            msg: "Вы успешно авторизовались",
+            msg: "Вы успешно зарегистрировались",
             fontSize: 12,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIos: 3,
@@ -88,12 +88,12 @@ class _LoginViewState extends State<LoginView> implements FormPresenterDelegate
             backgroundColor: Colors.white,
             key: _scaffoldKey,
             appBar: AppBar(
-                title: Text("Вход"),
+                title: Text("Регистрация"),
                 leading: GestureDetector(
                     child: Icon(
-                        Icons.close,
-                        size: Theme.of(context).appBarTheme.iconTheme.size,
-                        color: Theme.of(context).appBarTheme.iconTheme.color
+                      Icons.close,
+                      size: Theme.of(context).appBarTheme.iconTheme.size,
+                      color: Theme.of(context).appBarTheme.iconTheme.color
                     ),
                     onTap: widget.presenter.didClosePressed,
                 ),
@@ -105,7 +105,7 @@ class _LoginViewState extends State<LoginView> implements FormPresenterDelegate
                         new Padding(
                             padding: EdgeInsets.fromLTRB(40, 16, 40, 12),
                             child: new Text(
-                                'Для входа под вашей учетной записью введите ваш номер телефона и пароль',
+                                'Поля отмеченные звездочкой (*) обязательны для заполнения',
                                 style: Theme.of(context).textTheme.body2,
                                 textAlign: TextAlign.center,
                             ),
@@ -113,9 +113,10 @@ class _LoginViewState extends State<LoginView> implements FormPresenterDelegate
                         new Padding(
                             padding: EdgeInsets.fromLTRB(16, 4, 16, 4),
                             child: TextFormField(
+                                initialValue: "9397126315",
                                 keyboardType: TextInputType.phone,
                                 decoration: InputDecoration(
-                                    labelText: "Номер телефона",
+                                    labelText: "Номер телефона *",
                                     prefixIcon: Icon(Icons.phone),
                                     prefixText: "+7",
                                 ),
@@ -131,10 +132,11 @@ class _LoginViewState extends State<LoginView> implements FormPresenterDelegate
                         new Padding(
                             padding: EdgeInsets.fromLTRB(16, 4, 16, 4),
                             child: TextFormField(
+                                initialValue: "09021970",
                                 obscureText: true,
                                 decoration: InputDecoration(
                                     prefixIcon: Icon(Icons.vpn_key),
-                                    labelText: "Пароль",
+                                    labelText: "Пароль *",
                                 ),
                                 style: Theme.of(context).textTheme.button,
                                 validator: (String password) {
@@ -142,6 +144,42 @@ class _LoginViewState extends State<LoginView> implements FormPresenterDelegate
                                 },
                                 onSaved: (String password) {
                                     widget.presenter.onFormSaveField("password", password);
+                                },
+                            ),
+                        ),
+                        new Padding(
+                            padding: EdgeInsets.fromLTRB(16, 4, 16, 4),
+                            child: TextFormField(
+                                initialValue: "romikon164@gmail.com",
+                                keyboardType: TextInputType.emailAddress,
+                                decoration: InputDecoration(
+                                    labelText: "Эл. почта *",
+                                    prefixIcon: Icon(Icons.alternate_email),
+                                ),
+                                style: Theme.of(context).textTheme.button,
+                                validator: (String email) {
+                                    return widget.presenter.onFormValidateField("email", email);
+                                },
+                                onSaved: (String email) {
+                                    widget.presenter.onFormSaveField("email", email);
+                                },
+                            ),
+                        ),
+                        new Padding(
+                            padding: EdgeInsets.fromLTRB(16, 4, 16, 4),
+                            child: TextFormField(
+                                initialValue: "Роман Бызов",
+                                keyboardType: TextInputType.text,
+                                decoration: InputDecoration(
+                                    labelText: "ФИО *",
+                                    prefixIcon: Icon(Icons.person),
+                                ),
+                                style: Theme.of(context).textTheme.button,
+                                validator: (String fullname) {
+                                    return widget.presenter.onFormValidateField("fullname", fullname);
+                                },
+                                onSaved: (String fullname) {
+                                    widget.presenter.onFormSaveField("fullname", fullname);
                                 },
                             ),
                         ),
@@ -164,37 +202,11 @@ class _LoginViewState extends State<LoginView> implements FormPresenterDelegate
                                 child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                        Text("Войти", style: TextStyle(color: Colors.white)),
+                                        Text("Создать аккаунт", style: TextStyle(color: Colors.white)),
                                         Container(width: 8),
                                         Icon(Icons.exit_to_app, color: Colors.white)
                                     ],
                                 ),
-                            ),
-                        ),
-                        new Padding(
-                            padding: EdgeInsets.fromLTRB(16, 4, 16, 4),
-                            child: Container(
-                                height: 24,
-                                child: FlatButton(
-                                    onPressed: () {},
-                                    child: Text(
-                                        "Забыли пароль?",
-                                        style: TextStyle(
-                                            fontSize: 12
-                                        ),
-                                        textAlign: TextAlign.center
-                                    )
-                                ),
-                            ),
-                        ),
-                        new Padding(
-                            padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
-                            child: RaisedButton(
-                                color: Theme.of(context).primaryColor,
-                                onPressed: () {
-                                    widget.presenter?.router?.presentRegister();
-                                },
-                                child: Text("Создать аккаунт", style: TextStyle(color: Colors.white)),
                             ),
                         ),
                     ],
@@ -209,26 +221,26 @@ class _LoginViewState extends State<LoginView> implements FormPresenterDelegate
             _loading = true;
 
             showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (BuildContext context) {
-                    return Dialog(
-                        child: Container(
-                            height: 80,
-                            child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                    Padding(
-                                        padding: EdgeInsets.all(16),
-                                        child: CircularProgressIndicator(),
-                                    ),
-                                    Text("Выполняется вход"),
-                                ],
-                            ),
-                        ),
-                    );
-                }
+              context: context,
+              barrierDismissible: false,
+              builder: (BuildContext context) {
+                  return Dialog(
+                      child: Container(
+                          height: 80,
+                          child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                  Padding(
+                                      padding: EdgeInsets.all(16),
+                                      child: CircularProgressIndicator(),
+                                  ),
+                                  Text("Пожалуйста, подождите"),
+                              ],
+                          ),
+                      ),
+                  );
+              }
             );
         }
     }

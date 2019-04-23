@@ -1,17 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'dart:async';
-import 'package:oppo_gdu/src/presenters/news/news_list_presenter.dart';
-import 'package:oppo_gdu/src/presenters/streamable_listenable_contract.dart';
 import 'package:oppo_gdu/src/data/models/news/news.dart';
 import 'package:oppo_gdu/src/ui/views/news/news_list_item_view.dart';
-import 'package:oppo_gdu/src/ui/views/news/news_list_item_without_image_view.dart';
 import 'package:oppo_gdu/src/ui/components/navigation/bottom/widget.dart';
 import 'package:oppo_gdu/src/ui/components/navigation/drawer/widget.dart';
 import '../view_contract.dart';
-import '../streamable_delegate.dart';
-import 'package:oppo_gdu/src/presenters/streamable_contract.dart';
 import '../../components/lists/streamable.dart';
 import 'package:oppo_gdu/src/presenters/presenter.dart';
 import 'package:oppo_gdu/src/support/routing/router_contract.dart';
@@ -28,6 +22,8 @@ abstract class NewsListDelegate extends Presenter
     void onInitState();
 
     void onDisposeState();
+
+    void didNewsListItemPressed(News news);
 }
 
 class NewsListView extends StatefulWidget implements ViewContract
@@ -114,7 +110,7 @@ class _NewsListState extends State<NewsListView>
             ),
             drawer: DrawerNavigationWidget(
                 delegate: widget.delegate,
-                currentIndex: DrawerNavigationWidget.newsItem
+                currentIndex: DrawerNavigationWidget.newsItem,
             ),
         );
     }
@@ -151,6 +147,11 @@ class _NewsListState extends State<NewsListView>
 
     Widget _buildItem(BuildContext context, News news)
     {
-        return NewsListItemView(news: news);
+        return NewsListItemView(
+            news: news,
+            onTap: (news) {
+                widget.delegate?.didNewsListItemPressed(news);
+            },
+        );
     }
 }

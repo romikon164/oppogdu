@@ -75,7 +75,7 @@ class StreamableListViewState<T> extends State<StreamableListView<T>> {
         return NotificationListener<ScrollUpdateNotification>(
             child: RefreshIndicator(
                 child: ListView.builder(
-                    padding: EdgeInsets.fromLTRB(0, 4, 0, 4),
+                    padding: EdgeInsets.all(0),
                     itemBuilder: _buildItems
                 ),
                 onRefresh: _onRefresh
@@ -111,7 +111,6 @@ class StreamableListViewState<T> extends State<StreamableListView<T>> {
     void _unsubscribe()
     {
         if(_subscription != null) {
-            print("news unsubscribe");
             _subscription.cancel();
             _subscription = null;
         }

@@ -19,6 +19,18 @@ class News extends Model
 
     News({this.id, this.name, this.image, this.thumb, this.content, this.createdAt});
 
+    String get introText {
+        if(content.isNotEmpty) {
+            for(HtmlContentElement contentElement in content) {
+                if(contentElement.type == HtmlContentElement.TYPE_TEXT) {
+                    return contentElement.content;
+                }
+            }
+        }
+
+        return null;
+    }
+
     factory News.fromMap(Map<String, dynamic> map)
     {
         return News(

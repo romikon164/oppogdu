@@ -121,7 +121,7 @@ class ThemeBuilder
     {
         return CardTheme(
             color: Color(0xFFFFFFFF),
-            margin: EdgeInsets.fromLTRB(0, 6, 0, 6),
+            margin: EdgeInsets.fromLTRB(0, 0, 0, 12),
             shape: BeveledRectangleBorder(),
         );
     }
@@ -176,7 +176,53 @@ class ThemeBuilder
 
     InputDecorationTheme _buildInputDecorationTheme()
     {
-        return InputDecorationTheme();
+        return InputDecorationTheme(
+            labelStyle: TextStyle(
+                color: Color(0xFF9B9B9B),
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+            ),
+            prefixStyle: TextStyle(
+                color: Color(0xFF0072C5),
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+            ),
+            border: UnderlineInputBorder(
+                borderSide: BorderSide(
+                    color: Color(0xFF9B9B9B),
+                    width: 1.0
+                )
+            ),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(
+                color: Color(0xFF9B9B9B),
+                width: 1.0
+              )
+            ),
+            errorBorder: UnderlineInputBorder(
+              borderSide: BorderSide(
+                color: Color(0xFFAF3434),
+                width: 1.0
+              )
+            ),
+            focusedErrorBorder: UnderlineInputBorder(
+              borderSide: BorderSide(
+                color: Color(0xFFAF3434),
+                width: 2.0
+              )
+            ),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(
+                color: Color(0xFF0072C5),
+                width: 2.0
+              )
+            ),
+            errorStyle: TextStyle(
+                color: Color(0xFFAF3434),
+                fontSize: 12,
+                fontWeight: FontWeight.normal
+            )
+        );
     }
 
     PageTransitionsTheme _buildPageTransitionsTheme()

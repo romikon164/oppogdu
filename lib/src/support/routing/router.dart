@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:oppo_gdu/src/presenters/news/news_list_presenter.dart';
-import 'package:oppo_gdu/src/data/repositories/news/api_repository.dart';
-import 'package:oppo_gdu/src/ui/views/news/news_list_view.dart';
-import 'package:oppo_gdu/src/config/news/news_list_configuration.dart';
-import 'package:oppo_gdu/src/presenters/auth/login/login_presenter.dart';
-import 'package:oppo_gdu/src/ui/views/auth/login/login_view.dart';
-import 'package:oppo_gdu/src/presenters/contract.dart';
 import 'router_contract.dart';
+import 'package:oppo_gdu/src/presenters/contract.dart';
+import 'package:oppo_gdu/src/presenters/auth/login/login_presenter.dart';
+import 'package:oppo_gdu/src/presenters/auth/register/register_presenter.dart';
+import 'package:oppo_gdu/src/presenters/news/news_list_presenter.dart';
+import 'package:oppo_gdu/src/presenters/news/news_detail_presenter.dart';
 
 class Router implements RouterContract
 {
@@ -23,7 +21,7 @@ class Router implements RouterContract
 
     void push(PresenterContract presenter)
     {
-        navigatorKey.currentState.pushReplacement(
+        navigatorKey.currentState.push(
             MaterialPageRoute(
                 builder: (context) => presenter.view as StatefulWidget
             )
@@ -35,14 +33,19 @@ class Router implements RouterContract
         navigatorKey.currentState.pop();
     }
 
+    void presentHomeScreen()
+    {
+        presentNewsList();
+    }
+
     void presentNewsList()
     {
         replace(NewsListPresenter(this));
     }
 
-    void presentNewsDetail()
+    void presentNewsDetail(int newsId)
     {
-
+        push(NewsDetailPresenter(this, id: newsId));
     }
 
     void presentLogin()
@@ -52,6 +55,6 @@ class Router implements RouterContract
 
     void presentRegister()
     {
-
+        replace(RegisterPresenter(this));
     }
 }
