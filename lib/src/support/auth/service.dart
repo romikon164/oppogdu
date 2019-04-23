@@ -26,6 +26,8 @@ class AuthService
     bool _initialized = false;
 
     bool get initialized => _initialized;
+
+    String firebaseToken;
     
     Future<void> initService() async
     {

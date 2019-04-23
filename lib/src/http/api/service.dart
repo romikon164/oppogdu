@@ -23,6 +23,8 @@ class ApiService
 
     AuthToken authToken;
 
+    String deviceToken;
+
     static ApiService buildInstance({int clientId, String clientSecret, String baseUrl})
     {
         ApiService._instance = ApiService(clientId: clientId, clientSecret: clientSecret, baseUrl: baseUrl);

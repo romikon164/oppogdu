@@ -5,6 +5,7 @@ import '../future_contract.dart';
 import 'package:oppo_gdu/src/data/models/news/news.dart';
 import '../../components/navigation/drawer/widget.dart';
 import '../../components/navigation/bottom/widget.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class NewsDetailView extends StatefulWidget implements ViewContract
 {
@@ -60,7 +61,32 @@ class _NewsDetailViewState extends State<NewsDetailView> implements ViewFutureCo
 
     Widget _buildWidget(BuildContext context)
     {
-        return null;
+        return Scaffold(
+            body: NestedScrollView(
+                headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+                    return [
+                        SliverAppBar(
+                            expandedHeight: 200.0,
+                            floating: false,
+                            pinned: true,
+                            flexibleSpace: FlexibleSpaceBar(
+                                centerTitle: true,
+                                title: Text(
+                                    _news.name,
+                                ),
+                                background: Image(
+                                    image: CachedNetworkImageProvider(_news.image),
+                                    fit: BoxFit.cover,
+                                ),
+                            ),
+                        ),
+                    ];
+                },
+                body: Center(
+                    child: Text("Sample Text"),
+                )
+            )
+        );
     }
 
     Widget _buildLoadingWidget(BuildContext context)

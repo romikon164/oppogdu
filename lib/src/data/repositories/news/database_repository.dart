@@ -56,13 +56,17 @@ class NewsDatabaseRepository extends DatabaseRepositoryContract<News>
             offset: databaseCriteria.getOffset(),
             limit: databaseCriteria.getLimit()
         )).map((item) {
-            if(item.containsKey("content") && item["content"] != null) {
-                Map<String, dynamic> newItem = Map<String, dynamic>.from(item);
-                newItem["content"] = convert.jsonDecode(newItem["content"]);
-                return newItem;
+            Map<String, dynamic> newItem = Map<String, dynamic>.from(item);
+
+            if(item.containsKey("is_viewed") && item["is_viewed"] != null) {
+                newItem["is_viewed"] = item["is_viewed"] != 0;
             }
 
-            return item;
+            if(item.containsKey("is_favorited") && item["is_favorited"] != null) {
+                newItem["is_favorited"] = item["is_favorited"] != 0;
+            }
+
+            return newItem;
         }).toList();
 
         return ModelCollection<News>(

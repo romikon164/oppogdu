@@ -61,8 +61,10 @@ class Application extends StatelessWidget
             });
 
         _firebaseMessaging.getToken().then((String token) {
-            assert(token != null);
-            print("token: $token");
+            // assert(token != null);
+
+            AuthService.instance.firebaseToken = token;
+            ApiService.instance.deviceToken = token;
         });
     }
 

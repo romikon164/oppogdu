@@ -62,7 +62,6 @@ class _NewsListItemViewState extends State<NewsListItemView>
                 Image(
                     image: CachedNetworkImageProvider(widget.news.image),
                     fit: BoxFit.cover,
-                    height: MediaQuery.of(context).size.width * 0.5,
                 )
             );
         }
@@ -70,20 +69,42 @@ class _NewsListItemViewState extends State<NewsListItemView>
         List<Widget> actions = [];
 
         if(AuthService.instance.isAuthenticated()) {
-            actions.add(
-                FlatButton.icon(
-                    onPressed: () {},
-                    icon: Icon(Icons.favorite_border, color: Color(0xFF9B9B9B)),
-                    label: Text("0", style: Theme.of(context).textTheme.button),
-                )
-            );
+            if(widget.news.isFavorited) {
+                actions.add(
+                    FlatButton.icon(
+                        onPressed: () {
+                            // TODO
+                        },
+                        icon: Icon(Icons.favorite_border, color: Colors.red),
+                        label: Text(
+                            "${widget.news.favoritesCount}",
+                            style: Theme.of(context).textTheme.button
+                        ),
+                    )
+                );
+            } else {
+                actions.add(
+                    FlatButton.icon(
+                        onPressed: () {
+                            // TODO
+                        },
+                        icon: Icon(Icons.favorite_border, color: Color(0xFF9B9B9B)),
+                        label: Text(
+                            "${widget.news.favoritesCount}",
+                            style: Theme.of(context).textTheme.button
+                        ),
+                    )
+                );
+            }
         }
 
         actions.add(
             FlatButton.icon(
-                onPressed: () {},
+                onPressed: () {
+                    // TODO
+                },
                 icon: Icon(Icons.forum, color: Color(0xFF9B9B9B)),
-                label: Text("0", style: Theme.of(context).textTheme.button)
+                label: Text("${widget.news.commentsCount}", style: Theme.of(context).textTheme.button)
             )
         );
 
@@ -99,13 +120,19 @@ class _NewsListItemViewState extends State<NewsListItemView>
             )
         );
 
-//        actions.add(
-//            FlatButton.icon(
-//                onPressed: () {},
-//                icon: Icon(Icons.remove_red_eye, color: Color(0xFF9B9B9B)),
-//                label: Text("0", style: Theme.of(context).textTheme.button)
-//            )
-//        );
+        actions.add(
+            Padding(
+                padding: EdgeInsets.fromLTRB(12, 0, 12, 0),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                        Icon(Icons.remove_red_eye, color: Color(0xFF9B9B9B)),
+                        Container(width: 8),
+                        Text("${widget.news.viewsCount}", style: Theme.of(context).textTheme.button)
+                    ],
+                ),
+            )
+        );
 
         widgets.add(
             Padding(

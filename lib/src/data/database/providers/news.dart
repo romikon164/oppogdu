@@ -15,8 +15,14 @@ class NewsDatabaseProvider extends DatabaseProviderContract
                 name VARCHAR(255) NOT NULL,
                 image VARCHAR(255),
                 thumb VARCHAR(255),
+                intro_text VARCHAR(255),
                 content TEXT,
-                created_at integer
+                created_at integer,
+                views_count UNSIGNED INTEGER NOT NULL DEFAULT 0,
+                favorites_count UNSIGNED INTEGER NOT NULL DEFAULT 0,
+                comments_count UNSIGNED INTEGER NOT NULL DEFAULT 0,
+                is_viewed BOOLEAN DEFAULT 0,
+                is_favorited BOOLEAN DEFAULT 0
             )
         """);
     }

@@ -54,6 +54,8 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
 
     Future<Observable<News>> didRefresh() async
     {
+        await _databaseRepository.deleteAll();
+
         _newsStream = PublishSubject<News>();
 
         _startNewsStream();
@@ -105,6 +107,8 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
             } catch(e) {
                 _newsStream.addError(e);
             }
+        } else {
+            _updateNewsCounters(newses);
         }
         
         newses.forEach((news) => _newsStream.add(news));
@@ -160,5 +164,10 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
 
             newses.forEach((news) => _newsStream.add(news));
         }
+    }
+
+    Future<void> _updateNewsCounters(List<News> newses) async
+    {
+        // TODO
     }
 }

@@ -13,23 +13,36 @@ class News extends Model
 
     String thumb;
 
-    ModelCollection<HtmlContentElement> content;
+    String introText;
+
+    String content;
 
     DateTime createdAt;
 
-    News({this.id, this.name, this.image, this.thumb, this.content, this.createdAt});
+    int viewsCount;
 
-    String get introText {
-        if(content.isNotEmpty) {
-            for(HtmlContentElement contentElement in content) {
-                if(contentElement.type == HtmlContentElement.TYPE_TEXT) {
-                    return contentElement.content;
-                }
-            }
-        }
+    int favoritesCount;
 
-        return null;
-    }
+    int commentsCount;
+
+    bool isViewed;
+
+    bool isFavorited;
+
+    News({
+        this.id,
+        this.name,
+        this.image,
+        this.thumb,
+        this.introText,
+        this.content,
+        this.createdAt,
+        this.viewsCount,
+        this.commentsCount,
+        this.favoritesCount,
+        this.isFavorited,
+        this.isViewed
+    });
 
     factory News.fromMap(Map<String, dynamic> map)
     {
@@ -38,10 +51,14 @@ class News extends Model
             name: map["name"] as String,
             image: map["image"] as String,
             thumb: map["thumb"] as String,
-            content: ModelCollection<HtmlContentElement>(
-                HtmlContentElement.fromList(map["content"])
-            ),
-            createdAt: DateTimeFormatter.dateTimeFromSeconds(map["created_at"])
+            introText: map["intro_text"] as String,
+            content: map["content"] as String,
+            createdAt: DateTimeFormatter.dateTimeFromSeconds(map["created_at"]),
+            viewsCount: map["views_count"] as int,
+            favoritesCount: map["favorites_count"] as int,
+            commentsCount: map["comments_count"] as int,
+            isFavorited: map["is_viewed"] as bool,
+            isViewed: map["is_favorited"] as bool,
         );
     }
 
@@ -53,8 +70,14 @@ class News extends Model
         map["name"] = name;
         map["image"] = image;
         map["thumb"] = thumb;
-        map["content"] = content.map<Map<String, dynamic>>((item) => item.toMap()).toList();
+        map["intro_text"] = introText;
+        map["content"] = content;
         map["created_at"] = createdAt.millisecondsSinceEpoch ~/ 1000;
+        map["views_count"] = viewsCount;
+        map["favorites_count"] = favoritesCount;
+        map["comments_count"] = commentsCount;
+        map["is_viewed"] = isFavorited;
+        map["is_favorited"] = isViewed;
 
         return map;
     }
