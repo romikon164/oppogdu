@@ -5,6 +5,8 @@ import 'package:oppo_gdu/src/presenters/auth/login/login_presenter.dart';
 import 'package:oppo_gdu/src/presenters/auth/register/register_presenter.dart';
 import 'package:oppo_gdu/src/presenters/news/news_list_presenter.dart';
 import 'package:oppo_gdu/src/presenters/news/news_detail_presenter.dart';
+import 'package:oppo_gdu/src/presenters/news/comments_presenter.dart';
+import 'package:oppo_gdu/src/ui/views/photo/single.dart';
 
 class Router implements RouterContract
 {
@@ -48,6 +50,11 @@ class Router implements RouterContract
         push(NewsDetailPresenter(this, id: newsId));
     }
 
+    void presentNewsComments(int newsId)
+    {
+        push(NewsCommentsPresenter(this, id: newsId));
+    }
+
     void presentLogin()
     {
         replace(LoginPresenter(this));
@@ -56,5 +63,14 @@ class Router implements RouterContract
     void presentRegister()
     {
         replace(RegisterPresenter(this));
+    }
+
+    void presentSinglePhoto(String imageUrl, {String title})
+    {
+        navigatorKey.currentState.push(
+            MaterialPageRoute(
+                builder: (context) => SinglePhotoView(imageUrl: imageUrl, title: title)
+            )
+        );
     }
 }

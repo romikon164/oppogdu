@@ -4,6 +4,8 @@ import 'delegate.dart';
 import 'dart:async';
 import 'package:oppo_gdu/src/support/auth/service.dart';
 import 'package:flutter/rendering.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:oppo_gdu/src/support/utils.dart';
 
 class DrawerNavigationWidget extends StatefulWidget
 {
@@ -32,21 +34,22 @@ class _DrawerNavigationWidgetState extends State<DrawerNavigationWidget> with Ti
     {
         return Drawer(
             child: ListView(
-              children: [
-                  _buildHeader(context),
-                  _buildItem(
-                    context,
-                    title: "Новости",
-                    icon: Icons.assignment,
-                    onTap: widget.delegate.didDrawerNavigationNewsPressed
-                  ),
-                  _buildItem(
-                    context,
-                    title: "Фотогалерея",
-                    icon: Icons.photo,
-                    onTap: widget.delegate.didDrawerNavigationPhotoGalleryPressed
-                  ),
-              ]
+                padding: EdgeInsets.fromLTRB(0, 0, 0, 16),
+                children: [
+                    _buildHeader(context),
+                    _buildItem(
+                        context,
+                        title: "Новости",
+                        icon: Icons.assignment,
+                        onTap: widget.delegate.didDrawerNavigationNewsPressed
+                    ),
+                    _buildItem(
+                        context,
+                        title: "Фотогалерея",
+                        icon: Icons.photo,
+                        onTap: widget.delegate.didDrawerNavigationPhotoGalleryPressed
+                    ),
+                ]
             ),
         );
     }
@@ -92,11 +95,18 @@ class _DrawerNavigationWidgetState extends State<DrawerNavigationWidget> with Ti
                         user.email ?? "",
                         style: Theme.of(context).appBarTheme.textTheme.subtitle.copyWith(fontWeight: FontWeight.normal),
                     ),
-                    currentAccountPicture: CircleAvatar(
-                        backgroundColor: _avatarBackgroundColor(userNameFirstLetter),
-                        child: user.photo == null
-                          ? Text(userNameFirstLetter)
-                          : Image.network(user.photo),
+                    currentAccountPicture: GestureDetector(
+                        onTap: widget.delegate?.didDrawerNavigationProfilePressed,
+                        child: CircleAvatar(
+                            radius: 32,
+                            backgroundColor: user.photo == null
+                                ? Utils.avatarBackgroundColor(userNameFirstLetter)
+                                : Theme.of(context).appBarTheme.color,
+                            backgroundImage: user.photo != null ? CachedNetworkImageProvider(user.photo) : null,
+                            child: user.photo == null
+                                ? Text(userNameFirstLetter)
+                                : null,
+                        ),
                     ),
                     onDetailsPressed: () {
                          setState(() {
@@ -134,38 +144,6 @@ class _DrawerNavigationWidgetState extends State<DrawerNavigationWidget> with Ti
                 )
             ],
         );
-    }
-
-    Color _avatarBackgroundColor(String l)
-    {
-        l = l.toLowerCase();
-        if(l == "а" || l == "э" || l == "ю") {
-            return Colors.amberAccent;
-        } else if(l == "б") {
-            return Colors.blue;
-        } else if(l == "г" || l == "д" || l == "е" || l == "ё") {
-            return Colors.deepOrangeAccent;
-        } else if(l == "ж" || l == "з") {
-            return Colors.blue;
-        } else if(l == "и" || l == "й" || l == "к") {
-            return Colors.indigoAccent;
-        } else if(l == "л" || l == "м" || l == "н") {
-            return Colors.lightBlueAccent;
-        } else if(l == "о") {
-            return Colors.orangeAccent;
-        } else if(l == "п") {
-            return Colors.pinkAccent;
-        } else if(l == "р" || l == "с") {
-            return Colors.redAccent;
-        } else if(l == "т" || l == "у" || l == "ф" || l == "х") {
-            return Colors.tealAccent;
-        } else if(l == "ц" || l == "ч" || l == "ь" || l == "ъ") {
-            return Colors.cyanAccent;
-        } else if(l == "ш" || l == "щ" || l == "я") {
-            return Colors.yellowAccent;
-        } else {
-            return Colors.lightBlueAccent;
-        }
     }
 
     Widget _buildUnauthenticatedHeader(BuildContext context)

@@ -29,6 +29,8 @@ class News extends Model
 
     bool isFavorited;
 
+    String sharedUrl;
+
     News({
         this.id,
         this.name,
@@ -41,7 +43,8 @@ class News extends Model
         this.commentsCount,
         this.favoritesCount,
         this.isFavorited,
-        this.isViewed
+        this.isViewed,
+        this.sharedUrl
     });
 
     factory News.fromMap(Map<String, dynamic> map)
@@ -57,8 +60,9 @@ class News extends Model
             viewsCount: map["views_count"] as int,
             favoritesCount: map["favorites_count"] as int,
             commentsCount: map["comments_count"] as int,
-            isFavorited: map["is_viewed"] as bool,
-            isViewed: map["is_favorited"] as bool,
+            isViewed: map["is_viewed"] as bool,
+            isFavorited: map["is_favorited"] as bool,
+            sharedUrl: map["shared_url"] as String,
         );
     }
 
@@ -76,8 +80,9 @@ class News extends Model
         map["views_count"] = viewsCount;
         map["favorites_count"] = favoritesCount;
         map["comments_count"] = commentsCount;
-        map["is_viewed"] = isFavorited;
-        map["is_favorited"] = isViewed;
+        map["is_viewed"] = isViewed;
+        map["is_favorited"] = isFavorited;
+        map["shared_url"] = sharedUrl;
 
         return map;
     }

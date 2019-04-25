@@ -49,4 +49,20 @@ abstract class DatabaseProviderContract
     {
         await database.delete(table);
     }
+
+    Future<bool> update({Map<String, dynamic> rows, String where, List<String> whereArgs}) async
+    {
+        try {
+            await database.update(
+                table,
+                rows,
+                where: where,
+                whereArgs: whereArgs
+            );
+
+            return true;
+        } catch (_) {
+            return false;
+        }
+    }
 }

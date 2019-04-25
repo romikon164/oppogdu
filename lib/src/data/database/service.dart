@@ -79,9 +79,9 @@ class DatabaseService
             }
 
             int attempts = 0;
-            int maxAttempts = 5;
+            int maxAttempts = 200;
 
-            while(provider.database == null) {
+            while(_database == null) {
                 await Future.delayed(Duration(milliseconds: 100));
                 attempts++;
 
@@ -89,6 +89,8 @@ class DatabaseService
                     throw Exception("Database connection timeout");
                 }
             }
+
+            provider.database = _database;
 
             return provider;
         }

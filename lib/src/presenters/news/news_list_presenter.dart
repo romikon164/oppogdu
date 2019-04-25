@@ -10,6 +10,7 @@ import 'package:oppo_gdu/src/ui/components/lists/streamable.dart';
 import 'package:oppo_gdu/src/data/repositories/database_criteria.dart';
 import 'package:oppo_gdu/src/data/repositories/criteria.dart';
 import 'package:oppo_gdu/src/data/repositories/api_criteria.dart';
+import 'package:oppo_gdu/src/support/auth/service.dart';
 
 class NewsListPresenter extends NewsListDelegate implements StreamableListViewDelegate
 {
@@ -25,7 +26,7 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
 
     News _streamStartWith;
 
-    int _pageSize = 15;
+    int _pageSize = 5;
 
     int _currentPage;
 
@@ -50,6 +51,24 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
     void didNewsListItemPressed(News news)
     {
         router.presentNewsDetail(news.id);
+    }
+
+
+    void didFavoritePressed(News news)
+    {
+        news.isFavorited = true;
+        _addToFavorite(news);
+    }
+
+    void didUnFavoritePressed(News news)
+    {
+        news.isFavorited = false;
+        _removeFromFavorite(news);
+    }
+
+    void didCommentsPressed(News news)
+    {
+        router.presentNewsComments(news.id);
     }
 
     Future<Observable<News>> didRefresh() async
@@ -79,6 +98,7 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
                 DatabaseCriteria().sortByDesc("created_at")
             );
         } catch(e) {
+            print(e.toString());
             _streamStartWith = null;
         }
 
@@ -98,7 +118,7 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
                 newses = await _loadNewsFromApi(page);
 
                 if (newses.isEmpty) {
-                    _newsStream.close();
+                    _newsStream.add(null);
 
                     return;
                 }
@@ -130,6 +150,8 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
 
     Future<List<News>> _loadNewsFromApi(int page) async
     {
+        String authDeviceToken = AuthService.instance.firebaseToken;
+
         ApiCriteria criteria = ApiCriteria()
             .sortByDesc("created_at")
             .skip((page - 1) * _pageSize)
@@ -139,12 +161,14 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
             criteria.where("right_bound", CriteriaOperator.equal, _streamStartWith.id);
         }
 
-        return await _apiRepository.get(criteria);
+        return await _apiRepository.get(criteria, deviceToken: authDeviceToken);
     }
 
     Future<void> _cacheNewsToDatabase(List<News> newses) async
     {
-        newses.forEach((news) => _databaseRepository.add(news));
+        for(News news in newses) {
+            await _databaseRepository.add(news);
+        }
     }
 
     Future<void> _loadFreshNewsFromApi() async
@@ -153,21 +177,81 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
             return ;
         }
 
+        String authDeviceToken = AuthService.instance.firebaseToken;
+
         ApiCriteria criteria = ApiCriteria()
             .sortByDesc("created_at")
             .where("left_bound", CriteriaOperator.equal, _streamStartWith.id);
 
-        List<News> newses = await _apiRepository.get(criteria);
+        try {
+            List<News> newses = await _apiRepository.get(
+                criteria,
+                deviceToken: authDeviceToken
+            );
 
-        if(newses.isNotEmpty) {
-            _cacheNewsToDatabase(newses);
+            if(newses.isNotEmpty) {
+                _cacheNewsToDatabase(newses);
 
-            newses.forEach((news) => _newsStream.add(news));
+                newses.forEach((news) => _newsStream.add(news));
+            }
+        } catch(e) {
+
         }
     }
 
     Future<void> _updateNewsCounters(List<News> newses) async
     {
-        // TODO
+        if(newses.isEmpty) {
+            return ;
+        }
+
+        try {
+            for(News news in newses) {
+                if(await _apiRepository.getCounters(news)) {
+                    await _databaseRepository.updateCounters(
+                        news.id,
+                        favorites: news.favoritesCount,
+                        views: news.viewsCount,
+                        comments: news.commentsCount
+                    );
+
+                    _newsStream.add(news);
+                }
+            }
+        } catch (_) {
+
+        }
+    }
+
+    Future<void> _addToFavorite(News news) async
+    {
+        String authDeviceToken = AuthService.instance.firebaseToken;
+
+        if(authDeviceToken != null && authDeviceToken.isNotEmpty) {
+            try {
+                await _apiRepository.addToFavorite(news.id, authDeviceToken);
+                await _databaseRepository.addToFavorite(news.id);
+
+                await _updateNewsCounters([news]);
+            } catch (_) {
+
+            }
+        }
+    }
+
+    Future<void> _removeFromFavorite(News news) async
+    {
+        String authDeviceToken = AuthService.instance.firebaseToken;
+
+        if(authDeviceToken != null && authDeviceToken.isNotEmpty) {
+            try {
+                await _apiRepository.removeFromFavorite(news.id, authDeviceToken);
+                await _databaseRepository.removeFromFavorite(news.id);
+
+                await _updateNewsCounters([news]);
+            } catch (_) {
+
+            }
+        }
     }
 }

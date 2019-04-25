@@ -35,8 +35,6 @@ class LoginPresenter extends FormPresenter
 
     String onFormValidateField(String field, String value)
     {
-        print("validate $field with value $value");
-
         return value.isEmpty
             ? "Поле обязательно"
             : null;
@@ -54,16 +52,11 @@ class LoginPresenter extends FormPresenter
     Future<void> onFormSubmit() async
     {
         try {
-            print("auth with phone $_phone and password $_password");
-
             await AuthService.instance.authenticate(_phone, _password);
-            print("login success");
             _delegate.onFormSendSuccess();
         } on AuthInvalidCredentialsException {
-            print("login error");
             _delegate.onFormSendFailure("Неверный телефон/пароль");
         } catch(e) {
-            print("http error \"${e.toString()}\"");
             _delegate.onFormSendFailure("Возникла ошибка при отправке данных");
         }
     }

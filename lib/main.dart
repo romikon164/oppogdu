@@ -75,7 +75,7 @@ class Application extends StatelessWidget
                 "news", NewsDatabaseProvider());
             DatabaseService.instance.database;
         } catch (e) {
-
+            print(e.toString());
         }
     }
 

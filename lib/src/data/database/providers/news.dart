@@ -22,7 +22,8 @@ class NewsDatabaseProvider extends DatabaseProviderContract
                 favorites_count UNSIGNED INTEGER NOT NULL DEFAULT 0,
                 comments_count UNSIGNED INTEGER NOT NULL DEFAULT 0,
                 is_viewed BOOLEAN DEFAULT 0,
-                is_favorited BOOLEAN DEFAULT 0
+                is_favorited BOOLEAN DEFAULT 0,
+                shared_url VARCHAR(255) NOT NULL
             )
         """);
     }

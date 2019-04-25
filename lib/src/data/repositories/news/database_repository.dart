@@ -34,7 +34,11 @@ class NewsDatabaseRepository extends DatabaseRepositoryContract<News>
                 rawNews["content"] = convert.jsonEncode(rawNews["content"]);
             }
 
-            news.id = await _newsProvider.persists(rawNews);
+            int id = await _newsProvider.persists(rawNews);
+            if(news.id == null) {
+                news.id = id;
+            }
+
             return true;
         } catch(e) {
             print(e.toString());
@@ -122,5 +126,61 @@ class NewsDatabaseRepository extends DatabaseRepositoryContract<News>
     Future<bool> update(News model) async
     {
         return false;
+    }
+
+    Future<bool> addToFavorite(int id) async
+    {
+        return await setFavoriteById(id, true);
+    }
+
+    Future<bool> removeFromFavorite(int id) async
+    {
+        return await setFavoriteById(id, false);
+    }
+
+    Future<bool> setFavoriteById(int id, bool value) async
+    {
+        if(_newsProvider == null) {
+            await _initRepository();
+        }
+
+        Map<String, dynamic> rows = {
+            "is_favorited": value ? 1 : 0,
+        };
+
+        return await _newsProvider.update(
+            rows: rows,
+            where: "id = ?",
+            whereArgs: ["$id"]
+        );
+    }
+
+    Future<bool> updateCounters(int id, {int favorites, int views, int comments}) async
+    {
+        try {
+            Map<String, dynamic> rows = Map<String, dynamic>();
+
+            if (favorites != null) {
+                rows["favorites_count"] = favorites;
+            }
+
+            if (views != null) {
+                rows["views_count"] = views;
+            }
+
+            if (comments != null) {
+                rows["comments_count"] = comments;
+            }
+
+            _newsProvider.update(
+                rows: rows,
+                where: "id = ?",
+                whereArgs: ["$id"]
+            );
+
+            return true;
+        } catch (e) {
+            return false;
+        }
     }
 }

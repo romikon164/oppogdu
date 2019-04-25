@@ -24,6 +24,12 @@ abstract class NewsListDelegate extends Presenter
     void onDisposeState();
 
     void didNewsListItemPressed(News news);
+
+    void didFavoritePressed(News news);
+
+    void didUnFavoritePressed(News news);
+
+    void didCommentsPressed(News news);
 }
 
 class NewsListView extends StatefulWidget implements ViewContract
@@ -73,11 +79,12 @@ class _NewsListState extends State<NewsListView>
     @override
     Widget build(BuildContext context)
     {
-        SystemChrome.setSystemUIOverlayStyle(
-            SystemUiOverlayStyle.dark.copyWith(
-                statusBarColor: Theme.of(context).appBarTheme.color,
-            )
-        );
+//        SystemChrome.setSystemUIOverlayStyle(
+//            SystemUiOverlayStyle.dark.copyWith(
+//                statusBarColor: Theme.of(context).appBarTheme.color,
+//                statusBarIconBrightness: Theme.of(context).brightness
+//            )
+//        );
 
         return Scaffold(
             body: NestedScrollView(
@@ -149,9 +156,7 @@ class _NewsListState extends State<NewsListView>
     {
         return NewsListItemView(
             news: news,
-            onTap: (news) {
-                widget.delegate?.didNewsListItemPressed(news);
-            },
+            delegate: widget.delegate,
         );
     }
 }

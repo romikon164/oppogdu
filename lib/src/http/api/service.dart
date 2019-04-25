@@ -151,13 +151,21 @@ class ApiService
         return convert.jsonDecode(response.body);
     }
 
-    Future<Map<String, dynamic>> retrieveNewsList(NewsRetrieveApiParameters parameters) async
+    Future<Map<String, dynamic>> retrieveNewsList(NewsRetrieveApiParameters parameters, {String deviceToken}) async
     {
         String url = "$baseUrl/news";
         String queryString = parameters.toQueryString();
 
         if(queryString.isNotEmpty) {
             url += "?$queryString";
+
+            if(deviceToken != null && deviceToken.isNotEmpty) {
+                url += "&auth_device_uuid=$deviceToken";
+            }
+        } else {
+            if(deviceToken != null && deviceToken.isNotEmpty) {
+                url += "?auth_device_uuid=$deviceToken";
+            }
         }
 
         http.Response response = await http.get(
@@ -177,10 +185,15 @@ class ApiService
         return convert.jsonDecode(response.body);
     }
 
-    Future<Map<String, dynamic>> retrieveNewsDetail(int id) async
+    Future<Map<String, dynamic>> retrieveNewsDetail(int id, String authDeviceUUID) async
     {
+        String url = "$baseUrl/news/$id";
+
+        if(authDeviceUUID != null) {
+            url += '?auth_device_uuid=$authDeviceUUID';
+        }
         http.Response response = await http.get(
-          "$baseUrl/news/$id",
+          url,
           headers: {
               'Accept': 'application/json'
           }
@@ -190,6 +203,88 @@ class ApiService
             throw RequestException(
               response.statusCode,
               "ApiService.requestToken http request exception"
+            );
+        }
+
+        return convert.jsonDecode(response.body);
+    }
+
+    Future<Map<String, dynamic>> newsFavorite(int id, String authDeviceUUID) async
+    {
+        http.Response response = await http.post(
+            "$baseUrl/news/$id/favorite",
+            headers: {
+                'Accept': 'application/json'
+            },
+            body: {
+                'auth_device_uuid': authDeviceUUID
+            }
+        );
+
+        if(response.statusCode != ResponseStatusCodes.OK) {
+            throw RequestException(
+                response.statusCode,
+                "ApiService.requestToken http request exception"
+            );
+        }
+
+        return convert.jsonDecode(response.body);
+    }
+
+    Future<Map<String, dynamic>> newsUnFavorite(int id, String authDeviceUUID) async
+    {
+        http.Response response = await http.post(
+            "$baseUrl/news/$id/unfavorite",
+            headers: {
+                'Accept': 'application/json'
+            },
+            body: {
+                'auth_device_uuid': authDeviceUUID
+            }
+        );
+
+        if(response.statusCode != ResponseStatusCodes.OK) {
+            throw RequestException(
+                response.statusCode,
+                "ApiService.requestToken http request exception"
+            );
+        }
+
+        return convert.jsonDecode(response.body);
+    }
+
+    Future<Map<String, dynamic>> newsCounters(int id) async
+    {
+        http.Response response = await http.get(
+            "$baseUrl/news/$id/counters",
+            headers: {
+                'Accept': 'application/json'
+            }
+        );
+
+        if(response.statusCode != ResponseStatusCodes.OK) {
+            throw RequestException(
+                response.statusCode,
+                "ApiService.requestToken http request exception"
+            );
+        }
+
+        return convert.jsonDecode(response.body);
+    }
+
+    Future<Map<String, dynamic>> retrieveNewsComments(int newsId) async
+    {
+        http.Response response = await http.get(
+            "$baseUrl/news/$newsId/comments",
+            headers: {
+                'Accept': 'application/json'
+            }
+        );
+
+        if(response.statusCode != ResponseStatusCodes.OK) {
+            throw RequestException(
+                response.statusCode,
+                "ApiService.requestToken http request exception"
             );
         }
 

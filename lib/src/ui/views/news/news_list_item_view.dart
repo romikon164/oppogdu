@@ -5,14 +5,15 @@ import 'package:oppo_gdu/src/support/datetime/formatter.dart';
 import 'package:oppo_gdu/src/support/auth/service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:share/share.dart';
+import 'package:oppo_gdu/src/presenters/news/news_list_presenter.dart';
 
 class NewsListItemView extends StatefulWidget
 {
     final News news;
 
-    final NewsListItemOnTapCallback onTap;
+    final NewsListDelegate delegate;
 
-    NewsListItemView({Key key, this.news, this.onTap}): super(key: key);
+    NewsListItemView({Key key, this.news, this.delegate}): super(key: key);
 
     @override
     _NewsListItemViewState createState() => _NewsListItemViewState();
@@ -73,9 +74,9 @@ class _NewsListItemViewState extends State<NewsListItemView>
                 actions.add(
                     FlatButton.icon(
                         onPressed: () {
-                            // TODO
+                            widget.delegate?.didUnFavoritePressed(widget.news);
                         },
-                        icon: Icon(Icons.favorite_border, color: Colors.red),
+                        icon: Icon(Icons.favorite, color: Colors.red),
                         label: Text(
                             "${widget.news.favoritesCount}",
                             style: Theme.of(context).textTheme.button
@@ -86,7 +87,7 @@ class _NewsListItemViewState extends State<NewsListItemView>
                 actions.add(
                     FlatButton.icon(
                         onPressed: () {
-                            // TODO
+                            widget.delegate?.didFavoritePressed(widget.news);
                         },
                         icon: Icon(Icons.favorite_border, color: Color(0xFF9B9B9B)),
                         label: Text(
@@ -101,7 +102,7 @@ class _NewsListItemViewState extends State<NewsListItemView>
         actions.add(
             FlatButton.icon(
                 onPressed: () {
-                    // TODO
+                    widget.delegate?.didCommentsPressed(widget.news);
                 },
                 icon: Icon(Icons.forum, color: Color(0xFF9B9B9B)),
                 label: Text("${widget.news.commentsCount}", style: Theme.of(context).textTheme.button)
@@ -147,9 +148,7 @@ class _NewsListItemViewState extends State<NewsListItemView>
         return Card(
             child: InkWell(
                 onTap: () {
-                    if(widget.onTap != null) {
-                        widget.onTap(widget.news);
-                    }
+                    widget.delegate?.didNewsListItemPressed(widget.news);
                 },
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,

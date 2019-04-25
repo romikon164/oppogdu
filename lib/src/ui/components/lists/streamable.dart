@@ -92,7 +92,17 @@ class StreamableListViewState<T> extends State<StreamableListView<T>> {
 
         _subscription = _stream.listen(
             (T item) {
-                _connectionState = StreamableListViewConnectionState.Idle;
+                if(item == null) {
+                    setState(() {
+                        _connectionState = StreamableListViewConnectionState.Done;
+                    });
+                    return ;
+                }
+
+                if(_connectionState != StreamableListViewConnectionState.Done) {
+                    _connectionState = StreamableListViewConnectionState.Idle;
+                }
+
                 _insertNewItem(item);
             },
             onError: (error) {
@@ -118,15 +128,21 @@ class StreamableListViewState<T> extends State<StreamableListView<T>> {
 
     void _insertNewItem(T newItem)
     {
-        setState(() {
-            _items.add(newItem);
+        if(_items.contains(newItem)) {
+            setState(() {
 
-            if(widget.sortCompare == null) {
-                _items.sort(widget.sortCompare);
-            }
+            });
+        } else {
+            setState(() {
+                _items.add(newItem);
 
-            _connectionState = StreamableListViewConnectionState.Idle;
-        });
+                if (widget.sortCompare == null) {
+                    _items.sort(widget.sortCompare);
+                }
+
+                _connectionState = StreamableListViewConnectionState.Idle;
+            });
+        }
     }
 
     Widget _buildItems(BuildContext context, int index)
@@ -169,7 +185,9 @@ class StreamableListViewState<T> extends State<StreamableListView<T>> {
         return Container(
             width: MediaQuery.of(context).size.width,
             height: 60,
-            child: Text("Ошибка загрузки данных"),
+            child: Center(
+                child: Text("Ошибка загрузки данных")
+            ),
         );
     }
 

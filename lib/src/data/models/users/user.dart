@@ -16,7 +16,7 @@ class User extends Model
 
     String photo;
     
-    String get fullname => "$lastname $firstname $secondname".trim();
+    String get fullname => "${lastname ?? ''} ${firstname ?? ''} ${secondname ?? ''}".trim();
     
     set fullname(String value) {
         firstname = null;
@@ -45,6 +45,10 @@ class User extends Model
 
     factory User.fromMap(Map<String, dynamic> map)
     {
+        if(map == null) {
+            return null;
+        }
+
         return User(
             id: map["id"],
             email: map["email"],
