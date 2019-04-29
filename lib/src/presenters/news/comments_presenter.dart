@@ -6,8 +6,6 @@ import 'package:oppo_gdu/src/ui/views/news/comments.dart';
 import 'package:oppo_gdu/src/ui/views/view_contract.dart';
 import 'package:oppo_gdu/src/ui/views/future_contract.dart';
 import 'package:oppo_gdu/src/data/repositories/comments/api_repository.dart';
-import 'package:oppo_gdu/src/data/repositories/criteria.dart';
-import 'package:oppo_gdu/src/data/repositories/api_criteria.dart';
 import 'package:oppo_gdu/src/data/repositories/exceptions/not_found.dart';
 import 'package:oppo_gdu/src/support/auth/service.dart';
 
@@ -17,7 +15,7 @@ class NewsCommentsPresenter extends FuturePresenterContract<List<Comment>>
 
     NewsCommentsView _view;
 
-    ViewFutureContract<List<Comment>> _delegate;
+    NewsCommentsDelegate _delegate;
 
     CommentsApiRepository _apiRepository = CommentsApiRepository();
 
@@ -36,9 +34,9 @@ class NewsCommentsPresenter extends FuturePresenterContract<List<Comment>>
         }
     }
 
-    void didRefresh()
+    Future<void> didRefresh() async
     {
-        _loadNewsComments();
+        await _loadNewsComments();
     }
 
     void onDisposeState()
@@ -55,13 +53,29 @@ class NewsCommentsPresenter extends FuturePresenterContract<List<Comment>>
         } on RepositoryNotFoundException {
             router.presentNewsList();
         } catch(e) {
-            print(e.toString());
             _delegate.onError();
         }
     }
 
-    void didNewCommentPressed()
+    Future<void> didNewCommentPressed(String message) async
     {
+        Comment comment = Comment(
+            id: null,
+            user: AuthService.instance.user,
+            text: message,
+            createdAt: DateTime.now()
+        );
 
+        comment.newsId = _newsId;
+
+        try {
+            if (await _apiRepository.add(comment)) {
+                _delegate.onCommentSuccess(comment);
+            } else {
+                _delegate.onCommentError();
+            }
+        } catch(_) {
+            _delegate.onCommentError();
+        }
     }
 }

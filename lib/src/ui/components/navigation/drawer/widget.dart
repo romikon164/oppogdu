@@ -11,6 +11,8 @@ class DrawerNavigationWidget extends StatefulWidget
 {
     static const newsItem = 0;
 
+    static const photosItem = 1;
+
     final DrawerNavigationDelegate delegate;
 
     final int currentIndex;
@@ -41,13 +43,15 @@ class _DrawerNavigationWidgetState extends State<DrawerNavigationWidget> with Ti
                         context,
                         title: "Новости",
                         icon: Icons.assignment,
-                        onTap: widget.delegate.didDrawerNavigationNewsPressed
+                        onTap: widget.delegate.didDrawerNavigationNewsPressed,
+                        active: currentIndex == DrawerNavigationWidget.newsItem,
                     ),
                     _buildItem(
                         context,
                         title: "Фотогалерея",
                         icon: Icons.photo,
-                        onTap: widget.delegate.didDrawerNavigationPhotoGalleryPressed
+                        onTap: widget.delegate.didDrawerNavigationPhotoGalleryPressed,
+                        active: currentIndex == DrawerNavigationWidget.photosItem,
                     ),
                 ]
             ),
@@ -164,9 +168,10 @@ class _DrawerNavigationWidgetState extends State<DrawerNavigationWidget> with Ti
         );
     }
 
-    Widget _buildItem(BuildContext context, {String title, IconData icon, GestureTapCallback onTap})
+    Widget _buildItem(BuildContext context, {String title, IconData icon, GestureTapCallback onTap, bool active = false})
     {
         return ListTile(
+            selected: active,
             title: Text(title),
             leading: Icon(icon),
             onTap: onTap,

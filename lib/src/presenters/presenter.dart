@@ -48,7 +48,7 @@ abstract class Presenter implements PresenterContract, DrawerNavigationDelegate,
 
     void didDrawerNavigationPhotoGalleryPressed() {
         router.pop();
-        // TODO;
+        router.presentPhotoAlbums();
     }
 
     void didDrawerNavigationVideoGalleryPressed() {

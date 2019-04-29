@@ -88,6 +88,8 @@ class MarkdownComponentBuilder implements md.NodeVisitor {
     final List<GestureRecognizer> _linkHandlers = <GestureRecognizer>[];
     final List<GestureRecognizer> _imageHandlers = <GestureRecognizer>[];
 
+    final List<String> _imageHeroTags = <String>[];
+
 
     /// Returns widgets that display the given Markdown nodes.
     ///
@@ -267,10 +269,16 @@ class MarkdownComponentBuilder implements md.NodeVisitor {
             child = new Image.file(new File(filePath), width: width, height: height);
         }
 
-        child = Hero(
-            tag: uri.toString(),
-            child: child
-        );
+        String heroTag = uri.toString();
+
+        if(!_imageHeroTags.contains(heroTag)) {
+            child = Hero(
+                tag: uri.toString(),
+                child: child
+            );
+
+            _imageHeroTags.add(heroTag);
+        }
 
         if(_imageHandlers.isNotEmpty) {
             TapGestureRecognizer recognizer = _imageHandlers.last;

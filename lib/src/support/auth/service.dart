@@ -61,8 +61,8 @@ class AuthService
 
                 attemptUpdateUserData();
             }
-        } catch (e) {
-            print(e.toString());
+        } catch (_) {
+
         }
     }
 
@@ -71,6 +71,12 @@ class AuthService
         try {
             Map<String, dynamic> userData = await ApiService.instance.retrieveUserProfile();
 
+            if(userData.containsKey("data")) {
+                userData = userData["data"];
+            } else {
+                return ;
+            }
+
             user = User.fromMap(userData);
 
             SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -78,8 +84,8 @@ class AuthService
             String userJson = convert.jsonEncode(userData);
 
             preferences.setString(AuthService.SHARED_PREFERENCES_AUTH_USER_KEY, userJson);
-        } catch(e) {
-            print(e.toString());
+        } catch(_) {
+
         }
 
         _initialized = true;
@@ -102,8 +108,8 @@ class AuthService
             String authTokenJson = convert.jsonEncode(authTokenData);
 
             preferences.setString(AuthService.SHARED_PREFERENCES_AUTH_TOKEN_KEY, authTokenJson);
-        } catch(e) {
-            print(e.toString());
+        } catch(_) {
+
         }
     }
 

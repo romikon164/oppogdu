@@ -10,19 +10,22 @@ class NewsApiRepository extends RepositoryContract<News, ApiCriteria>
 {
     ApiService _apiService = ApiService.instance;
 
-    Future<ModelCollection<News>> get(ApiCriteria criteria, {String deviceToken}) async
+    Future<ModelCollection<News>> get(ApiCriteria criteria) async
     {
-        NewsRetrieveApiParameters parameters = NewsRetrieveApiParameters(
-            offset: criteria.getOffset(),
-            limit: criteria.getLimit(),
-            sortBy: criteria.getSortBy(),
-            sortDir: criteria.getSortDirection(),
-            leftBound: criteria.getFilterValueByName("left_bound") as int,
-            rightBound: criteria.getFilterValueByName("right_bound") as int,
+        ApiResponse apiResponse = await _apiService
+            .news
+            .getListWithLeftAndRightBound(
+                criteria.getFilterValueByName("left_bound") as int,
+                criteria.getFilterValueByName("right_bound") as int,
+                criteria.getOffset(),
+                criteria.getLimit()
         );
 
-        Map<String, dynamic> rawNewsWithMeta = await _apiService.retrieveNewsList(parameters, deviceToken: deviceToken);
+        if(!apiResponse.isOk) {
+            throw RequestException(apiResponse.status, apiResponse.errors().message);
+        }
 
+        Map<String, dynamic> rawNewsWithMeta = apiResponse.json();
         List<dynamic> rawNewses = rawNewsWithMeta["data"] as List<dynamic>;
 
         return ModelCollection(News.fromList(rawNewses));
@@ -32,7 +35,7 @@ class NewsApiRepository extends RepositoryContract<News, ApiCriteria>
     {
         criteria.take(1);
 
-        ModelCollection<News> newses = await get(criteria, deviceToken: deviceToken);
+        ModelCollection<News> newses = await get(criteria);
 
         if(newses.isEmpty) {
             throw RepositoryNotFoundException();
@@ -43,7 +46,19 @@ class NewsApiRepository extends RepositoryContract<News, ApiCriteria>
 
     Future<News> getById(int id, {String deviceToken}) async
     {
-        Map<String, dynamic> rawNewsWithMeta = await _apiService.retrieveNewsDetail(id, deviceToken);
+        ApiResponse apiResponse = await _apiService
+            .news
+            .getDetail(id);
+
+        if(apiResponse.isNotFound) {
+            throw RepositoryNotFoundException();
+        }
+
+        if(!apiResponse.isOk) {
+            throw RequestException(apiResponse.status, apiResponse.errors().message);
+        }
+
+        Map<String, dynamic> rawNewsWithMeta = apiResponse.json();
 
         if(!rawNewsWithMeta.containsKey("data")) {
             throw RepositoryNotFoundException();
@@ -74,50 +89,114 @@ class NewsApiRepository extends RepositoryContract<News, ApiCriteria>
         return false;
     }
 
-    Future<bool> addToFavorite(int id, String deviceToken) async
+    Future<void> addToFavorite(News news) async
     {
         try {
-            await _apiService.newsFavorite(id, deviceToken);
-            return true;
-        } catch(_) {
-            return false;
-        }
-    }
+            ApiResponse apiResponse = await _apiService.news.addToFavorite(news.id);
+            
+            if(apiResponse.isOk) {
+                Map<String, dynamic> jsonResponse = apiResponse.json();
+                
+                if(jsonResponse.containsKey("data")) {
+                    Map<String, dynamic> jsonCounters = jsonResponse["data"] as Map<String, dynamic>;
+                    
+                    if(jsonCounters.containsKey("views_count")) {
+                        news.viewsCount = jsonCounters["views_count"] as int;
+                    }
 
-    Future<bool> removeFromFavorite(int id, String deviceToken) async
-    {
-        try {
-            await _apiService.newsUnFavorite(id, deviceToken);
-            return true;
-        } catch(_) {
-            return false;
-        }
-    }
+                    if(jsonCounters.containsKey("favorites_count")) {
+                        news.favoritesCount = jsonCounters["favorites_count"] as int;
+                    }
 
-    Future<bool> getCounters(News news) async
-    {
-        try {
-            Map<String, dynamic> counters = await _apiService.newsCounters(news.id);
+                    if(jsonCounters.containsKey("comments_count")) {
+                        news.commentsCount = jsonCounters["comments_count"] as int;
+                    }
 
-            if(counters.containsKey("data")) {
-                counters = counters["data"] as Map<String, dynamic>;
+                    if(jsonCounters.containsKey("is_viewed")) {
+                        news.isViewed = jsonCounters["is_viewed"] as bool;
+                    }
 
-                if (counters.containsKey("favorites_count")) {
-                    news.favoritesCount = counters["favorites_count"] as int;
-                }
-
-                if (counters.containsKey("views_count")) {
-                    news.viewsCount = counters["views_count"] as int;
-                }
-
-                if (counters.containsKey("comments_count")) {
-                    news.commentsCount = counters["comments_count"] as int;
+                    if(jsonCounters.containsKey("is_favorited")) {
+                        news.isFavorited = jsonCounters["is_favorited"] as bool;
+                    }
                 }
             }
+        } catch(_) {
+            // TODO
+        }
+    }
 
-            return true;
-        } catch (e) {
-            return false;
+    Future<void> removeFromFavorite(News news) async
+    {
+        try {
+            ApiResponse apiResponse = await _apiService.news.removeFromFavorite(news.id);
+
+            if(apiResponse.isOk) {
+                Map<String, dynamic> jsonResponse = apiResponse.json();
+
+                if(jsonResponse.containsKey("data")) {
+                    Map<String, dynamic> jsonCounters = jsonResponse["data"] as Map<String, dynamic>;
+
+                    if(jsonCounters.containsKey("views_count")) {
+                        news.viewsCount = jsonCounters["views_count"] as int;
+                    }
+
+                    if(jsonCounters.containsKey("favorites_count")) {
+                        news.favoritesCount = jsonCounters["favorites_count"] as int;
+                    }
+
+                    if(jsonCounters.containsKey("comments_count")) {
+                        news.commentsCount = jsonCounters["comments_count"] as int;
+                    }
+
+                    if(jsonCounters.containsKey("is_viewed")) {
+                        news.isViewed = jsonCounters["is_viewed"] as bool;
+                    }
+
+                    if(jsonCounters.containsKey("is_favorited")) {
+                        news.isFavorited = jsonCounters["is_favorited"] as bool;
+                    }
+                }
+            }
+        } catch(_) {
+            // TODO
+        }
+    }
+
+    Future<void> getCounters(News news) async
+    {
+        try {
+            ApiResponse apiResponse = await _apiService.news.getCounters(news.id);
+
+            if(apiResponse.isOk) {
+                Map<String, dynamic> jsonResponse = apiResponse.json();
+
+                if(jsonResponse.containsKey("data")) {
+                    Map<String, dynamic> jsonCounters = jsonResponse["data"] as Map<String, dynamic>;
+
+                    if(jsonCounters.containsKey("views_count")) {
+                        news.viewsCount = jsonCounters["views_count"] as int;
+                    }
+
+                    if(jsonCounters.containsKey("favorites_count")) {
+                        news.favoritesCount = jsonCounters["favorites_count"] as int;
+                    }
+
+                    if(jsonCounters.containsKey("comments_count")) {
+                        news.commentsCount = jsonCounters["comments_count"] as int;
+                    }
+
+                    if(jsonCounters.containsKey("is_viewed")) {
+                        news.isViewed = jsonCounters["is_viewed"] as bool;
+                    }
+
+                    if(jsonCounters.containsKey("is_favorited")) {
+                        news.isFavorited = jsonCounters["is_favorited"] as bool;
+                    }
+                }
+            }
+        } catch (_) {
+
         }
     }
 }

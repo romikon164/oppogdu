@@ -1,15 +1,21 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
+import 'package:http_parser/http_parser.dart';
+import 'package:oppo_gdu/src/support/auth/service.dart';
 
 part 'auth_token.dart';
+part 'response.dart';
 part 'response_status_codes.dart';
 part 'request.dart';
 part 'exceptions/request_exception.dart';
 part 'exceptions/auth_invalid_credentials_exception.dart';
 part 'exceptions/request_unprocessable_entity_exception.dart';
+part 'exceptions/request_invalid_body.dart';
 part 'exceptions/authentication_exception.dart';
 part 'parameters/retrieve.dart';
 part 'parameters/news_retrieve.dart';
+part 'providers/news.dart';
+part 'providers/photos.dart';
 
 class ApiService
 {
@@ -24,6 +30,14 @@ class ApiService
     AuthToken authToken;
 
     String deviceToken;
+
+    NewsApiProvider _newsApiProvider;
+
+    NewsApiProvider get news => _newsApiProvider;
+
+    PhotoApiProvider _photoApiProvider;
+
+    PhotoApiProvider get photos => _photoApiProvider;
 
     static ApiService buildInstance({int clientId, String clientSecret, String baseUrl})
     {
@@ -41,7 +55,10 @@ class ApiService
         return ApiService._instance;
     }
 
-    ApiService({this.clientId, this.clientSecret, this.baseUrl});
+    ApiService({this.clientId, this.clientSecret, this.baseUrl}) {
+        _newsApiProvider = NewsApiProvider(this);
+        _photoApiProvider = PhotoApiProvider(this);
+    }
 
     Future<AuthToken> createAccount({String email, String phone, String password, String fullname}) async
     {
@@ -151,143 +168,114 @@ class ApiService
         return convert.jsonDecode(response.body);
     }
 
-    Future<Map<String, dynamic>> retrieveNewsList(NewsRetrieveApiParameters parameters, {String deviceToken}) async
+    Future<ApiResponse> request(ApiRequest apiRequest) async
     {
-        String url = "$baseUrl/news";
-        String queryString = parameters.toQueryString();
+        if(apiRequest.hasMultiPart()) {
+            return await _multiPartRequest(apiRequest);
+        }
 
-        if(queryString.isNotEmpty) {
-            url += "?$queryString";
+        String url = _getMethodUrl(apiRequest.method);
 
-            if(deviceToken != null && deviceToken.isNotEmpty) {
-                url += "&auth_device_uuid=$deviceToken";
-            }
+        Map<String, String> _headers = apiRequest._headers;
+
+        _headers["Accept"] = "application/json";
+
+        if(authToken != null) {
+            _headers['Authorization'] = "Bearer ${authToken.accessToken}";
+        }
+
+        if(AuthService.instance.firebaseToken != null) {
+            _headers['X-Device-Token'] = AuthService.instance.firebaseToken;
+        }
+
+        http.Response response;
+
+        if(apiRequest.requestMethod == ApiRequestMethod.GET) {
+            url += '?' + apiRequest.bodyToQueryString();
+
+            response = await http.get(url, headers: _headers);
+        } else if(apiRequest.requestMethod == ApiRequestMethod.POST) {
+            response = await http.post(url, headers: _headers, body: apiRequest._data);
+        } else if(apiRequest.requestMethod == ApiRequestMethod.PUT) {
+            response = await http.put(url, headers: _headers, body: apiRequest._data);
+        } else if(apiRequest.requestMethod == ApiRequestMethod.PATCH) {
+            response = await http.patch(url, headers: _headers, body: apiRequest._data);
+        } else if(apiRequest.requestMethod == ApiRequestMethod.DELETE) {
+            url += '?' + apiRequest.bodyToQueryString();
+
+            response = await http.delete(url, headers: _headers);
         } else {
-            if(deviceToken != null && deviceToken.isNotEmpty) {
-                url += "?auth_device_uuid=$deviceToken";
-            }
+            // TODO
         }
 
-        http.Response response = await http.get(
-            url,
-            headers: {
-                'Accept': 'application/json'
-            }
-        );
-
-        if(response.statusCode != ResponseStatusCodes.OK) {
-            throw RequestException(
-                response.statusCode,
-                "ApiService.requestToken http request exception"
-            );
-        }
-
-        return convert.jsonDecode(response.body);
+        return ApiResponse(response.statusCode, response.body);
     }
 
-    Future<Map<String, dynamic>> retrieveNewsDetail(int id, String authDeviceUUID) async
+    Future<ApiResponse> _multiPartRequest(ApiRequest apiRequest) async
     {
-        String url = "$baseUrl/news/$id";
+        String method = "POST";
+        String url = _getMethodUrl(apiRequest.method);
 
-        if(authDeviceUUID != null) {
-            url += '?auth_device_uuid=$authDeviceUUID';
+        if(apiRequest.requestMethod == ApiRequestMethod.GET) {
+            method = "GET";
+            url += '?' + apiRequest.bodyToQueryString();
+        } else if(apiRequest.requestMethod == ApiRequestMethod.POST) {
+            method = "POST";
+        } else if(apiRequest.requestMethod == ApiRequestMethod.PUT) {
+            method = "PUT";
+        } else if(apiRequest.requestMethod == ApiRequestMethod.PATCH) {
+            method = "PATCH";
+        } else if(apiRequest.requestMethod == ApiRequestMethod.DELETE) {
+            method = "DELETE";
+            url += '?' + apiRequest.bodyToQueryString();
+        } else {
+            // TODO
         }
-        http.Response response = await http.get(
-          url,
-          headers: {
-              'Accept': 'application/json'
-          }
-        );
 
-        if(response.statusCode != ResponseStatusCodes.OK) {
-            throw RequestException(
-              response.statusCode,
-              "ApiService.requestToken http request exception"
-            );
+        http.MultipartRequest request = http.MultipartRequest(method, Uri.parse(url));
+        
+        for(String field in apiRequest._data.keys) {
+            dynamic value = apiRequest._data[field];
+            
+            if(value is ApiMultiPartData) {
+                http.MultipartFile file = http.MultipartFile.fromBytes(
+                    value.name,
+                    value.data,
+                    filename: value.filename,
+                    contentType: MediaType.parse(value.contentType)
+                );
+                request.files.add(file);
+            } else if(value is int) {
+                request.fields[field] = "$value";
+            } else if(value is double) {
+                request.fields[field] = "$value";
+            } else if(value is bool) {
+                request.fields[field] = value ? "true" : "false";
+            } else {
+                request.fields[field] = value;
+            }
         }
 
-        return convert.jsonDecode(response.body);
+        request.headers["Accept"] = "application/json";
+
+        if(authToken != null) {
+            request.headers['Authorization'] = "Bearer ${authToken.accessToken}";
+        }
+
+        if(AuthService.instance.firebaseToken != null) {
+            request.headers['X-Device-Token'] = AuthService.instance.firebaseToken;
+        }
+
+        http.Response response = await http.Response.fromStream(await request.send());
+
+        return ApiResponse(response.statusCode, response.body);
     }
 
-    Future<Map<String, dynamic>> newsFavorite(int id, String authDeviceUUID) async
+    String _getMethodUrl(String method)
     {
-        http.Response response = await http.post(
-            "$baseUrl/news/$id/favorite",
-            headers: {
-                'Accept': 'application/json'
-            },
-            body: {
-                'auth_device_uuid': authDeviceUUID
-            }
-        );
+        String _baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length - 1) : baseUrl;
+        String _method = method.startsWith("/") ? method.substring(1, method.length - 1) : method;
 
-        if(response.statusCode != ResponseStatusCodes.OK) {
-            throw RequestException(
-                response.statusCode,
-                "ApiService.requestToken http request exception"
-            );
-        }
-
-        return convert.jsonDecode(response.body);
-    }
-
-    Future<Map<String, dynamic>> newsUnFavorite(int id, String authDeviceUUID) async
-    {
-        http.Response response = await http.post(
-            "$baseUrl/news/$id/unfavorite",
-            headers: {
-                'Accept': 'application/json'
-            },
-            body: {
-                'auth_device_uuid': authDeviceUUID
-            }
-        );
-
-        if(response.statusCode != ResponseStatusCodes.OK) {
-            throw RequestException(
-                response.statusCode,
-                "ApiService.requestToken http request exception"
-            );
-        }
-
-        return convert.jsonDecode(response.body);
-    }
-
-    Future<Map<String, dynamic>> newsCounters(int id) async
-    {
-        http.Response response = await http.get(
-            "$baseUrl/news/$id/counters",
-            headers: {
-                'Accept': 'application/json'
-            }
-        );
-
-        if(response.statusCode != ResponseStatusCodes.OK) {
-            throw RequestException(
-                response.statusCode,
-                "ApiService.requestToken http request exception"
-            );
-        }
-
-        return convert.jsonDecode(response.body);
-    }
-
-    Future<Map<String, dynamic>> retrieveNewsComments(int newsId) async
-    {
-        http.Response response = await http.get(
-            "$baseUrl/news/$newsId/comments",
-            headers: {
-                'Accept': 'application/json'
-            }
-        );
-
-        if(response.statusCode != ResponseStatusCodes.OK) {
-            throw RequestException(
-                response.statusCode,
-                "ApiService.requestToken http request exception"
-            );
-        }
-
-        return convert.jsonDecode(response.body);
+        return "$_baseUrl/$_method";
     }
 }

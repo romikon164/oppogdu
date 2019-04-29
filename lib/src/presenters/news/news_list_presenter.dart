@@ -97,8 +97,7 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
             _streamStartWith = await _databaseRepository.getFirst(
                 DatabaseCriteria().sortByDesc("created_at")
             );
-        } catch(e) {
-            print(e.toString());
+        } catch(_) {
             _streamStartWith = null;
         }
 
@@ -150,8 +149,6 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
 
     Future<List<News>> _loadNewsFromApi(int page) async
     {
-        String authDeviceToken = AuthService.instance.firebaseToken;
-
         ApiCriteria criteria = ApiCriteria()
             .sortByDesc("created_at")
             .skip((page - 1) * _pageSize)
@@ -161,7 +158,7 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
             criteria.where("right_bound", CriteriaOperator.equal, _streamStartWith.id);
         }
 
-        return await _apiRepository.get(criteria, deviceToken: authDeviceToken);
+        return await _apiRepository.get(criteria);
     }
 
     Future<void> _cacheNewsToDatabase(List<News> newses) async
@@ -177,17 +174,12 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
             return ;
         }
 
-        String authDeviceToken = AuthService.instance.firebaseToken;
-
         ApiCriteria criteria = ApiCriteria()
             .sortByDesc("created_at")
             .where("left_bound", CriteriaOperator.equal, _streamStartWith.id);
 
         try {
-            List<News> newses = await _apiRepository.get(
-                criteria,
-                deviceToken: authDeviceToken
-            );
+            List<News> newses = await _apiRepository.get(criteria);
 
             if(newses.isNotEmpty) {
                 _cacheNewsToDatabase(newses);
@@ -199,7 +191,7 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
         }
     }
 
-    Future<void> _updateNewsCounters(List<News> newses) async
+    Future<void> _updateNewsCounters(List<News> newses, [bool fromApi = true]) async
     {
         if(newses.isEmpty) {
             return ;
@@ -207,16 +199,13 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
 
         try {
             for(News news in newses) {
-                if(await _apiRepository.getCounters(news)) {
-                    await _databaseRepository.updateCounters(
-                        news.id,
-                        favorites: news.favoritesCount,
-                        views: news.viewsCount,
-                        comments: news.commentsCount
-                    );
-
-                    _newsStream.add(news);
+                if(fromApi) {
+                    await _apiRepository.getCounters(news);
                 }
+
+                await _databaseRepository.updateCounters(news);
+
+                _newsStream.add(news);
             }
         } catch (_) {
 
@@ -225,17 +214,11 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
 
     Future<void> _addToFavorite(News news) async
     {
-        String authDeviceToken = AuthService.instance.firebaseToken;
+        try {
+            await _apiRepository.addToFavorite(news);
+            await _updateNewsCounters([news], false);
+        } catch (_) {
 
-        if(authDeviceToken != null && authDeviceToken.isNotEmpty) {
-            try {
-                await _apiRepository.addToFavorite(news.id, authDeviceToken);
-                await _databaseRepository.addToFavorite(news.id);
-
-                await _updateNewsCounters([news]);
-            } catch (_) {
-
-            }
         }
     }
 
@@ -245,10 +228,9 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
 
         if(authDeviceToken != null && authDeviceToken.isNotEmpty) {
             try {
-                await _apiRepository.removeFromFavorite(news.id, authDeviceToken);
-                await _databaseRepository.removeFromFavorite(news.id);
+                await _apiRepository.removeFromFavorite(news);
 
-                await _updateNewsCounters([news]);
+                await _updateNewsCounters([news], false);
             } catch (_) {
 
             }

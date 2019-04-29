@@ -4,7 +4,7 @@ abstract class ViewFutureDelegate<T>
 {
     void onInitState(ViewFutureContract<T> listen);
 
-    void didRefresh();
+    Future<void> didRefresh();
 
     void onDisposeState();
 }

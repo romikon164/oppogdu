@@ -10,5 +10,7 @@ abstract class RouterContract
     void presentNewsList();
     void presentNewsDetail(int newsId);
     void presentNewsComments(int newsId);
+    void presentPhotoAlbums();
+    void presentPhotoAlbumDetail(int albumId);
     void presentSinglePhoto(String imageUrl, {String title});
 }

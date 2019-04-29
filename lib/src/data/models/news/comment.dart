@@ -6,6 +6,8 @@ class Comment extends Model
 {
     int id;
 
+    int newsId;
+
     User user;
 
     String text;

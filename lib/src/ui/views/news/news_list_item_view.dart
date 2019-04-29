@@ -5,7 +5,6 @@ import 'package:oppo_gdu/src/support/datetime/formatter.dart';
 import 'package:oppo_gdu/src/support/auth/service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:share/share.dart';
-import 'package:oppo_gdu/src/presenters/news/news_list_presenter.dart';
 
 class NewsListItemView extends StatefulWidget
 {
@@ -69,34 +68,40 @@ class _NewsListItemViewState extends State<NewsListItemView>
 
         List<Widget> actions = [];
 
-        if(AuthService.instance.isAuthenticated()) {
-            if(widget.news.isFavorited) {
-                actions.add(
-                    FlatButton.icon(
-                        onPressed: () {
+        if(widget.news.isFavorited) {
+            actions.add(
+                FlatButton.icon(
+                    onPressed: () {
+                        setState(() {
+                            widget.news.isFavorited = false;
+                            widget.news.favoritesCount--;
                             widget.delegate?.didUnFavoritePressed(widget.news);
-                        },
-                        icon: Icon(Icons.favorite, color: Colors.red),
-                        label: Text(
-                            "${widget.news.favoritesCount}",
-                            style: Theme.of(context).textTheme.button
-                        ),
-                    )
-                );
-            } else {
-                actions.add(
-                    FlatButton.icon(
-                        onPressed: () {
+                        });
+                    },
+                    icon: Icon(Icons.favorite, color: Colors.red),
+                    label: Text(
+                        "${widget.news.favoritesCount}",
+                        style: Theme.of(context).textTheme.button
+                    ),
+                )
+            );
+        } else {
+            actions.add(
+                FlatButton.icon(
+                    onPressed: () {
+                        setState(() {
+                            widget.news.isFavorited = true;
+                            widget.news.favoritesCount++;
                             widget.delegate?.didFavoritePressed(widget.news);
-                        },
-                        icon: Icon(Icons.favorite_border, color: Color(0xFF9B9B9B)),
-                        label: Text(
-                            "${widget.news.favoritesCount}",
-                            style: Theme.of(context).textTheme.button
-                        ),
-                    )
-                );
-            }
+                        });
+                    },
+                    icon: Icon(Icons.favorite_border, color: Color(0xFF9B9B9B)),
+                    label: Text(
+                        "${widget.news.favoritesCount}",
+                        style: Theme.of(context).textTheme.button
+                    ),
+                )
+            );
         }
 
         actions.add(

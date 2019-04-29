@@ -6,6 +6,8 @@ import 'package:oppo_gdu/src/support/auth/service.dart';
 import 'package:oppo_gdu/src/presenters/news/news_list_presenter.dart';
 import 'package:oppo_gdu/src/data/database/service.dart';
 import 'package:oppo_gdu/src/data/database/providers/news.dart';
+import 'package:oppo_gdu/src/data/database/providers/photo.dart';
+import 'package:oppo_gdu/src/data/database/providers/photo_album.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 void main() => runApp(Application());
@@ -71,11 +73,13 @@ class Application extends StatelessWidget
     void _databaseInitialize()
     {
         try {
-            DatabaseService.instance.addDatabaseProvider(
-                "news", NewsDatabaseProvider());
+            DatabaseService.instance.addDatabaseProvider("news", NewsDatabaseProvider());
+            DatabaseService.instance.addDatabaseProvider("photo-albums", PhotoAlbumDatabaseProvider());
+            DatabaseService.instance.addDatabaseProvider("photos", PhotoDatabaseProvider());
+
             DatabaseService.instance.database;
-        } catch (e) {
-            print(e.toString());
+        } catch (_) {
+
         }
     }
 

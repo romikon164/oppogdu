@@ -1,7 +1,5 @@
 import "package:oppo_gdu/src/data/models/model.dart";
-import "package:oppo_gdu/src/data/models/html_content_element.dart";
 import 'package:oppo_gdu/src/support/datetime/formatter.dart';
-import '../model_collection.dart';
 
 class News extends Model
 {

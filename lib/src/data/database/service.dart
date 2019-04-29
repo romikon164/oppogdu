@@ -46,8 +46,8 @@ class DatabaseService
             );
 
             _database = await databaseFactory.openDatabase(databasePath, options: databaseOptions);
-        } catch (e) {
-            print(e.toString());
+        } catch (_) {
+            // TODO
         }
     }
 

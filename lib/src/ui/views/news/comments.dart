@@ -8,6 +8,16 @@ import 'package:oppo_gdu/src/data/models/news/comment.dart';
 import 'package:oppo_gdu/src/support/utils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:oppo_gdu/src/support/datetime/formatter.dart';
+import 'package:oppo_gdu/src/support/auth/service.dart';
+import '../../flutter_fixes/bottom_sheet.dart' as FlutterFixBottomSheet;
+import 'package:fluttertoast/fluttertoast.dart';
+
+abstract class NewsCommentsDelegate implements ViewFutureContract<List<Comment>>
+{
+    void onCommentSuccess(Comment comment);
+
+    Future<void> onCommentError();
+}
 
 class NewsCommentsView extends StatefulWidget implements ViewContract
 {
@@ -19,13 +29,23 @@ class NewsCommentsView extends StatefulWidget implements ViewContract
     _NewsCommentsViewState createState() => _NewsCommentsViewState();
 }
 
-class _NewsCommentsViewState extends State<NewsCommentsView> implements ViewFutureContract<List<Comment>>
+class _NewsCommentsViewState extends State<NewsCommentsView> implements NewsCommentsDelegate
 {
     List<Comment> _comments;
 
     bool _isError = false;
 
     BottomNavigationController _bottomNavigationBarController;
+
+    GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+    GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+    bool _showNewCommentForm = false;
+
+    bool _loading = false;
+
+    String _message;
 
     _NewsCommentsViewState(): super();
 
@@ -70,6 +90,31 @@ class _NewsCommentsViewState extends State<NewsCommentsView> implements ViewFutu
         });
     }
 
+    void onCommentSuccess(Comment comment)
+    {
+        _closeLoadingIndicator();
+
+        widget.presenter?.router?.pop();
+
+        setState(() {
+            _comments.add(comment);
+        });
+    }
+
+    Future<void> onCommentError() async
+    {
+        _closeLoadingIndicator();
+
+        await Fluttertoast.cancel();
+
+        Fluttertoast.showToast(
+            msg: "Возникла ошибка при отправке данных",
+            fontSize: 12,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIos: 3,
+        );
+    }
+
     @override
     Widget build(BuildContext context) {
         return _comments == null
@@ -80,6 +125,7 @@ class _NewsCommentsViewState extends State<NewsCommentsView> implements ViewFutu
     Widget _buildLoadingWidget(BuildContext context)
     {
         return Scaffold(
+            key: _scaffoldKey,
             appBar: AppBar(
                 title: Text("Загрузка"),
             ),
@@ -87,12 +133,15 @@ class _NewsCommentsViewState extends State<NewsCommentsView> implements ViewFutu
                 child: CircularProgressIndicator(),
             ),
             bottomNavigationBar: BottomNavigationWidget(currentIndex: BottomNavigationWidget.newsItem),
+            resizeToAvoidBottomPadding: true,
+            resizeToAvoidBottomInset: true,
         );
     }
 
     Widget _buildErrorWidget(BuildContext context)
     {
         return Scaffold(
+            key: _scaffoldKey,
             appBar: AppBar(
                 title: Text("Ошибка"),
             ),
@@ -102,12 +151,15 @@ class _NewsCommentsViewState extends State<NewsCommentsView> implements ViewFutu
                 ),
             ),
             bottomNavigationBar: BottomNavigationWidget(currentIndex: BottomNavigationWidget.newsItem),
+            resizeToAvoidBottomPadding: true,
+            resizeToAvoidBottomInset: true,
         );
     }
 
     Widget _buildWidget(BuildContext context)
     {
         return Scaffold(
+            key: _scaffoldKey,
             body: NestedScrollView(
                 headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
                     return [
@@ -120,9 +172,12 @@ class _NewsCommentsViewState extends State<NewsCommentsView> implements ViewFutu
                 },
                 body: Builder(
                     builder: (BuildContext context) {
-                        return NotificationListener<UserScrollNotification>(
-                            child: _buildCommentsWidget(context),
-                            onNotification: _onUserScroll,
+                        return RefreshIndicator(
+                            child: NotificationListener<UserScrollNotification>(
+                                child: _buildCommentsWidget(context),
+                                onNotification: _onUserScroll,
+                            ),
+                            onRefresh: _onRefresh,
                         );
                     },
                 )
@@ -132,12 +187,14 @@ class _NewsCommentsViewState extends State<NewsCommentsView> implements ViewFutu
                 currentIndex: BottomNavigationWidget.newsItem,
             ),
             floatingActionButton: _buildNewCommentActionWidget(context),
+            resizeToAvoidBottomPadding: true,
+            resizeToAvoidBottomInset: true,
         );
     }
 
     bool _onUserScroll(UserScrollNotification notification)
     {
-        if(notification.direction == ScrollDirection.forward) {
+        if(notification.direction == ScrollDirection.forward && !_showNewCommentForm) {
             _bottomNavigationBarController.show();
         }
 
@@ -158,7 +215,7 @@ class _NewsCommentsViewState extends State<NewsCommentsView> implements ViewFutu
             return ListView.builder(
                 padding: EdgeInsets.all(0),
                 itemCount: _comments.length,
-                itemBuilder: _buildCommentItemWidget
+                itemBuilder: _buildCommentItemWidget,
             );
         }
     }
@@ -221,15 +278,134 @@ class _NewsCommentsViewState extends State<NewsCommentsView> implements ViewFutu
 
     Widget _buildNewCommentActionWidget(BuildContext context)
     {
-        return FloatingActionButton(
-            onPressed: _onNewCommentPressed,
-            backgroundColor: Theme.of(context).primaryColor,
-            child: Icon(Icons.edit, size: 24, color: Colors.white),
-        );
+        return AuthService.instance.isAuthenticated() && !_showNewCommentForm
+            ? FloatingActionButton(
+                onPressed: _onNewCommentPressed,
+                backgroundColor: Theme.of(context).primaryColor,
+                child: Icon(Icons.edit, size: 24, color: Colors.white),
+            )
+            : null;
     }
 
     void _onNewCommentPressed()
     {
-        widget.presenter?.didNewCommentPressed();
+        if(_showNewCommentForm) {
+            return ;
+        }
+
+        // widget.presenter?.didNewCommentPressed();
+        _bottomNavigationBarController.hide();
+
+        setState(() {
+            _showNewCommentForm = true;
+        });
+
+        FlutterFixBottomSheet.showModalBottomSheet(context: context, builder: (BuildContext context) {
+            return Form(
+                key: _formKey,
+                child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                        new Padding(
+                            padding: EdgeInsets.fromLTRB(16, 4, 16, 4),
+                            child: TextFormField(
+                                autofocus: true,
+                                maxLines: null,
+                                keyboardType: TextInputType.multiline,
+                                decoration: InputDecoration(
+                                    labelText: "Текст комментария",
+                                ),
+                                style: Theme.of(context).textTheme.button,
+                                validator: (String message) {
+                                    if(message.isEmpty) {
+                                        return "Укажите текст комментария";
+                                    }
+
+                                    return null;
+                                },
+                                onSaved: (String message) {
+                                    _message = message;
+                                },
+                            ),
+                        ),
+                        new Padding(
+                            padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+                            child: RaisedButton(
+                                color: Theme.of(context).primaryColor,
+                                onPressed: () {
+                                    FocusScope.of(context).requestFocus(FocusNode());
+
+                                    if(_formKey.currentState.validate()) {
+
+                                        _showLoadingIndicator(context);
+
+                                        _formKey.currentState.save();
+
+                                        widget.presenter?.didNewCommentPressed(_message);
+                                    }
+                                },
+                                child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                        Text("Отправить", style: TextStyle(color: Colors.white)),
+                                        Container(width: 8),
+                                        Icon(Icons.exit_to_app, color: Colors.white)
+                                    ],
+                                ),
+                            ),
+                        )
+                    ],
+                ),
+            );
+        }).then((dynamic _) {
+            setState(() {
+                _showNewCommentForm = false;
+                _bottomNavigationBarController.show();
+            });
+        });
+    }
+
+    void _showLoadingIndicator(BuildContext context)
+    {
+        if(!_loading) {
+            _loading = true;
+
+            showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (BuildContext context) {
+                    return Dialog(
+                        child: Container(
+                            height: 80,
+                            child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                    Padding(
+                                        padding: EdgeInsets.all(16),
+                                        child: CircularProgressIndicator(),
+                                    ),
+                                    Text("Пожалуйста, подождите"),
+                                ],
+                            ),
+                        ),
+                    );
+                }
+            );
+        }
+    }
+
+    void _closeLoadingIndicator()
+    {
+        if(_loading) {
+            widget.presenter?.router?.pop();
+
+            _loading = false;
+        }
+    }
+
+    Future<void> _onRefresh() async
+    {
+        widget.presenter?.didRefresh();
     }
 }

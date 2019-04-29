@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import '../view_contract.dart';
 import 'package:oppo_gdu/src/presenters/news/news_detail_presenter.dart';
 import '../future_contract.dart';
@@ -101,19 +100,7 @@ class _NewsDetailViewState extends State<NewsDetailView> implements ViewFutureCo
                 child: RefreshIndicator(
                     child: CustomScrollView(
                         slivers: [
-                            SliverAppBar(
-                                centerTitle: false,
-                                expandedHeight: _flexibleSpaceHeight,
-                                floating: false,
-                                pinned: true,
-                                title: _buildAppBarTitle(context),
-                                flexibleSpace: FlexibleSpaceBar(
-                                    background: Image(
-                                        image: CachedNetworkImageProvider(_news.image),
-                                        fit: BoxFit.cover,
-                                    ),
-                                ),
-                            ),
+                            _buildAppBar(context),
                             SliverToBoxAdapter(
                                 child: Card(
                                     child: Padding(
@@ -171,6 +158,34 @@ class _NewsDetailViewState extends State<NewsDetailView> implements ViewFutureCo
         );
     }
 
+    Widget _buildAppBar(BuildContext context)
+    {
+        if(_news.image == null) {
+            _flexibleSpaceHeight = kToolbarHeight;
+
+            return SliverAppBar(
+                centerTitle: false,
+                floating: false,
+                pinned: true,
+                title: _buildAppBarTitle(context),
+            );
+        } else {
+            return SliverAppBar(
+                centerTitle: false,
+                expandedHeight: _flexibleSpaceHeight,
+                floating: false,
+                pinned: true,
+                title: _buildAppBarTitle(context),
+                flexibleSpace: FlexibleSpaceBar(
+                    background: Image(
+                        image: CachedNetworkImageProvider(_news.image),
+                        fit: BoxFit.cover,
+                    ),
+                ),
+            );
+        }
+    }
+
     Widget _buildLoadingWidget(BuildContext context)
     {
         return Scaffold(
@@ -217,34 +232,32 @@ class _NewsDetailViewState extends State<NewsDetailView> implements ViewFutureCo
     {
         List<Widget> actions = [];
 
-        if(AuthService.instance.isAuthenticated()) {
-            if(_news.isFavorited) {
-                actions.add(
-                    FlatButton.icon(
-                        onPressed: () {
-                            widget.presenter?.didUnFavoritePressed();
-                        },
-                        icon: Icon(Icons.favorite, color: Colors.red),
-                        label: Text(
-                            "${_news.favoritesCount}",
-                            style: Theme.of(context).textTheme.button
-                        ),
-                    )
-                );
-            } else {
-                actions.add(
-                    FlatButton.icon(
-                        onPressed: () {
-                            widget.presenter?.didFavoritePressed();
-                        },
-                        icon: Icon(Icons.favorite_border, color: Color(0xFF9B9B9B)),
-                        label: Text(
-                            "${_news.favoritesCount}",
-                            style: Theme.of(context).textTheme.button
-                        ),
-                    )
-                );
-            }
+        if(_news.isFavorited) {
+            actions.add(
+                FlatButton.icon(
+                    onPressed: () {
+                        widget.presenter?.didUnFavoritePressed();
+                    },
+                    icon: Icon(Icons.favorite, color: Colors.red),
+                    label: Text(
+                        "${_news.favoritesCount}",
+                        style: Theme.of(context).textTheme.button
+                    ),
+                )
+            );
+        } else {
+            actions.add(
+                FlatButton.icon(
+                    onPressed: () {
+                        widget.presenter?.didFavoritePressed();
+                    },
+                    icon: Icon(Icons.favorite_border, color: Color(0xFF9B9B9B)),
+                    label: Text(
+                        "${_news.favoritesCount}",
+                        style: Theme.of(context).textTheme.button
+                    ),
+                )
+            );
         }
 
         actions.add(
@@ -288,7 +301,7 @@ class _NewsDetailViewState extends State<NewsDetailView> implements ViewFutureCo
 
     Future<void> _onRefresh() async
     {
-        // TODO
+        widget.presenter?.didRefresh();
     }
 
     bool _onScrollNotification(ScrollNotification notification)

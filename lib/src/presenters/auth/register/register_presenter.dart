@@ -104,8 +104,7 @@ class RegisterPresenter extends FormPresenter
             } else {
                 _delegate.onFormSendFailure(e.message);
             }
-        } on RequestException catch(e) {
-            print(e.toString());
+        } on RequestException catch(_) {
             _delegate.onFormSendFailure("Возникла ошибка при отправке данных");
         }
     }

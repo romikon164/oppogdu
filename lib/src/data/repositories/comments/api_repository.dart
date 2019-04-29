@@ -14,7 +14,13 @@ class CommentsApiRepository extends RepositoryContract<Comment, ApiCriteria>
     {
         int newsId = criteria.getFilterValueByName("news_id");
 
-        Map<String, dynamic> rawCommentsWithMeta = await _apiService.retrieveNewsComments(newsId);
+        ApiResponse apiResponse = await _apiService.news.getComments(newsId);
+
+        if(!apiResponse.isOk) {
+            throw RequestException(apiResponse.status, apiResponse.errors().message);
+        }
+
+        Map<String, dynamic> rawCommentsWithMeta = apiResponse.json();
 
         List<dynamic> rawComments = rawCommentsWithMeta["data"] as List<dynamic>;
 
@@ -23,7 +29,13 @@ class CommentsApiRepository extends RepositoryContract<Comment, ApiCriteria>
 
     Future<ModelCollection<Comment>> getByNewsId(int newsId) async
     {
-        Map<String, dynamic> rawCommentsWithMeta = await _apiService.retrieveNewsComments(newsId);
+        ApiResponse apiResponse = await _apiService.news.getComments(newsId);
+
+        if(!apiResponse.isOk) {
+            throw RequestException(apiResponse.status, apiResponse.errors().message);
+        }
+
+        Map<String, dynamic> rawCommentsWithMeta = apiResponse.json();
 
         List<dynamic> rawComments = rawCommentsWithMeta["data"] as List<dynamic>;
 
@@ -45,6 +57,21 @@ class CommentsApiRepository extends RepositoryContract<Comment, ApiCriteria>
 
     Future<bool> add(Comment comment) async
     {
+        ApiResponse apiResponse = await _apiService.news.sendComment(comment.newsId, comment.text);
+
+        if(!apiResponse.isOk) {
+            throw RequestException(apiResponse.status, apiResponse.errors().message);
+        }
+
+        Map<String, dynamic> rawCommentWithMeta = apiResponse.json();
+
+        Map<String, dynamic> rawComment = rawCommentWithMeta["data"] as Map<String, dynamic>;
+
+        if(rawComment.containsKey("id")) {
+            comment.id = rawComment["id"] as int;
+            return true;
+        }
+
         return false;
     }
 

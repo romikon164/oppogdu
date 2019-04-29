@@ -40,8 +40,7 @@ class NewsDatabaseRepository extends DatabaseRepositoryContract<News>
             }
 
             return true;
-        } catch(e) {
-            print(e.toString());
+        } catch(_) {
             return false;
         }
     }
@@ -155,31 +154,25 @@ class NewsDatabaseRepository extends DatabaseRepositoryContract<News>
         );
     }
 
-    Future<bool> updateCounters(int id, {int favorites, int views, int comments}) async
+    Future<bool> updateCounters(News news) async
     {
         try {
-            Map<String, dynamic> rows = Map<String, dynamic>();
-
-            if (favorites != null) {
-                rows["favorites_count"] = favorites;
-            }
-
-            if (views != null) {
-                rows["views_count"] = views;
-            }
-
-            if (comments != null) {
-                rows["comments_count"] = comments;
-            }
+            Map<String, dynamic> rows = {
+                "favorites_count": news.favoritesCount,
+                "views_count": news.viewsCount,
+                "comments_count": news.commentsCount,
+                "is_favorited": news.isFavorited ? 1 : 0,
+                "is_viewed": news.isViewed ? 1 : 0
+            };
 
             _newsProvider.update(
                 rows: rows,
                 where: "id = ?",
-                whereArgs: ["$id"]
+                whereArgs: ["${news.id}"]
             );
 
             return true;
-        } catch (e) {
+        } catch (_) {
             return false;
         }
     }
