@@ -60,6 +60,13 @@ class StreamableListViewState<T> extends State<StreamableListView<T>> {
     }
 
     @override
+    void dispose()
+    {
+        _unsubscribe();
+        super.dispose();
+    }
+
+    @override
     void didUpdateWidget(StreamableListView oldWidget) {
         super.didUpdateWidget(oldWidget);
     }

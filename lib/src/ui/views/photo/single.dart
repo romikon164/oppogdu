@@ -36,7 +36,7 @@ class _SinglePhotoViewState extends State<SinglePhotoView>
                 child: PhotoView(
                     heroTag: widget.title,
                     minScale: PhotoViewComputedScale.contained,
-                    maxScale: PhotoViewComputedScale.contained * 2.0,
+                    maxScale: PhotoViewComputedScale.contained * 4.0,
                     initialScale: PhotoViewComputedScale.contained,
                     loadingChild: CircularProgressIndicator(backgroundColor: Colors.white),
                     imageProvider: CachedNetworkImageProvider(widget.imageUrl),

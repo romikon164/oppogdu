@@ -88,6 +88,9 @@ class PhotoApiRepository extends RepositoryContract<PhotoAlbum, ApiCriteria>
         try {
             ApiResponse apiResponse = await _apiService.photos.addToFavorite(photo.id);
 
+            print(apiResponse.status);
+            print(apiResponse.body);
+
             if(apiResponse.isOk) {
                 Map<String, dynamic> jsonResponse = apiResponse.json();
 
@@ -106,9 +109,11 @@ class PhotoApiRepository extends RepositoryContract<PhotoAlbum, ApiCriteria>
                         photo.isFavorited = jsonCounters["is_favorited"] as bool;
                     }
                 }
+            } else {
+                print("test");
             }
-        } catch(_) {
-            // TODO
+        } catch(e) {
+            print(e);
         }
     }
 
@@ -135,9 +140,11 @@ class PhotoApiRepository extends RepositoryContract<PhotoAlbum, ApiCriteria>
                         photo.isFavorited = jsonCounters["is_favorited"] as bool;
                     }
                 }
+            } else {
+                print("test");
             }
-        } catch(_) {
-            // TODO
+        } catch(e) {
+            print(e);
         }
     }
 

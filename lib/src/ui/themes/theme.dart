@@ -79,7 +79,7 @@ class ThemeBuilder
     AppBarTheme _buildAppBarTheme()
     {
         return AppBarTheme(
-            brightness: Brightness.light,
+            brightness: Brightness.dark,
             color: Color(0xFF0072C5),
             iconTheme: IconThemeData(
                 color: Colors.white,

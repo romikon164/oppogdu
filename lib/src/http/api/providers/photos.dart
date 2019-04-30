@@ -26,6 +26,7 @@ class PhotoApiProvider
 
     Future<ApiResponse> addToFavorite(int id) async
     {
+        print('photos/$id/favorite');
         return await ApiRequest('photos/$id/favorite', ApiRequestMethod.POST).execute();
     }
 

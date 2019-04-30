@@ -172,10 +172,6 @@ class _PhotoAlbumDetailViewState extends State<PhotoAlbumDetailView> implements 
             bottomNavigationBar: BottomNavigationWidget(
                 controller: _bottomNavigationBarController,
             ),
-            drawer: DrawerNavigationWidget(
-                delegate: widget.presenter,
-                currentIndex: DrawerNavigationWidget.photosItem
-            ),
         );
     }
 
@@ -360,7 +356,10 @@ class _PhotoAlbumDetailViewState extends State<PhotoAlbumDetailView> implements 
         return Card(
             child: GestureDetector(
                 onTap: () {
-                    // TODO
+                    widget.presenter?.router?.presentPhotoGallery(
+                        _photoAlbum.photos,
+                        initialIndex: index
+                    );
                 },
                 child: Padding(
                     padding: EdgeInsets.all(0),
