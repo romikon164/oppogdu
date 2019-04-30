@@ -85,7 +85,9 @@ class _PhotoAlbumListViewState extends State<PhotoAlbumListView> implements View
             body: Center(
                 child: CircularProgressIndicator(),
             ),
-            bottomNavigationBar: BottomNavigationWidget(),
+            bottomNavigationBar: BottomNavigationWidget(
+                controller: _bottomNavigationBarController,
+            ),
             drawer: DrawerNavigationWidget(
                 delegate: widget.presenter,
                 currentIndex: DrawerNavigationWidget.photosItem
@@ -104,7 +106,9 @@ class _PhotoAlbumListViewState extends State<PhotoAlbumListView> implements View
                     "Возникла ошибка при загрузке данных"
                 ),
             ),
-            bottomNavigationBar: BottomNavigationWidget(),
+            bottomNavigationBar: BottomNavigationWidget(
+                controller: _bottomNavigationBarController,
+            ),
             drawer: DrawerNavigationWidget(
                 delegate: widget.presenter,
                 currentIndex: DrawerNavigationWidget.photosItem

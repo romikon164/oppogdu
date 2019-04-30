@@ -94,7 +94,9 @@ class _PhotoAlbumDetailViewState extends State<PhotoAlbumDetailView> implements 
             body: Center(
                 child: CircularProgressIndicator(),
             ),
-            bottomNavigationBar: BottomNavigationWidget(),
+            bottomNavigationBar: BottomNavigationWidget(
+                controller: _bottomNavigationBarController,
+            ),
             drawer: DrawerNavigationWidget(
                 delegate: widget.presenter,
                 currentIndex: DrawerNavigationWidget.photosItem
@@ -113,7 +115,9 @@ class _PhotoAlbumDetailViewState extends State<PhotoAlbumDetailView> implements 
                     "Возникла ошибка при загрузке данных"
                 ),
             ),
-            bottomNavigationBar: BottomNavigationWidget(),
+            bottomNavigationBar: BottomNavigationWidget(
+                controller: _bottomNavigationBarController,
+            ),
             drawer: DrawerNavigationWidget(
                 delegate: widget.presenter,
                 currentIndex: DrawerNavigationWidget.photosItem

@@ -15,4 +15,5 @@ abstract class RouterContract
     void presentPhotoAlbumDetail(int albumId);
     void presentSinglePhoto(String imageUrl, {String title});
     void presentPhotoGallery(List<Photo> photos, {int initialIndex = 0});
+    void presentWriteToUs();
 }

@@ -98,7 +98,7 @@ abstract class Presenter implements PresenterContract, DrawerNavigationDelegate,
 
     void didDrawerNavigationWriteToUsPressed() {
         router.pop();
-        // TODO
+        router.presentWriteToUs();
     }
 
     void didBottomNavigationNewsPressed() {
@@ -109,6 +109,6 @@ abstract class Presenter implements PresenterContract, DrawerNavigationDelegate,
         // TODO
     }
     void didBottomNavigationWriteToUs() {
-        // TODO
+        router.presentWriteToUs();
     }
 }

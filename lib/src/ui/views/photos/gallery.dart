@@ -52,7 +52,11 @@ class _PhotoGalleryViewViewState extends State<PhotoGalleryView>
                             onPageChanged: _onPhotoChange,
                             itemCount: widget.photos.length,
                             builder: _buildPhotoItem,
-                            loadingChild: Center(child: CircularProgressIndicator(backgroundColor: Colors.white)),
+                            loadingChild: Center(
+                                child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                )
+                            ),
                         ),
                         _buildCustomAppbar(context),
                         _buildActionWidgets(context)

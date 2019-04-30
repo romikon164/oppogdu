@@ -50,13 +50,13 @@ class User extends Model
         }
 
         return User(
-            id: map["id"],
-            email: map["email"],
-            phone: map["phone"],
-            firstname: map["first_name"],
-            lastname: map["last_name"],
-            secondname: map["second_name"],
-            photo: map["photo"],
+            id: map["id"] as int,
+            email: map["email"] as String,
+            phone: map["phone"] as String,
+            firstname: map["first_name"] as String,
+            lastname: map["last_name"] as String,
+            secondname: map["second_name"] as String,
+            photo: map["photo"] as String,
         );
     }
     

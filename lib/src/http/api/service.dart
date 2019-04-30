@@ -16,6 +16,8 @@ part 'parameters/retrieve.dart';
 part 'parameters/news_retrieve.dart';
 part 'providers/news.dart';
 part 'providers/photos.dart';
+part 'providers/orders.dart';
+part 'providers/contacts.dart';
 
 class ApiService
 {
@@ -39,6 +41,14 @@ class ApiService
 
     PhotoApiProvider get photos => _photoApiProvider;
 
+    OrderApiProvider _orderApiProvider;
+
+    OrderApiProvider get orders => _orderApiProvider;
+
+    ContactsApiProvider _contactsApiProvider;
+
+    ContactsApiProvider get contacts => _contactsApiProvider;
+
     static ApiService buildInstance({int clientId, String clientSecret, String baseUrl})
     {
         ApiService._instance = ApiService(clientId: clientId, clientSecret: clientSecret, baseUrl: baseUrl);
@@ -58,6 +68,8 @@ class ApiService
     ApiService({this.clientId, this.clientSecret, this.baseUrl}) {
         _newsApiProvider = NewsApiProvider(this);
         _photoApiProvider = PhotoApiProvider(this);
+        _orderApiProvider = OrderApiProvider(this);
+        _contactsApiProvider = ContactsApiProvider(this);
     }
 
     Future<AuthToken> createAccount({String email, String phone, String password, String fullname}) async

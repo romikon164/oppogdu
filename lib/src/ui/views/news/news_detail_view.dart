@@ -195,7 +195,10 @@ class _NewsDetailViewState extends State<NewsDetailView> implements ViewFutureCo
             body: Center(
                 child: CircularProgressIndicator(),
             ),
-            bottomNavigationBar: BottomNavigationWidget(currentIndex: BottomNavigationWidget.newsItem),
+            bottomNavigationBar: BottomNavigationWidget(
+                controller: _bottomNavigationBarController,
+                currentIndex: BottomNavigationWidget.newsItem
+            ),
         );
     }
 
@@ -210,7 +213,10 @@ class _NewsDetailViewState extends State<NewsDetailView> implements ViewFutureCo
                     "Возникла ошибка при загрузке данных"
                 ),
             ),
-            bottomNavigationBar: BottomNavigationWidget(currentIndex: BottomNavigationWidget.newsItem),
+            bottomNavigationBar: BottomNavigationWidget(
+                controller: _bottomNavigationBarController,
+                currentIndex: BottomNavigationWidget.newsItem
+            ),
         );
     }
 

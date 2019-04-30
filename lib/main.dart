@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:yandex_mapkit/yandex_mapkit.dart';
+import 'package:oppo_gdu/src/consts.dart' as AppConsts;
 import 'package:oppo_gdu/src/support/routing/router.dart';
 import 'package:oppo_gdu/src/http/api/service.dart';
 import 'package:oppo_gdu/src/ui/themes/theme.dart';
@@ -8,7 +11,6 @@ import 'package:oppo_gdu/src/data/database/service.dart';
 import 'package:oppo_gdu/src/data/database/providers/news.dart';
 import 'package:oppo_gdu/src/data/database/providers/photo.dart';
 import 'package:oppo_gdu/src/data/database/providers/photo_album.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 
 void main() => runApp(Application());
 
@@ -17,6 +19,7 @@ class Application extends StatelessWidget
     final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
     Application({Key key}): super(key: key) {
+        _yandexMapsInitalize();
         _firebaseInitialize();
         _databaseInitialize();
         _apiInitialize();
@@ -33,6 +36,11 @@ class Application extends StatelessWidget
             navigatorKey: router.navigatorKey,
             theme: ThemeBuilder().build(),
         );
+    }
+
+    void _yandexMapsInitalize()
+    {
+        YandexMapkit.setup(apiKey: AppConsts.YANDEX_MAP_API_KEY);
     }
 
     void _firebaseInitialize()
@@ -86,9 +94,9 @@ class Application extends StatelessWidget
     void _apiInitialize()
     {
         ApiService.buildInstance(
-            baseUrl: "http://api.oppo-gdu.ru",
-            clientId: 2,
-            clientSecret: "o9SRuHh8SDzVPB7DoR8E64WIBG44nfkGLd2vySRe"
+            baseUrl: AppConsts.OPPO_API_URL,
+            clientId: AppConsts.OPPO_CLIENT_ID,
+            clientSecret: AppConsts.OPPO_CLIENT_SECRET
         );
 
         AuthService.instance.initService();

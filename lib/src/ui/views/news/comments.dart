@@ -132,7 +132,10 @@ class _NewsCommentsViewState extends State<NewsCommentsView> implements NewsComm
             body: Center(
                 child: CircularProgressIndicator(),
             ),
-            bottomNavigationBar: BottomNavigationWidget(currentIndex: BottomNavigationWidget.newsItem),
+            bottomNavigationBar: BottomNavigationWidget(
+                controller: _bottomNavigationBarController,
+                currentIndex: BottomNavigationWidget.newsItem
+            ),
             resizeToAvoidBottomPadding: true,
             resizeToAvoidBottomInset: true,
         );
@@ -150,7 +153,10 @@ class _NewsCommentsViewState extends State<NewsCommentsView> implements NewsComm
                     "Возникла ошибка при загрузке данных"
                 ),
             ),
-            bottomNavigationBar: BottomNavigationWidget(currentIndex: BottomNavigationWidget.newsItem),
+            bottomNavigationBar: BottomNavigationWidget(
+                controller: _bottomNavigationBarController,
+                currentIndex: BottomNavigationWidget.newsItem
+            ),
             resizeToAvoidBottomPadding: true,
             resizeToAvoidBottomInset: true,
         );

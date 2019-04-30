@@ -8,6 +8,7 @@ import 'package:oppo_gdu/src/presenters/news/news_detail_presenter.dart';
 import 'package:oppo_gdu/src/presenters/news/comments_presenter.dart';
 import 'package:oppo_gdu/src/presenters/photos/album_list.dart';
 import 'package:oppo_gdu/src/presenters/photos/album_detail.dart';
+import 'package:oppo_gdu/src/presenters/order.dart';
 import 'package:oppo_gdu/src/ui/views/photo/single.dart';
 import 'package:oppo_gdu/src/ui/views/photos/gallery.dart';
 import 'package:oppo_gdu/src/data/models/photo/photo.dart';
@@ -95,5 +96,10 @@ class Router implements RouterContract
                 builder: (context) => PhotoGalleryView(photos: photos, initialIndex: initialIndex)
             )
         );
+    }
+
+    void presentWriteToUs()
+    {
+        replace(OrderPresenter(this));
     }
 }

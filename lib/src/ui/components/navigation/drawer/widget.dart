@@ -13,6 +13,26 @@ class DrawerNavigationWidget extends StatefulWidget
 
     static const photosItem = 1;
 
+    static const videosItem = 2;
+
+    static const sportComplexItem = 3;
+
+    static const structureItem = 4;
+
+    static const printsItem = 5;
+
+    static const regulationsItem = 6;
+
+    static const leadersItem = 7;
+
+    static const agreementItem = 8;
+
+    static const contactsItem = 9;
+
+    static const followUsItem = 10;
+
+    static const callbackItem = 11;
+
     final DrawerNavigationDelegate delegate;
 
     final int currentIndex;
@@ -52,6 +72,78 @@ class _DrawerNavigationWidgetState extends State<DrawerNavigationWidget> with Ti
                         icon: Icons.photo,
                         onTap: widget.delegate.didDrawerNavigationPhotoGalleryPressed,
                         active: currentIndex == DrawerNavigationWidget.photosItem,
+                    ),
+                    _buildItem(
+                        context,
+                        title: "Видеозаписи",
+                        icon: Icons.videocam,
+                        onTap: widget.delegate.didDrawerNavigationVideoGalleryPressed,
+                        active: currentIndex == DrawerNavigationWidget.videosItem,
+                    ),
+                    Container(height: 1, color: Colors.black12),
+                    _buildItem(
+                        context,
+                        title: "Спортивный комплекс",
+                        icon: Icons.business,
+                        onTap: widget.delegate.didDrawerNavigationSportComplexPressed,
+                        active: currentIndex == DrawerNavigationWidget.sportComplexItem,
+                    ),
+                    _buildItem(
+                        context,
+                        title: "Структура",
+                        icon: Icons.account_balance,
+                        onTap: widget.delegate.didDrawerNavigationStructurePressed,
+                        active: currentIndex == DrawerNavigationWidget.structureItem,
+                    ),
+                    _buildItem(
+                        context,
+                        title: "Печатные издания",
+                        icon: Icons.library_books,
+                        onTap: widget.delegate.didDrawerNavigationPrintsPressed,
+                        active: currentIndex == DrawerNavigationWidget.printsItem,
+                    ),
+                    _buildItem(
+                        context,
+                        title: "Нормативные акты",
+                        icon: Icons.collections_bookmark,
+                        onTap: widget.delegate.didDrawerNavigationRegulationsPressed,
+                        active: currentIndex == DrawerNavigationWidget.regulationsItem,
+                    ),
+                    _buildItem(
+                        context,
+                        title: "Руководство",
+                        icon: Icons.people,
+                        onTap: widget.delegate.didDrawerNavigationLeadershipPressed,
+                        active: currentIndex == DrawerNavigationWidget.leadersItem,
+                    ),
+                    _buildItem(
+                        context,
+                        title: "Коллективный договор",
+                        icon: Icons.thumbs_up_down,
+                        onTap: widget.delegate.didDrawerNavigationCollectiveAgreementPressed,
+                        active: currentIndex == DrawerNavigationWidget.agreementItem,
+                    ),
+                    Container(height: 1, color: Colors.black12),
+                    _buildItem(
+                        context,
+                        title: "Контакты",
+                        icon: Icons.perm_contact_calendar,
+                        onTap: widget.delegate.didDrawerNavigationContactsPressed,
+                        active: currentIndex == DrawerNavigationWidget.contactsItem,
+                    ),
+                    _buildItem(
+                        context,
+                        title: "Следите за нами",
+                        icon: Icons.remove_red_eye,
+                        onTap: widget.delegate.didDrawerNavigationFollowsUsPressed,
+                        active: currentIndex == DrawerNavigationWidget.followUsItem,
+                    ),
+                    _buildItem(
+                        context,
+                        title: "Напишите нам",
+                        icon: Icons.mail,
+                        onTap: widget.delegate.didDrawerNavigationWriteToUsPressed,
+                        active: currentIndex == DrawerNavigationWidget.callbackItem,
                     ),
                 ]
             ),

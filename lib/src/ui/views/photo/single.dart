@@ -38,7 +38,11 @@ class _SinglePhotoViewState extends State<SinglePhotoView>
                     minScale: PhotoViewComputedScale.contained,
                     maxScale: PhotoViewComputedScale.contained * 4.0,
                     initialScale: PhotoViewComputedScale.contained,
-                    loadingChild: CircularProgressIndicator(backgroundColor: Colors.white),
+                    loadingChild: Center(
+                        child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        )
+                    ),
                     imageProvider: CachedNetworkImageProvider(widget.imageUrl),
                     basePosition: Alignment.center,
                 ),
