@@ -143,7 +143,7 @@ class StreamableListViewState<T> extends State<StreamableListView<T>> {
             setState(() {
                 _items.add(newItem);
 
-                if (widget.sortCompare == null) {
+                if (widget.sortCompare != null) {
                     _items.sort(widget.sortCompare);
                 }
 

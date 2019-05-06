@@ -114,14 +114,14 @@ class _NewsListState extends State<NewsListView>
         }
 
         if(a.createdAt == null) {
-            return -1;
-        }
-
-        if(b.createdAt == null) {
             return 1;
         }
 
-        return a.createdAt.microsecondsSinceEpoch - b.createdAt.microsecondsSinceEpoch;
+        if(b.createdAt == null) {
+            return -1;
+        }
+
+        return b.createdAt.microsecondsSinceEpoch - a.createdAt.microsecondsSinceEpoch;
     }
 
     Widget _buildItem(BuildContext context, News news)

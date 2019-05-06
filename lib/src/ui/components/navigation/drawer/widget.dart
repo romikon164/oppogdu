@@ -87,27 +87,27 @@ class _DrawerNavigationWidgetState extends State<DrawerNavigationWidget> with Ti
                         onTap: widget.delegate.didDrawerNavigationSportComplexPressed,
                         active: currentIndex == DrawerNavigationWidget.sportComplexItem,
                     ),
-                    _buildItem(
-                        context,
-                        title: "Структура",
-                        icon: Icons.account_balance,
-                        onTap: widget.delegate.didDrawerNavigationStructurePressed,
-                        active: currentIndex == DrawerNavigationWidget.structureItem,
-                    ),
-                    _buildItem(
-                        context,
-                        title: "Печатные издания",
-                        icon: Icons.library_books,
-                        onTap: widget.delegate.didDrawerNavigationPrintsPressed,
-                        active: currentIndex == DrawerNavigationWidget.printsItem,
-                    ),
-                    _buildItem(
-                        context,
-                        title: "Нормативные акты",
-                        icon: Icons.collections_bookmark,
-                        onTap: widget.delegate.didDrawerNavigationRegulationsPressed,
-                        active: currentIndex == DrawerNavigationWidget.regulationsItem,
-                    ),
+//                    _buildItem(
+//                        context,
+//                        title: "Структура",
+//                        icon: Icons.account_balance,
+//                        onTap: widget.delegate.didDrawerNavigationStructurePressed,
+//                        active: currentIndex == DrawerNavigationWidget.structureItem,
+//                    ),
+//                    _buildItem(
+//                        context,
+//                        title: "Печатные издания",
+//                        icon: Icons.library_books,
+//                        onTap: widget.delegate.didDrawerNavigationPrintsPressed,
+//                        active: currentIndex == DrawerNavigationWidget.printsItem,
+//                    ),
+//                    _buildItem(
+//                        context,
+//                        title: "Нормативные акты",
+//                        icon: Icons.collections_bookmark,
+//                        onTap: widget.delegate.didDrawerNavigationRegulationsPressed,
+//                        active: currentIndex == DrawerNavigationWidget.regulationsItem,
+//                    ),
                     _buildItem(
                         context,
                         title: "Руководство",
@@ -115,13 +115,13 @@ class _DrawerNavigationWidgetState extends State<DrawerNavigationWidget> with Ti
                         onTap: widget.delegate.didDrawerNavigationLeadershipPressed,
                         active: currentIndex == DrawerNavigationWidget.leadersItem,
                     ),
-                    _buildItem(
-                        context,
-                        title: "Коллективный договор",
-                        icon: Icons.thumbs_up_down,
-                        onTap: widget.delegate.didDrawerNavigationCollectiveAgreementPressed,
-                        active: currentIndex == DrawerNavigationWidget.agreementItem,
-                    ),
+//                    _buildItem(
+//                        context,
+//                        title: "Коллективный договор",
+//                        icon: Icons.thumbs_up_down,
+//                        onTap: widget.delegate.didDrawerNavigationCollectiveAgreementPressed,
+//                        active: currentIndex == DrawerNavigationWidget.agreementItem,
+//                    ),
                     _buildMenuSeparator(context),
                     _buildItem(
                         context,
@@ -223,13 +223,13 @@ class _DrawerNavigationWidgetState extends State<DrawerNavigationWidget> with Ti
                         child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                                ListTile(
-                                    leading: Icon(Icons.settings, color: Colors.white),
-                                    title: Text("Редактировать профиль", style: TextStyle(color: Colors.white)),
-                                    onTap: () {
-                                        widget.delegate?.didDrawerNavigationProfilePressed();
-                                    },
-                                ),
+//                                ListTile(
+//                                    leading: Icon(Icons.settings, color: Colors.white),
+//                                    title: Text("Редактировать профиль", style: TextStyle(color: Colors.white)),
+//                                    onTap: () {
+//                                        widget.delegate?.didDrawerNavigationProfilePressed();
+//                                    },
+//                                ),
                                 ListTile(
                                     leading: Icon(Icons.exit_to_app, color: Colors.white),
                                     title: Text("Выйти из аккаунта", style: TextStyle(color: Colors.white)),

@@ -84,8 +84,8 @@ class AuthService
             String userJson = convert.jsonEncode(userData);
 
             preferences.setString(AuthService.SHARED_PREFERENCES_AUTH_USER_KEY, userJson);
-        } catch(_) {
-
+        } catch(e) {
+            print(e);
         }
 
         _initialized = true;
