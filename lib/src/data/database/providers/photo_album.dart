@@ -4,7 +4,7 @@ class PhotoAlbumDatabaseProvider extends DatabaseProviderContract
 {
     PhotoAlbumDatabaseProvider() : super();
 
-    String get table => "photo-albums";
+    String get table => "photoalbums";
 
     @override
     Future<void> createTable() async
@@ -16,7 +16,8 @@ class PhotoAlbumDatabaseProvider extends DatabaseProviderContract
                 description TEXT,
                 image VARCHAR(255),
                 thumb VARCHAR(255),
-                created_at integer,
+                photos LONGTEXT,
+                created_at integer
             )
         """);
     }

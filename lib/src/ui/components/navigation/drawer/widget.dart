@@ -4,8 +4,7 @@ import 'delegate.dart';
 import 'dart:async';
 import 'package:oppo_gdu/src/support/auth/service.dart';
 import 'package:flutter/rendering.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:oppo_gdu/src/support/utils.dart';
+import '../../users/circle_avatar.dart';
 
 class DrawerNavigationWidget extends StatefulWidget
 {
@@ -80,7 +79,7 @@ class _DrawerNavigationWidgetState extends State<DrawerNavigationWidget> with Ti
                         onTap: widget.delegate.didDrawerNavigationVideoGalleryPressed,
                         active: currentIndex == DrawerNavigationWidget.videosItem,
                     ),
-                    Container(height: 1, color: Colors.black12),
+                    _buildMenuSeparator(context),
                     _buildItem(
                         context,
                         title: "Спортивный комплекс",
@@ -123,7 +122,7 @@ class _DrawerNavigationWidgetState extends State<DrawerNavigationWidget> with Ti
                         onTap: widget.delegate.didDrawerNavigationCollectiveAgreementPressed,
                         active: currentIndex == DrawerNavigationWidget.agreementItem,
                     ),
-                    Container(height: 1, color: Colors.black12),
+                    _buildMenuSeparator(context),
                     _buildItem(
                         context,
                         title: "Контакты",
@@ -150,6 +149,15 @@ class _DrawerNavigationWidgetState extends State<DrawerNavigationWidget> with Ti
         );
     }
 
+    Widget _buildMenuSeparator(BuildContext context)
+    {
+        return Container(
+            width: MediaQuery.of(context).size.width,
+            height: 1,
+            color: Colors.black12
+        );
+    }
+
     Widget _buildHeader(BuildContext context)
     {
         return FutureBuilder(
@@ -173,7 +181,7 @@ class _DrawerNavigationWidgetState extends State<DrawerNavigationWidget> with Ti
 
     Widget _buildAuthenticatedHeader(BuildContext context, User user)
     {
-        String userNameFirstLetter = user.firstname?.substring(0, 1) ?? "";
+        String username = "${user.lastname ?? ""} ${user.firstname ?? ""}".trim();
 
         return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -184,7 +192,7 @@ class _DrawerNavigationWidgetState extends State<DrawerNavigationWidget> with Ti
                         color: Theme.of(context).appBarTheme.color,
                     ),
                     accountName: Text(
-                      "${user.lastname ?? ""} ${user.firstname ?? ""}".trim(),
+                      username,
                       style: Theme.of(context).appBarTheme.textTheme.subtitle
                     ),
                     accountEmail: Text(
@@ -193,15 +201,10 @@ class _DrawerNavigationWidgetState extends State<DrawerNavigationWidget> with Ti
                     ),
                     currentAccountPicture: GestureDetector(
                         onTap: widget.delegate?.didDrawerNavigationProfilePressed,
-                        child: CircleAvatar(
+                        child: UserCircleAvatar(
                             radius: 32,
-                            backgroundColor: user.photo == null
-                                ? Utils.avatarBackgroundColor(userNameFirstLetter)
-                                : Theme.of(context).appBarTheme.color,
-                            backgroundImage: user.photo != null ? CachedNetworkImageProvider(user.photo) : null,
-                            child: user.photo == null
-                                ? Text(userNameFirstLetter)
-                                : null,
+                            username: username,
+                            image: user.photo,
                         ),
                     ),
                     onDetailsPressed: () {
@@ -211,7 +214,9 @@ class _DrawerNavigationWidgetState extends State<DrawerNavigationWidget> with Ti
                     },
                 ),
                 AnimatedSize(
-                    alignment: Alignment.topCenter,
+                    alignment: Alignment.topLeft,
+                    duration: Duration(milliseconds: 300),
+                    vsync: this,
                     child: Container(
                         height: _userMenuVisible ? null : 0,
                         color: Theme.of(context).appBarTheme.color,
@@ -235,8 +240,6 @@ class _DrawerNavigationWidgetState extends State<DrawerNavigationWidget> with Ti
                             ],
                         ),
                     ),
-                    vsync: this,
-                    duration: Duration(milliseconds: 300),
                 )
             ],
         );

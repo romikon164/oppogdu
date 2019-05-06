@@ -1,10 +1,8 @@
 import 'presenter.dart';
 import 'package:oppo_gdu/src/support/routing/router_contract.dart';
 
-abstract class FormPresenter extends Presenter
+abstract class FormPresenterContract
 {
-    FormPresenter(RouterContract router): super(router);
-
     void onFormInitState(FormPresenterDelegate newDelegate);
 
     String onFormValidateField(String field, String value);
@@ -14,9 +12,14 @@ abstract class FormPresenter extends Presenter
     Future<void> onFormSubmit();
 }
 
+abstract class FormPresenter extends Presenter implements FormPresenterContract
+{
+    FormPresenter(RouterContract router): super(router);
+}
+
 abstract class FormPresenterDelegate
 {
-    onFormSendFailure(String error);
+    void onFormSendFailure(String error);
 
-    onFormSendSuccess();
+    void onFormSendSuccess([dynamic data]);
 }

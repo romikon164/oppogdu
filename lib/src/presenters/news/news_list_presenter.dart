@@ -10,7 +10,6 @@ import 'package:oppo_gdu/src/ui/components/lists/streamable.dart';
 import 'package:oppo_gdu/src/data/repositories/database_criteria.dart';
 import 'package:oppo_gdu/src/data/repositories/criteria.dart';
 import 'package:oppo_gdu/src/data/repositories/api_criteria.dart';
-import 'package:oppo_gdu/src/support/auth/service.dart';
 
 class NewsListPresenter extends NewsListDelegate implements StreamableListViewDelegate
 {
@@ -56,13 +55,11 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
 
     void didFavoritePressed(News news)
     {
-        news.isFavorited = true;
         _addToFavorite(news);
     }
 
     void didUnFavoritePressed(News news)
     {
-        news.isFavorited = false;
         _removeFromFavorite(news);
     }
 
@@ -187,7 +184,7 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
                 newses.forEach((news) => _newsStream.add(news));
             }
         } catch(e) {
-
+            // TODO
         }
     }
 
@@ -208,7 +205,7 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
                 _newsStream.add(news);
             }
         } catch (_) {
-
+            // TODO
         }
     }
 
@@ -218,22 +215,17 @@ class NewsListPresenter extends NewsListDelegate implements StreamableListViewDe
             await _apiRepository.addToFavorite(news);
             await _updateNewsCounters([news], false);
         } catch (_) {
-
+            // TODO
         }
     }
 
     Future<void> _removeFromFavorite(News news) async
     {
-        String authDeviceToken = AuthService.instance.firebaseToken;
-
-        if(authDeviceToken != null && authDeviceToken.isNotEmpty) {
-            try {
-                await _apiRepository.removeFromFavorite(news);
-
-                await _updateNewsCounters([news], false);
-            } catch (_) {
-
-            }
+        try {
+            await _apiRepository.removeFromFavorite(news);
+            await _updateNewsCounters([news], false);
+        } catch (_) {
+            // TODO
         }
     }
 }

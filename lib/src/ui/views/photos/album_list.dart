@@ -4,9 +4,11 @@ import '../view_contract.dart';
 import 'package:oppo_gdu/src/presenters/photos/album_list.dart';
 import '../future_contract.dart';
 import '../../components/navigation/drawer/widget.dart';
-import '../../components/navigation/bottom/widget.dart';
 import 'package:oppo_gdu/src/data/models/photo/album.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../components/widgets/loading.dart';
+import '../../components/widgets/empty.dart';
+import '../../components/widgets/scaffold.dart';
 
 class PhotoAlbumListView extends StatefulWidget implements ViewContract
 {
@@ -24,17 +26,12 @@ class _PhotoAlbumListViewState extends State<PhotoAlbumListView> implements View
 
     bool _isError = false;
 
-    BottomNavigationController _bottomNavigationBarController;
-
     _PhotoAlbumListViewState(): super();
 
     @override
     void initState()
     {
         super.initState();
-
-        _bottomNavigationBarController = BottomNavigationController();
-        _bottomNavigationBarController.delegate = widget.presenter;
 
         widget.presenter?.onInitState(this);
     }
@@ -78,47 +75,30 @@ class _PhotoAlbumListViewState extends State<PhotoAlbumListView> implements View
 
     Widget _buildLoadingWidget(BuildContext context)
     {
-        return Scaffold(
-            appBar: AppBar(
-                title: Text("Загрузка"),
-            ),
-            body: Center(
-                child: CircularProgressIndicator(),
-            ),
-            bottomNavigationBar: BottomNavigationWidget(
-                controller: _bottomNavigationBarController,
-            ),
-            drawer: DrawerNavigationWidget(
-                delegate: widget.presenter,
-                currentIndex: DrawerNavigationWidget.photosItem
-            ),
+        return LoadingWidget(
+            drawerDelegate: widget.presenter,
+            drawerCurrentIndex: DrawerNavigationWidget.photosItem,
+            bottomNavigationDelegate: widget.presenter,
         );
     }
 
     Widget _buildErrorWidget(BuildContext context)
     {
-        return Scaffold(
-            appBar: AppBar(
-                title: Text("Ошибка"),
-            ),
-            body: Center(
-                child: Text(
-                    "Возникла ошибка при загрузке данных"
-                ),
-            ),
-            bottomNavigationBar: BottomNavigationWidget(
-                controller: _bottomNavigationBarController,
-            ),
-            drawer: DrawerNavigationWidget(
-                delegate: widget.presenter,
-                currentIndex: DrawerNavigationWidget.photosItem
-            ),
+        return EmptyWidget(
+            drawerDelegate: widget.presenter,
+            drawerCurrentIndex: DrawerNavigationWidget.photosItem,
+            bottomNavigationDelegate: widget.presenter,
+            appBarTitle: 'Ошибка',
+            emptyMessage: 'Возникла ошибка при загрузке данных',
         );
     }
 
     Widget _buildWidget(BuildContext context)
     {
-        return Scaffold(
+        return ScaffoldWithBottomNavigation(
+            drawerDelegate: widget.presenter,
+            drawerCurrentIndex: DrawerNavigationWidget.photosItem,
+            bottomNavigationDelegate: widget.presenter,
             body: NestedScrollView(
                 headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
                     return [
@@ -132,36 +112,13 @@ class _PhotoAlbumListViewState extends State<PhotoAlbumListView> implements View
                 body: Builder(
                     builder: (BuildContext context) {
                         return RefreshIndicator(
-                            child: NotificationListener<UserScrollNotification>(
-                                child: _buildPhotoAlbumsWidget(context),
-                                onNotification: _onUserScroll,
-                            ),
+                            child: _buildPhotoAlbumsWidget(context),
                             onRefresh: _onRefresh,
                         );
                     },
                 )
             ),
-            bottomNavigationBar: BottomNavigationWidget(
-                controller: _bottomNavigationBarController,
-            ),
-            drawer: DrawerNavigationWidget(
-                delegate: widget.presenter,
-                currentIndex: DrawerNavigationWidget.photosItem
-            ),
         );
-    }
-
-    bool _onUserScroll(UserScrollNotification notification)
-    {
-        if(notification.direction == ScrollDirection.forward) {
-            _bottomNavigationBarController.show();
-        }
-
-        if(notification.direction == ScrollDirection.reverse) {
-            _bottomNavigationBarController.hide();
-        }
-
-        return true;
     }
 
     Widget _buildPhotoAlbumsWidget(BuildContext context)

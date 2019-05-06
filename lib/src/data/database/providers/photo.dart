@@ -21,7 +21,7 @@ class PhotoDatabaseProvider extends DatabaseProviderContract
                 views_count UNSIGNED INTEGER NOT NULL DEFAULT 0,
                 favorites_count UNSIGNED INTEGER NOT NULL DEFAULT 0,
                 is_viewed BOOLEAN DEFAULT 0,
-                is_favorited BOOLEAN DEFAULT 0,
+                is_favorited BOOLEAN DEFAULT 0
             )
         """);
     }

@@ -3,11 +3,13 @@ import 'package:flutter/rendering.dart';
 import '../view_contract.dart';
 import 'package:oppo_gdu/src/presenters/photos/album_detail.dart';
 import '../future_contract.dart';
-import '../../components/navigation/drawer/widget.dart';
-import '../../components/navigation/bottom/widget.dart';
 import 'package:oppo_gdu/src/data/models/photo/album.dart';
 import 'package:oppo_gdu/src/data/models/photo/photo.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../components/widgets/loading.dart';
+import '../../components/widgets/empty.dart';
+import '../../components/widgets/scaffold.dart';
+import '../../components/widgets/scrolled_title.dart';
 
 class PhotoAlbumDetailView extends StatefulWidget implements ViewContract
 {
@@ -25,25 +27,12 @@ class _PhotoAlbumDetailViewState extends State<PhotoAlbumDetailView> implements 
 
     bool _isError = false;
 
-    BottomNavigationController _bottomNavigationBarController;
-
-    double _flexibleSpaceHeight = 200.0;
-
-    bool _appBarTitleVisibled = false;
-
-    double _appBarTitleMarginTop = 0;
-
-    double _bodyTitleMarginTop = 16;
-
     _PhotoAlbumDetailViewState(): super();
 
     @override
     void initState()
     {
         super.initState();
-
-        _bottomNavigationBarController = BottomNavigationController();
-        _bottomNavigationBarController.delegate = widget.presenter;
 
         widget.presenter?.onInitState(this);
     }
@@ -87,41 +76,20 @@ class _PhotoAlbumDetailViewState extends State<PhotoAlbumDetailView> implements 
 
     Widget _buildLoadingWidget(BuildContext context)
     {
-        return Scaffold(
-            appBar: AppBar(
-                title: Text("Загрузка"),
-            ),
-            body: Center(
-                child: CircularProgressIndicator(),
-            ),
-            bottomNavigationBar: BottomNavigationWidget(
-                controller: _bottomNavigationBarController,
-            ),
-            drawer: DrawerNavigationWidget(
-                delegate: widget.presenter,
-                currentIndex: DrawerNavigationWidget.photosItem
-            ),
+        return LoadingWidget(
+            includeDrawer: false,
+            bottomNavigationDelegate: widget.presenter,
         );
     }
 
     Widget _buildErrorWidget(BuildContext context)
     {
-        return Scaffold(
-            appBar: AppBar(
-                title: Text("Ошибка"),
-            ),
-            body: Center(
-                child: Text(
-                    "Возникла ошибка при загрузке данных"
-                ),
-            ),
-            bottomNavigationBar: BottomNavigationWidget(
-                controller: _bottomNavigationBarController,
-            ),
-            drawer: DrawerNavigationWidget(
-                delegate: widget.presenter,
-                currentIndex: DrawerNavigationWidget.photosItem
-            ),
+        return EmptyWidget(
+
+            includeDrawer: false,
+            bottomNavigationDelegate: widget.presenter,
+            appBarTitle: 'Ошибка',
+            emptyMessage: 'Возникла ошибка при загрузке данных',
         );
     }
 
@@ -136,129 +104,28 @@ class _PhotoAlbumDetailViewState extends State<PhotoAlbumDetailView> implements 
             )
         );
 
-        if(_photoAlbum.description != null && _photoAlbum.description.isNotEmpty) {
-            infoWidgets.add(
-                Container(height: 8)
-            );
+        Widget subTitle;
 
-            infoWidgets.add(
-                Text(
-                    _photoAlbum.description,
-                    style: Theme.of(context).textTheme.overline,
-                )
+        if(_photoAlbum.description != null && _photoAlbum.description.isNotEmpty) {
+            subTitle = Text(
+                _photoAlbum.description,
+                style: Theme.of(context).textTheme.overline,
             );
         }
 
-        return Scaffold(
-            body: RefreshIndicator(
-                child: NotificationListener<ScrollNotification>(
-                    child:  CustomScrollView(
-                        slivers: [
-                            _buildAppBar(context),
-                            SliverToBoxAdapter(
-                                child: Card(
-                                    child: Padding(
-                                        padding: EdgeInsets.all(_bodyTitleMarginTop),
-                                        child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: infoWidgets,
-                                        ),
-                                    ),
-                                ),
-                            ),
-                            _buildPhotoAlbumWidget(context)
-                        ]
-                    ),
-                    onNotification: _onUserScroll,
-                ),
+        return ScaffoldWithBottomNavigation(
+            includeDrawer: false,
+            bottomNavigationDelegate: widget.presenter,
+            body: CustomScrollViewWithScrolledTitle(
+                title: _photoAlbum.name,
+                image: _photoAlbum.image,
+                subTitle: subTitle,
+                children: [
+                    _buildPhotoAlbumWidget(context)
+                ],
                 onRefresh: _onRefresh,
             ),
-            bottomNavigationBar: BottomNavigationWidget(
-                controller: _bottomNavigationBarController,
-            ),
         );
-    }
-
-    Widget _buildAppBar(BuildContext context)
-    {
-        if(_photoAlbum.image == null) {
-            _flexibleSpaceHeight = kToolbarHeight;
-
-            return SliverAppBar(
-                centerTitle: false,
-                floating: false,
-                pinned: true,
-                title: _buildAppBarTitle(context),
-            );
-        } else {
-            return SliverAppBar(
-                centerTitle: false,
-                expandedHeight: _flexibleSpaceHeight,
-                floating: false,
-                pinned: true,
-                title: _buildAppBarTitle(context),
-                flexibleSpace: FlexibleSpaceBar(
-                    background: Image(
-                        image: CachedNetworkImageProvider(_photoAlbum.image),
-                        fit: BoxFit.cover,
-                    ),
-                ),
-            );
-        }
-    }
-
-    Widget _buildAppBarTitle(BuildContext context)
-    {
-        if(_appBarTitleVisibled) {
-            return ClipRect(
-                child: Padding(
-                    padding: EdgeInsets.only(top: _appBarTitleMarginTop),
-                    child: Text(_photoAlbum.name, textScaleFactor: 0.6),
-                ),
-            );
-        }
-
-        return null;
-    }
-
-    bool _onUserScroll(ScrollNotification notification)
-    {
-        double scrollTop = notification.metrics.pixels;
-
-        if(scrollTop > _flexibleSpaceHeight - kToolbarHeight + _bodyTitleMarginTop) {
-            if(!_appBarTitleVisibled) {
-                setState(() {
-                    _appBarTitleVisibled = true;
-                    _appBarTitleMarginTop = kToolbarHeight;
-                });
-            } else {
-                setState(() {
-                    _appBarTitleMarginTop = _flexibleSpaceHeight - scrollTop + _bodyTitleMarginTop;
-
-                    if(_appBarTitleMarginTop < 0) {
-                        _appBarTitleMarginTop = 0;
-                    }
-                });
-            }
-        } else {
-            if (_appBarTitleVisibled) {
-                setState(() {
-                    _appBarTitleVisibled = false;
-                });
-            }
-        }
-
-        if(notification is UserScrollNotification) {
-            if(notification.direction == ScrollDirection.forward) {
-                _bottomNavigationBarController.show();
-            }
-
-            if(notification.direction == ScrollDirection.reverse) {
-                _bottomNavigationBarController.hide();
-            }
-        }
-
-        return true;
     }
 
     Widget _buildPhotoAlbumWidget(BuildContext context)

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import '../future_contract.dart';
 import 'package:oppo_gdu/src/data/models/photo/album.dart';
 import 'package:oppo_gdu/src/support/routing/router_contract.dart';
@@ -7,7 +6,6 @@ import 'package:oppo_gdu/src/ui/views/view_contract.dart';
 import 'package:oppo_gdu/src/ui/views/future_contract.dart';
 import 'package:oppo_gdu/src/data/repositories/photos/api_repository.dart';
 import 'package:oppo_gdu/src/data/repositories/exceptions/not_found.dart';
-import 'package:oppo_gdu/src/support/auth/service.dart';
 
 class PhotoAlbumListPresenter extends FuturePresenterContract<List<PhotoAlbum>>
 {

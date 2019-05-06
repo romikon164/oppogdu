@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../view_contract.dart';
 import 'package:oppo_gdu/src/presenters/form_presenter.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import '../../../components/forms/form_helper.dart';
 
 class LoginView extends StatefulWidget implements ViewContract
 {
@@ -13,13 +13,11 @@ class LoginView extends StatefulWidget implements ViewContract
     _LoginViewState createState() => _LoginViewState();
 }
 
-class _LoginViewState extends State<LoginView> implements FormPresenterDelegate
+class _LoginViewState extends State<LoginView>
+                      with FormHelperMixin
+                      implements FormPresenterDelegate
 {
-    GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-    GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-    bool _loading = false;
+    String get loadingIndicatorMessage => "Выполняется вход";
 
     @override
     void initState()
@@ -53,30 +51,15 @@ class _LoginViewState extends State<LoginView> implements FormPresenterDelegate
 
     void onFormSendFailure(String error) async
     {
-        _closeLoadingIndicator();
-
-        await Fluttertoast.cancel();
-
-        Fluttertoast.showToast(
-            msg: error,
-            fontSize: 12,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIos: 3,
-        );
+        closeLoadingIndicator();
+        showToast(error);
     }
 
-    void onFormSendSuccess() async
+    void onFormSendSuccess([dynamic data]) async
     {
-        _closeLoadingIndicator();
+        closeLoadingIndicator();
 
-        await Fluttertoast.cancel();
-
-        Fluttertoast.showToast(
-            msg: "Вы успешно авторизовались",
-            fontSize: 12,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIos: 3,
-        );
+        showToast("Вы успешно авторизовались");
 
         widget.presenter?.didClosePressed();
     }
@@ -86,7 +69,6 @@ class _LoginViewState extends State<LoginView> implements FormPresenterDelegate
     {
         return Scaffold(
             backgroundColor: Colors.white,
-            key: _scaffoldKey,
             appBar: AppBar(
                 title: Text("Вход"),
                 leading: GestureDetector(
@@ -99,146 +81,39 @@ class _LoginViewState extends State<LoginView> implements FormPresenterDelegate
                 ),
             ),
             body: Form(
-                key: _formKey,
                 child: ListView(
                     children: [
-                        new Padding(
-                            padding: EdgeInsets.fromLTRB(40, 16, 40, 12),
-                            child: new Text(
-                                'Для входа под вашей учетной записью введите ваш номер телефона и пароль',
-                                style: Theme.of(context).textTheme.body2,
-                                textAlign: TextAlign.center,
-                            ),
+                        buildMessage(context, 'Для входа под вашей учетной записью введите ваш номер телефона и пароль'),
+                        buildPhoneField(context, delegate: widget.presenter),
+                        buildObscureTextField(
+                            context,
+                            label: 'Пароль',
+                            name: 'password',
+                            icon: Icons.vpn_key,
+                            delegate: widget.presenter
                         ),
-                        new Padding(
-                            padding: EdgeInsets.fromLTRB(16, 4, 16, 4),
-                            child: TextFormField(
-                                keyboardType: TextInputType.phone,
-                                decoration: InputDecoration(
-                                    labelText: "Номер телефона",
-                                    prefixIcon: Icon(Icons.phone),
-                                    prefixText: "+7",
-                                ),
-                                style: Theme.of(context).textTheme.button,
-                                validator: (String phone) {
-                                    return widget.presenter.onFormValidateField("phone", phone);
-                                },
-                                onSaved: (String phone) {
-                                    widget.presenter.onFormSaveField("phone", "7$phone");
-                                },
-                            ),
+                        buildSubmitButton(
+                            context,
+                            label: 'Войти',
+                            delegate: widget.presenter
                         ),
-                        new Padding(
-                            padding: EdgeInsets.fromLTRB(16, 4, 16, 4),
-                            child: TextFormField(
-                                obscureText: true,
-                                decoration: InputDecoration(
-                                    prefixIcon: Icon(Icons.vpn_key),
-                                    labelText: "Пароль",
-                                ),
-                                style: Theme.of(context).textTheme.button,
-                                validator: (String password) {
-                                    return widget.presenter.onFormValidateField("password", password);
-                                },
-                                onSaved: (String password) {
-                                    widget.presenter.onFormSaveField("password", password);
-                                },
-                            ),
+                        buildFlatButton(
+                            context,
+                            label: "Забыли пароль?",
+                            onTap: () {
+                                // TODO
+                            }
                         ),
-                        new Padding(
-                            padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
-                            child: RaisedButton(
-                                color: Theme.of(context).primaryColor,
-                                onPressed: () {
-                                    FocusScope.of(context).requestFocus(FocusNode());
-
-                                    if(_formKey.currentState.validate()) {
-
-                                        _showLoadingIndicator(context);
-
-                                        _formKey.currentState.save();
-
-                                        widget.presenter?.onFormSubmit();
-                                    }
-                                },
-                                child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                        Text("Войти", style: TextStyle(color: Colors.white)),
-                                        Container(width: 8),
-                                        Icon(Icons.exit_to_app, color: Colors.white)
-                                    ],
-                                ),
-                            ),
-                        ),
-                        new Padding(
-                            padding: EdgeInsets.fromLTRB(16, 4, 16, 4),
-                            child: Container(
-                                height: 24,
-                                child: FlatButton(
-                                    onPressed: () {},
-                                    child: Text(
-                                        "Забыли пароль?",
-                                        style: TextStyle(
-                                            fontSize: 12
-                                        ),
-                                        textAlign: TextAlign.center
-                                    )
-                                ),
-                            ),
-                        ),
-                        new Padding(
-                            padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
-                            child: RaisedButton(
-                                color: Theme.of(context).primaryColor,
-                                onPressed: () {
-                                    widget.presenter?.router?.presentRegister();
-                                },
-                                child: Text("Создать аккаунт", style: TextStyle(color: Colors.white)),
-                            ),
+                        buildButton(
+                            context,
+                            label: "Создать аккаунт",
+                            onTap: () {
+                                widget.presenter?.router?.presentRegister();
+                            }
                         ),
                     ],
                 ),
             ),
         );
-    }
-
-    void _showLoadingIndicator(BuildContext context)
-    {
-        if(!_loading) {
-            _loading = true;
-
-            showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (BuildContext context) {
-                    return Dialog(
-                        child: Container(
-                            height: 80,
-                            child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                    Padding(
-                                        padding: EdgeInsets.all(16),
-                                        child: CircularProgressIndicator(),
-                                    ),
-                                    Text("Выполняется вход"),
-                                ],
-                            ),
-                        ),
-                    );
-                }
-            );
-        }
-    }
-
-    void _closeLoadingIndicator()
-    {
-        if(_loading) {
-            widget.presenter?.router?.pop();
-
-            _loading = false;
-        }
     }
 }

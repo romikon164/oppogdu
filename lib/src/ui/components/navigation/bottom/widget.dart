@@ -5,7 +5,7 @@ part 'controller.dart';
 
 class BottomNavigationWidget extends StatefulWidget
 {
-    final BottomNavigationController controller;
+    final BottomNavigationDelegate delegate;
 
     static const newsItem = 0;
 
@@ -15,10 +15,15 @@ class BottomNavigationWidget extends StatefulWidget
 
     final int currentIndex;
 
-    BottomNavigationWidget({Key key, this.controller, this.currentIndex}): super(key: key);
+    BottomNavigationWidget({Key key, this.delegate, this.currentIndex}): super(key: key);
 
     @override
     BottomNavigationWidgetState createState() => BottomNavigationWidgetState(currentIndex: currentIndex);
+
+    BottomNavigationWidgetState of(BuildContext context)
+    {
+        return context.ancestorStateOfType(TypeMatcher<BottomNavigationWidgetState>());
+    }
 }
 
 class BottomNavigationWidgetState extends State<BottomNavigationWidget>
@@ -29,30 +34,6 @@ class BottomNavigationWidgetState extends State<BottomNavigationWidget>
     int currentIndex;
 
     BottomNavigationWidgetState({this.currentIndex}): super();
-
-    @override
-    void initState()
-    {
-        super.initState();
-
-        widget.controller?._state = this;
-    }
-
-    @override
-    void didUpdateWidget(BottomNavigationWidget oldWidget)
-    {
-        super.didUpdateWidget(oldWidget);
-
-        widget.controller?._state = this;
-    }
-
-    @override
-    void didChangeDependencies()
-    {
-        super.didChangeDependencies();
-
-        widget.controller?._state = this;
-    }
 
     @override
     Widget build(BuildContext context)
@@ -92,21 +73,21 @@ class BottomNavigationWidgetState extends State<BottomNavigationWidget>
                 context,
                 title: "Новости",
                 icon: Icons.assignment,
-                onTap: widget.controller?.delegate?.didBottomNavigationNewsPressed,
+                onTap: widget.delegate?.didBottomNavigationNewsPressed,
                 active: currentIndex == BottomNavigationWidget.newsItem
             ),
             _buildChild(
                 context,
                 title: "Спорт-комплекс",
                 icon: Icons.domain,
-                onTap: widget.controller?.delegate?.didBottomNavigationSportComplex,
+                onTap: widget.delegate?.didBottomNavigationSportComplex,
                 active: currentIndex == BottomNavigationWidget.sportComplexItem
             ),
             _buildChild(
                 context,
                 title: "Напишите нам",
                 icon: Icons.chat,
-                onTap: widget.controller?.delegate?.didBottomNavigationWriteToUs,
+                onTap: widget.delegate?.didBottomNavigationWriteToUs,
                 active: currentIndex == BottomNavigationWidget.callbackItem
             ),
         ];

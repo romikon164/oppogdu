@@ -11,8 +11,9 @@ import 'package:oppo_gdu/src/data/database/service.dart';
 import 'package:oppo_gdu/src/data/database/providers/news.dart';
 import 'package:oppo_gdu/src/data/database/providers/photo.dart';
 import 'package:oppo_gdu/src/data/database/providers/photo_album.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-void main() => runApp(Application());
+void main() => initializeDateFormatting().then((_) => runApp(Application()));
 
 class Application extends StatelessWidget
 {

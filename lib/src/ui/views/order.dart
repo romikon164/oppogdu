@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'view_contract.dart';
 import 'package:oppo_gdu/src/presenters/form_presenter.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import '../components/navigation/drawer/widget.dart';
 import '../components/navigation/bottom/widget.dart';
+import '../components/forms/form_helper.dart';
+import '../components/widgets/scaffold.dart';
 
 class OrderView extends StatefulWidget implements ViewContract
 {
@@ -17,23 +18,18 @@ class OrderView extends StatefulWidget implements ViewContract
     _OrderViewState createState() => _OrderViewState();
 }
 
-class _OrderViewState extends State<OrderView> implements FormPresenterDelegate
+class _OrderViewState extends State<OrderView>
+                      with FormHelperMixin
+                      implements FormPresenterDelegate
 {
+    String get loadingIndicatorMessage => 'Пожалуйста, подождите';
+
     GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-    GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-    bool _loading = false;
-
-    BottomNavigationController _bottomNavigationBarController;
 
     @override
     void initState()
     {
         super.initState();
-
-        _bottomNavigationBarController = BottomNavigationController();
-        _bottomNavigationBarController.delegate = widget.presenter;
 
         widget.presenter?.onFormInitState(this);
     }
@@ -62,30 +58,16 @@ class _OrderViewState extends State<OrderView> implements FormPresenterDelegate
 
     void onFormSendFailure(String error) async
     {
-        _closeLoadingIndicator();
+        closeLoadingIndicator();
 
-        await Fluttertoast.cancel();
-
-        Fluttertoast.showToast(
-            msg: error,
-            fontSize: 12,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIos: 3,
-        );
+        showToast(error);
     }
 
-    void onFormSendSuccess() async
+    void onFormSendSuccess([dynamic data]) async
     {
-        _closeLoadingIndicator();
+        closeLoadingIndicator();
 
-        await Fluttertoast.cancel();
-
-        Fluttertoast.showToast(
-            msg: "Ваша заявка успешно отправлена",
-            fontSize: 12,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIos: 3,
-        );
+        showToast('Ваша заявка успешно отправлена');
 
         _formKey.currentState.reset();
     }
@@ -93,9 +75,13 @@ class _OrderViewState extends State<OrderView> implements FormPresenterDelegate
     @override
     Widget build(BuildContext context)
     {
-        return Scaffold(
+        return ScaffoldWithBottomNavigation(
+            drawerDelegate: widget.presenter,
+            drawerCurrentIndex: DrawerNavigationWidget.callbackItem,
+            bottomNavigationDelegate: widget.presenter,
+            bottomNavigationCurrentIndex: BottomNavigationWidget.callbackItem,
+            floatingBottomNavigationBar: false,
             backgroundColor: Colors.white,
-            key: _scaffoldKey,
             appBar: AppBar(
                 title: Text("Напишите нам"),
             ),
@@ -103,140 +89,37 @@ class _OrderViewState extends State<OrderView> implements FormPresenterDelegate
                 key: _formKey,
                 child: ListView(
                     children: [
-                        new Padding(
-                            padding: EdgeInsets.fromLTRB(40, 16, 40, 12),
-                            child: new Text(
-                                'Поля отмеченные звездночкой (*) обязательны для заполнения',
-                                style: Theme.of(context).textTheme.body2,
-                                textAlign: TextAlign.center,
-                            ),
+                        buildMessage(context, 'Все поля обязательны для заполнения'),
+                        buildTextField(
+                            context,
+                            label: 'Тема письма',
+                            name: 'subject',
+                            icon: Icons.subject,
+                            delegate: widget.presenter
                         ),
-                        new Padding(
-                            padding: EdgeInsets.fromLTRB(16, 4, 16, 4),
-                            child: TextFormField(
-                                decoration: InputDecoration(
-                                    labelText: "Тема письма",
-                                    prefixIcon: Icon(Icons.subject),
-                                ),
-                                style: Theme.of(context).textTheme.button,
-                                validator: (String subject) {
-                                    return widget.presenter.onFormValidateField("subject", subject);
-                                },
-                                onSaved: (String subject) {
-                                    widget.presenter.onFormSaveField("subject", subject);
-                                },
-                            ),
+                        buildTextField(
+                            context,
+                            label: 'Ваш e-mail / телефон',
+                            name: 'phone_or_email',
+                            icon: Icons.contacts,
+                            initialValue: widget.defaultPhoneOrEmail,
+                            delegate: widget.presenter
                         ),
-                        new Padding(
-                            padding: EdgeInsets.fromLTRB(16, 4, 16, 4),
-                            child: TextFormField(
-                                initialValue: widget.defaultPhoneOrEmail,
-                                decoration: InputDecoration(
-                                    labelText: "Ваш e-mail / телефон",
-                                    prefixIcon: Icon(Icons.contacts),
-                                ),
-                                style: Theme.of(context).textTheme.button,
-                                validator: (String phoneOrEmail) {
-                                    return widget.presenter.onFormValidateField("phone_or_email", phoneOrEmail);
-                                },
-                                onSaved: (String phoneOrEmail) {
-                                    widget.presenter.onFormSaveField("phone_or_email", phoneOrEmail);
-                                },
-                            ),
+                        buildTextField(
+                            context,
+                            label: 'Текст сообщения',
+                            name: 'message',
+                            inputType: TextInputType.multiline,
+                            delegate: widget.presenter
                         ),
-                        new Padding(
-                            padding: EdgeInsets.fromLTRB(16, 4, 16, 4),
-                            child: TextFormField(
-                                keyboardType: TextInputType.multiline,
-                                maxLines: null,
-                                decoration: InputDecoration(
-                                    labelText: "Текст сообщения",
-                                ),
-                                style: Theme.of(context).textTheme.button,
-                                validator: (String message) {
-                                    return widget.presenter.onFormValidateField("message", message);
-                                },
-                                onSaved: (String message) {
-                                    widget.presenter.onFormSaveField("message", message);
-                                },
-                            ),
-                        ),
-                        new Padding(
-                            padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
-                            child: RaisedButton(
-                                color: Theme.of(context).primaryColor,
-                                onPressed: () {
-                                    FocusScope.of(context).requestFocus(FocusNode());
-
-                                    if(_formKey.currentState.validate()) {
-
-                                        _showLoadingIndicator(context);
-
-                                        _formKey.currentState.save();
-
-                                        widget.presenter?.onFormSubmit();
-                                    }
-                                },
-                                child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                        Text("Отправить", style: TextStyle(color: Colors.white)),
-                                        Container(width: 8),
-                                        Icon(Icons.exit_to_app, color: Colors.white)
-                                    ],
-                                ),
-                            ),
+                        buildSubmitButton(
+                            context,
+                            label: 'Отправить',
+                            delegate: widget.presenter
                         ),
                     ],
                 ),
             ),
-            bottomNavigationBar: BottomNavigationWidget(
-                currentIndex: BottomNavigationWidget.callbackItem,
-                controller: _bottomNavigationBarController,
-            ),
-            drawer: DrawerNavigationWidget(
-                delegate: widget.presenter,
-                currentIndex: DrawerNavigationWidget.callbackItem
-            ),
         );
-    }
-
-    void _showLoadingIndicator(BuildContext context)
-    {
-        if(!_loading) {
-            _loading = true;
-
-            showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (BuildContext context) {
-                    return Dialog(
-                        child: Container(
-                            height: 80,
-                            child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                    Padding(
-                                        padding: EdgeInsets.all(16),
-                                        child: CircularProgressIndicator(),
-                                    ),
-                                    Text("Пожалуйста, подождите"),
-                                ],
-                            ),
-                        ),
-                    );
-                }
-            );
-        }
-    }
-
-    void _closeLoadingIndicator()
-    {
-        if(_loading) {
-            widget.presenter?.router?.pop();
-
-            _loading = false;
-        }
     }
 }

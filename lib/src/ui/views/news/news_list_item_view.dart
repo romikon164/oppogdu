@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:oppo_gdu/src/data/models/news/news.dart';
 import 'package:oppo_gdu/src/ui/views/news/news_list_view.dart';
 import 'package:oppo_gdu/src/support/datetime/formatter.dart';
-import 'package:oppo_gdu/src/support/auth/service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:share/share.dart';
 

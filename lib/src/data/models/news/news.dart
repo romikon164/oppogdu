@@ -47,6 +47,10 @@ class News extends Model
 
     factory News.fromMap(Map<String, dynamic> map)
     {
+        if(map == null) {
+            return null;
+        }
+
         return News(
             id: map["id"] as int,
             name: map["name"] as String,

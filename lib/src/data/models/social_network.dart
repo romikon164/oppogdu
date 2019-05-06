@@ -2,6 +2,14 @@ import 'model.dart';
 
 class SocialNetwork extends Model
 {
+    static const FACEBOOK = 'facebook';
+
+    static const TWITTER = 'twitter';
+
+    static const INSTAGRAM = 'instagram';
+
+    static const VKONTAKTE = 'vkontakte';
+
     int id;
 
     String name;

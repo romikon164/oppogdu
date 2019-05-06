@@ -8,10 +8,18 @@ import 'package:oppo_gdu/src/presenters/news/news_detail_presenter.dart';
 import 'package:oppo_gdu/src/presenters/news/comments_presenter.dart';
 import 'package:oppo_gdu/src/presenters/photos/album_list.dart';
 import 'package:oppo_gdu/src/presenters/photos/album_detail.dart';
+import 'package:oppo_gdu/src/presenters/videos/list.dart';
+import 'package:oppo_gdu/src/presenters/events/calendar.dart';
+import 'package:oppo_gdu/src/presenters/workers/leadership_list.dart';
+import 'package:oppo_gdu/src/presenters/workers/detail.dart';
 import 'package:oppo_gdu/src/presenters/order.dart';
+import 'package:oppo_gdu/src/presenters/contacts.dart';
+import 'package:oppo_gdu/src/presenters/follow_us.dart';
 import 'package:oppo_gdu/src/ui/views/photo/single.dart';
 import 'package:oppo_gdu/src/ui/views/photos/gallery.dart';
 import 'package:oppo_gdu/src/data/models/photo/photo.dart';
+
+typedef void RouterPushCallback<T>(T result);
 
 class Router implements RouterContract
 {
@@ -26,13 +34,17 @@ class Router implements RouterContract
         );
     }
 
-    void push(PresenterContract presenter)
+    void push(PresenterContract presenter, [RouterPushCallback callback])
     {
         navigatorKey.currentState.push(
             MaterialPageRoute(
                 builder: (context) => presenter.view as StatefulWidget
             )
-        );
+        ).then((value) {
+            if(callback != null) {
+                callback(value);
+            }
+        });
     }
 
     void pop()
@@ -50,14 +62,14 @@ class Router implements RouterContract
         replace(NewsListPresenter(this));
     }
 
-    void presentNewsDetail(int newsId)
+    void presentNewsDetail(int newsId, [RouterPushCallback callback])
     {
-        push(NewsDetailPresenter(this, id: newsId));
+        push(NewsDetailPresenter(this, id: newsId), callback);
     }
 
-    void presentNewsComments(int newsId)
+    void presentNewsComments(int newsId, [RouterPushCallback callback])
     {
-        push(NewsCommentsPresenter(this, id: newsId));
+        push(NewsCommentsPresenter(this, id: newsId), callback);
     }
 
     void presentPhotoAlbums()
@@ -68,6 +80,26 @@ class Router implements RouterContract
     void presentPhotoAlbumDetail(int albumId)
     {
         push(PhotoAlbumDetailPresenter(this, id: albumId));
+    }
+
+    void presentVideos()
+    {
+        replace(VideoListPresenter(this));
+    }
+
+    void presentSportComplex()
+    {
+        replace(EventsCalendarPresenter(this));
+    }
+
+    void presentLeaderships()
+    {
+        replace(LeadershipListPresenter(this));
+    }
+
+    void presentWorkerDetail(int id)
+    {
+        push(WorkerDetailPresenter(this, id: id));
     }
 
     void presentLogin()
@@ -101,5 +133,15 @@ class Router implements RouterContract
     void presentWriteToUs()
     {
         replace(OrderPresenter(this));
+    }
+
+    void presentFollowUs()
+    {
+        replace(FollowUsPresenter(this));
+    }
+
+    void presentContacts()
+    {
+        replace(ContactsPresenter(this));
     }
 }

@@ -38,6 +38,10 @@ class Photo extends Model
 
     factory Photo.fromMap(Map<String, dynamic> map)
     {
+        if(map == null) {
+            return null;
+        }
+
         return Photo(
             id: map["id"] as int,
             albumId: map["album_id"],

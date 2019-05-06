@@ -30,6 +30,10 @@ class PhotoAlbum extends Model
 
     factory PhotoAlbum.fromMap(Map<String, dynamic> map)
     {
+        if(map == null) {
+            return null;
+        }
+
         return PhotoAlbum(
             id: map["id"] as int,
             name: map["name"] as String,

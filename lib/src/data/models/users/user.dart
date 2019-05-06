@@ -72,4 +72,12 @@ class User extends Model
             "photo": photo,
         };
     }
+
+    static List<User> fromList(List<dynamic> list) {
+        if(list == null) {
+            return [];
+        }
+
+        return list.map<User>((user) => User.fromMap(user as Map<String, dynamic>)).toList();
+    }
 }

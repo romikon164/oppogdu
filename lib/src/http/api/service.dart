@@ -16,6 +16,10 @@ part 'parameters/retrieve.dart';
 part 'parameters/news_retrieve.dart';
 part 'providers/news.dart';
 part 'providers/photos.dart';
+part 'providers/videos.dart';
+part 'providers/events.dart';
+part 'providers/workers.dart';
+part 'providers/organizations.dart';
 part 'providers/orders.dart';
 part 'providers/contacts.dart';
 
@@ -34,19 +38,27 @@ class ApiService
     String deviceToken;
 
     NewsApiProvider _newsApiProvider;
-
     NewsApiProvider get news => _newsApiProvider;
 
     PhotoApiProvider _photoApiProvider;
-
     PhotoApiProvider get photos => _photoApiProvider;
 
-    OrderApiProvider _orderApiProvider;
+    VideoApiProvider _videoApiProvider;
+    VideoApiProvider get videos => _videoApiProvider;
 
+    EventApiProvider _eventApiProvider;
+    EventApiProvider get events => _eventApiProvider;
+
+    WorkerApiProvider _workerApiProvider;
+    WorkerApiProvider get workers => _workerApiProvider;
+
+    OrganizationApiProvider _organizationApiProvider;
+    OrganizationApiProvider get organizations => _organizationApiProvider;
+
+    OrderApiProvider _orderApiProvider;
     OrderApiProvider get orders => _orderApiProvider;
 
     ContactsApiProvider _contactsApiProvider;
-
     ContactsApiProvider get contacts => _contactsApiProvider;
 
     static ApiService buildInstance({int clientId, String clientSecret, String baseUrl})
@@ -68,6 +80,10 @@ class ApiService
     ApiService({this.clientId, this.clientSecret, this.baseUrl}) {
         _newsApiProvider = NewsApiProvider(this);
         _photoApiProvider = PhotoApiProvider(this);
+        _videoApiProvider = VideoApiProvider(this);
+        _eventApiProvider = EventApiProvider(this);
+        _workerApiProvider = WorkerApiProvider(this);
+        _organizationApiProvider = OrganizationApiProvider(this);
         _orderApiProvider = OrderApiProvider(this);
         _contactsApiProvider = ContactsApiProvider(this);
     }

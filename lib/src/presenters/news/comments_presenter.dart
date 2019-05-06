@@ -8,14 +8,19 @@ import 'package:oppo_gdu/src/ui/views/future_contract.dart';
 import 'package:oppo_gdu/src/data/repositories/comments/api_repository.dart';
 import 'package:oppo_gdu/src/data/repositories/exceptions/not_found.dart';
 import 'package:oppo_gdu/src/support/auth/service.dart';
+import '../form_presenter.dart';
 
-class NewsCommentsPresenter extends FuturePresenterContract<List<Comment>>
+class NewsCommentsPresenter extends FuturePresenterContract<List<Comment>> implements FormPresenterContract
 {
     int _newsId;
 
     NewsCommentsView _view;
 
-    NewsCommentsDelegate _delegate;
+    ViewFutureContract<List<Comment>> _delegate;
+
+    FormPresenterDelegate _formDelegate;
+
+    String _message;
 
     CommentsApiRepository _apiRepository = CommentsApiRepository();
 
@@ -57,25 +62,46 @@ class NewsCommentsPresenter extends FuturePresenterContract<List<Comment>>
         }
     }
 
-    Future<void> didNewCommentPressed(String message) async
+    void onFormInitState(FormPresenterDelegate newDelegate)
+    {
+        _formDelegate = newDelegate;
+    }
+
+    String onFormValidateField(String field, String value)
+    {
+        if(value.isEmpty) {
+            return 'Поле обязательно для заполнения';
+        }
+
+        return null;
+    }
+
+    void onFormSaveField(String field, String value)
+    {
+        if(field == 'message') {
+            _message = value;
+        }
+    }
+
+    Future<void> onFormSubmit() async
     {
         Comment comment = Comment(
-            id: null,
-            user: AuthService.instance.user,
-            text: message,
-            createdAt: DateTime.now()
+          id: null,
+          user: AuthService.instance.user,
+          text: _message,
+          createdAt: DateTime.now()
         );
 
         comment.newsId = _newsId;
 
         try {
             if (await _apiRepository.add(comment)) {
-                _delegate.onCommentSuccess(comment);
+                _formDelegate.onFormSendSuccess(comment);
             } else {
-                _delegate.onCommentError();
+                _formDelegate.onFormSendFailure('Возникла ошибка при отправке данных');
             }
         } catch(_) {
-            _delegate.onCommentError();
+            _formDelegate.onFormSendFailure('Возникла ошибка при отправке данных');
         }
     }
 }

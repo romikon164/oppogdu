@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:oppo_gdu/src/data/models/news/news.dart';
 import 'package:oppo_gdu/src/ui/views/news/news_list_item_view.dart';
 import 'package:oppo_gdu/src/ui/components/navigation/bottom/widget.dart';
@@ -9,6 +8,7 @@ import '../../components/lists/streamable.dart';
 import 'package:oppo_gdu/src/presenters/presenter.dart';
 import 'package:oppo_gdu/src/support/routing/router_contract.dart';
 import 'package:rxdart/rxdart.dart';
+import '../../components/widgets/scaffold.dart';
 
 typedef void NewsListItemOnTapCallback(News news);
 
@@ -78,45 +78,31 @@ class _NewsListState extends State<NewsListView>
     @override
     Widget build(BuildContext context)
     {
-//        SystemChrome.setSystemUIOverlayStyle(
-//            SystemUiOverlayStyle.dark.copyWith(
-//                statusBarColor: Theme.of(context).appBarTheme.color,
-//                statusBarIconBrightness: Theme.of(context).brightness
-//            )
-//        );
-
-        return Scaffold(
+        return ScaffoldWithBottomNavigation(
+            drawerDelegate: widget.delegate,
+            drawerCurrentIndex: DrawerNavigationWidget.newsItem,
+            bottomNavigationDelegate: widget.delegate,
+            bottomNavigationCurrentIndex: BottomNavigationWidget.newsItem,
             body: NestedScrollView(
-                headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-                    return [
-                        SliverAppBar(
-                            title: Text("Новости"),
-                            floating: true,
-                            snap: true,
-                        )
-                    ];
-                },
-                body: Builder(
-                    builder: (BuildContext context) {
-                        return NotificationListener<UserScrollNotification>(
-                            child: StreamableListView(
-                                sortCompare: _newsSortCompare,
-                                delegate: widget.delegate as StreamableListViewDelegate,
-                                itemBuilder: _buildItem,
-                                observable: widget.delegate?.stream,
-                            ),
-                            onNotification: _onUserScroll,
-                        );
-                    },
-                )
-            ),
-            bottomNavigationBar: BottomNavigationWidget(
-                controller: _bottomNavigationBarController,
-                currentIndex: BottomNavigationWidget.newsItem,
-            ),
-            drawer: DrawerNavigationWidget(
-                delegate: widget.delegate,
-                currentIndex: DrawerNavigationWidget.newsItem,
+              headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+                  return [
+                      SliverAppBar(
+                          title: Text("Новости"),
+                          floating: true,
+                          snap: true,
+                      )
+                  ];
+              },
+              body: Builder(
+                  builder: (BuildContext context) {
+                      return StreamableListView(
+                          sortCompare: _newsSortCompare,
+                          delegate: widget.delegate as StreamableListViewDelegate,
+                          itemBuilder: _buildItem,
+                          observable: widget.delegate?.stream,
+                      );
+                  },
+              )
             ),
         );
     }
@@ -136,19 +122,6 @@ class _NewsListState extends State<NewsListView>
         }
 
         return a.createdAt.microsecondsSinceEpoch - b.createdAt.microsecondsSinceEpoch;
-    }
-
-    bool _onUserScroll(UserScrollNotification notification)
-    {
-        if(notification.direction == ScrollDirection.forward) {
-            _bottomNavigationBarController.show();
-        }
-
-        if(notification.direction == ScrollDirection.reverse) {
-            _bottomNavigationBarController.hide();
-        }
-
-        return true;
     }
 
     Widget _buildItem(BuildContext context, News news)

@@ -43,7 +43,7 @@ class LoginPresenter extends FormPresenter
     void onFormSaveField(String field, String value)
     {
         if(field == "phone") {
-            _phone = value;
+            _phone = value.replaceAll('+', '');
         } else if(field == "password") {
             _password = value;
         }

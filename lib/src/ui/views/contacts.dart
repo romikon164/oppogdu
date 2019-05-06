@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'future_contract.dart';
 import 'package:oppo_gdu/src/data/models/contacts.dart';
-import '../components/navigation/bottom/widget.dart';
 import '../components/navigation/drawer/widget.dart';
 import 'view_contract.dart';
 import 'package:oppo_gdu/src/presenters/contacts.dart';
 import 'package:flutter/rendering.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:oppo_gdu/src/support/url.dart' as UrlUtils;
 import 'package:yandex_mapkit/yandex_mapkit.dart';
+import '../components/widgets/loading.dart';
+import '../components/widgets/empty.dart';
+import '../components/widgets/scaffold.dart';
+import 'package:flutter/gestures.dart';
 
 class ContactsView extends StatefulWidget implements ViewContract
 {
@@ -26,25 +28,12 @@ class _ContactsViewState extends State<ContactsView> implements ViewFutureContra
 
     bool _isError = false;
 
-    double _flexibleSpaceHeight = 200.0;
-
-    bool _appBarTitleVisibled = false;
-
-    double _appBarTitleMarginTop = 0;
-
-    double _bodyTitleMarginTop = 16;
-
-    BottomNavigationController _bottomNavigationBarController;
-
     YandexMapController _yandexMapController;
 
     @override
     void initState()
     {
         super.initState();
-
-        _bottomNavigationBarController = BottomNavigationController();
-        _bottomNavigationBarController.delegate = widget.presenter;
 
         widget.presenter?.onInitState(this);
     }
@@ -69,6 +58,19 @@ class _ContactsViewState extends State<ContactsView> implements ViewFutureContra
     {
         setState(() {
             _contacts = contacts;
+            if(_yandexMapController != null) {
+                _yandexMapController.move(
+                    point: Point(
+                        latitude: _contacts.latitude,
+                        longitude: _contacts.longitude
+                    ),
+                    zoom: 17,
+                    animation: MapAnimation(
+                        smooth: true,
+                        duration: 2.0
+                    )
+                );
+            }
         });
     }
 
@@ -89,257 +91,136 @@ class _ContactsViewState extends State<ContactsView> implements ViewFutureContra
 
     Widget _buildLoadingWidget(BuildContext context)
     {
-        return Scaffold(
-            appBar: AppBar(
-                title: Text("Загрузка"),
-            ),
-            body: Center(
-                child: CircularProgressIndicator(),
-            ),
-            bottomNavigationBar: BottomNavigationWidget(
-                controller: _bottomNavigationBarController,
-            ),
-            drawer: DrawerNavigationWidget(
-                delegate: widget.presenter,
-                currentIndex: DrawerNavigationWidget.contactsItem
-            ),
+        return LoadingWidget(
+            includeDrawer: true,
+            drawerDelegate: widget.presenter,
+            drawerCurrentIndex: DrawerNavigationWidget.contactsItem,
+            bottomNavigationDelegate: widget.presenter,
         );
     }
 
     Widget _buildErrorWidget(BuildContext context)
     {
-        return Scaffold(
-            appBar: AppBar(
-                title: Text("Ошибка"),
-            ),
-            body: Center(
-                child: Text(
-                    "Возникла ошибка при загрузке данных"
-                ),
-            ),
-            bottomNavigationBar: BottomNavigationWidget(
-                controller: _bottomNavigationBarController,
-            ),
-            drawer: DrawerNavigationWidget(
-                delegate: widget.presenter,
-                currentIndex: DrawerNavigationWidget.contactsItem
-            ),
+        return EmptyWidget(
+            includeDrawer: true,
+            drawerDelegate: widget.presenter,
+            drawerCurrentIndex: DrawerNavigationWidget.contactsItem,
+            bottomNavigationDelegate: widget.presenter,
+            appBarTitle: 'Ошибка',
+            emptyMessage: 'Возникла ошибка при загрузке данных',
         );
     }
 
     Widget _buildWidget(BuildContext context)
     {
-        return Scaffold(
-            body: RefreshIndicator(
-                child: NotificationListener<ScrollNotification>(
-                    child:  CustomScrollView(
-                        slivers: [
-                            _buildAppBar(context),
-                            SliverToBoxAdapter(
-                                child: Card(
-                                    child: Padding(
-                                        padding: EdgeInsets.all(_bodyTitleMarginTop),
-                                        child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                                Text(
-                                                    _contacts.name,
-                                                    style: Theme.of(context).textTheme.headline,
-                                                )
-                                            ],
-                                        ),
-                                    ),
-                                ),
-                            ),
-                            _buildContactsWidget(context)
-                        ]
-                    ),
-                    onNotification: _onUserScroll,
-                ),
-                onRefresh: _onRefresh,
+        return ScaffoldWithBottomNavigation(
+            appBar: AppBar(
+                title: Text('Контакты'),
+                actions: [
+                    IconButton(
+                        icon: Icon(Icons.refresh),
+                        onPressed: _onRefresh,
+                    )
+                ],
+
             ),
-            bottomNavigationBar: BottomNavigationWidget(
-                controller: _bottomNavigationBarController,
-            ),
-            drawer: DrawerNavigationWidget(
-                delegate: widget.presenter,
-                currentIndex: DrawerNavigationWidget.contactsItem,
+            drawerDelegate: widget.presenter,
+            drawerCurrentIndex: DrawerNavigationWidget.contactsItem,
+            bottomNavigationDelegate: widget.presenter,
+            body: SafeArea(
+                child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                        _buildMap(context),
+                        _buildContacts(context),
+                    ],
+                )
             ),
         );
     }
 
-    Widget _buildAppBar(BuildContext context)
+    Widget _buildMap(BuildContext context)
     {
-        if(_contacts.logo == null) {
-            _flexibleSpaceHeight = kToolbarHeight;
+        return YandexMap(
+            onMapCreated: (controller) async {
+                _yandexMapController = controller;
 
-            return SliverAppBar(
-                centerTitle: false,
-                floating: false,
-                pinned: true,
-                title: _buildAppBarTitle(context),
-            );
-        } else {
-            return SliverAppBar(
-                centerTitle: false,
-                expandedHeight: _flexibleSpaceHeight,
-                floating: false,
-                pinned: true,
-                title: _buildAppBarTitle(context),
-                flexibleSpace: FlexibleSpaceBar(
-                    background: Image(
-                        image: CachedNetworkImageProvider(_contacts.logo),
-                        fit: BoxFit.cover,
+                _yandexMapController.move(
+                    point: Point(
+                        latitude: _contacts.latitude,
+                        longitude: _contacts.longitude
                     ),
-                ),
-            );
-        }
+                    zoom: 17,
+                    animation: MapAnimation(
+                        smooth: true,
+                        duration: 2.0
+                    )
+                );
+
+                _yandexMapController.addPlacemark(
+                    Placemark(
+                        point: Point(
+                            latitude: _contacts.latitude,
+                            longitude: _contacts.longitude
+                        ),
+                        iconName: 'assets/place2.png'
+                    )
+                );
+            },
+        );
     }
 
-    Widget _buildAppBarTitle(BuildContext context)
-    {
-        if(_appBarTitleVisibled) {
-            return ClipRect(
-                child: Padding(
-                    padding: EdgeInsets.only(top: _appBarTitleMarginTop),
-                    child: Text(_contacts.name, textScaleFactor: 0.6),
-                ),
-            );
-        }
-
-        return null;
-    }
-
-    Widget _buildContactsWidget(BuildContext context)
+    Widget _buildContacts(BuildContext context)
     {
         List<Widget> contactWidgets = List<Widget>();
 
         if(_contacts.phone != null && _contacts.phone.isNotEmpty) {
             contactWidgets.add(
-                Padding(
-                    padding: EdgeInsets.only(top: 8, bottom: 8),
-                    child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                            Padding(
-                                padding: EdgeInsets.only(right: 12),
-                                child: Text("Телефон:"),
-                            ),
-                            InkWell(
-                                child: Text(_contacts.phone),
-                                onTap: () {
-                                    UrlUtils.launchUrl("tel:${_contacts.phone}");
-                                },
-                            )
-                        ],
-                    ),
+                _buildContactItem(
+                    context,
+                    name: 'Телефон',
+                    value: _contacts.phone,
+                    onTap: () {
+                        UrlUtils.launchUrl("tel:${_contacts.phone}");
+                    }
                 )
             );
         }
 
         if(_contacts.email != null && _contacts.email.isNotEmpty) {
             contactWidgets.add(
-                Padding(
-                    padding: EdgeInsets.only(top: 8, bottom: 8),
-                    child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                            Padding(
-                                padding: EdgeInsets.only(right: 12),
-                                child: Text("E-mail:"),
-                            ),
-                            InkWell(
-                                child: Text(_contacts.email),
-                                onTap: () {
-                                    UrlUtils.launchUrl("mailto:${_contacts.email}");
-                                },
-                            )
-                        ],
-                    ),
-                )
-            );
-        }
-
-        if(_contacts.city != null && _contacts.city.isNotEmpty) {
-            contactWidgets.add(
-                Padding(
-                    padding: EdgeInsets.only(top: 8, bottom: 8),
-                    child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                            Padding(
-                                padding: EdgeInsets.only(right: 12),
-                                child: Text("Город:"),
-                            ),
-                            Text(_contacts.city),
-                        ],
-                    ),
+                _buildContactItem(
+                    context,
+                    name: 'E-mail',
+                    value: _contacts.email,
+                    onTap: () {
+                        UrlUtils.launchUrl("mailto:${_contacts.email}");
+                    }
                 )
             );
         }
 
         if(_contacts.address != null && _contacts.address.isNotEmpty) {
             contactWidgets.add(
-                Padding(
-                    padding: EdgeInsets.only(top: 8, bottom: 8),
-                    child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                            Padding(
-                                padding: EdgeInsets.only(right: 12),
-                                child: Text("Адрес:"),
-                            ),
-                            Text(_contacts.address),
-                        ],
-                    ),
+                _buildContactItem(
+                    context,
+                    name: 'Адрес',
+                    value: _contacts.address,
+                    onTap: () {}
                 )
             );
         }
 
-        if(_contacts.latitude != null && _contacts.longitude != null) {
-            contactWidgets.add(
-                SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height - 200,
-                    child: YandexMap(
-                        onMapCreated: (controller) async {
-                            _yandexMapController = controller;
-                            
-                            _yandexMapController.move(
-                                point: Point(
-                                    latitude: _contacts.latitude,
-                                    longitude: _contacts.longitude
-                                ),
-                                zoom: 14,
-                                animation: MapAnimation(
-                                    smooth: true,
-                                    duration: 2.0
-                                )
-                            );
-
-                            _yandexMapController.addPlacemark(
-                                Placemark(
-                                    point: Point(
-                                        latitude: _contacts.latitude,
-                                        longitude: _contacts.longitude
-                                    ),
-                                )
-                            );
-                        },
-                    ),
-                )
-            );
-        }
-
-        return SliverToBoxAdapter(
+        return Positioned(
+            bottom: 0,
+            left: 12,
+            right: 12,
             child: Card(
                 child: Padding(
-                    padding: EdgeInsets.all(_bodyTitleMarginTop),
+                    padding: EdgeInsets.fromLTRB(16, 12, 16, 12),
                     child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: contactWidgets,
                     ),
@@ -348,48 +229,40 @@ class _ContactsViewState extends State<ContactsView> implements ViewFutureContra
         );
     }
 
-    bool _onUserScroll(ScrollNotification notification)
+    Widget _buildContactItem(BuildContext context, {String name, String value, VoidCallback onTap})
     {
-        double scrollTop = notification.metrics.pixels;
+        TapGestureRecognizer tapGestureRecognizer;
 
-        if(scrollTop > _flexibleSpaceHeight - kToolbarHeight + _bodyTitleMarginTop) {
-            if(!_appBarTitleVisibled) {
-                setState(() {
-                    _appBarTitleVisibled = true;
-                    _appBarTitleMarginTop = kToolbarHeight;
-                });
-            } else {
-                setState(() {
-                    _appBarTitleMarginTop = _flexibleSpaceHeight - scrollTop + _bodyTitleMarginTop;
-
-                    if(_appBarTitleMarginTop < 0) {
-                        _appBarTitleMarginTop = 0;
-                    }
-                });
-            }
-        } else {
-            if (_appBarTitleVisibled) {
-                setState(() {
-                    _appBarTitleVisibled = false;
-                });
-            }
+        if(onTap != null) {
+            tapGestureRecognizer = TapGestureRecognizer();
+            tapGestureRecognizer.onTap = onTap;
         }
 
-        if(notification is UserScrollNotification) {
-            if(notification.direction == ScrollDirection.forward) {
-                _bottomNavigationBarController.show();
-            }
-
-            if(notification.direction == ScrollDirection.reverse) {
-                _bottomNavigationBarController.hide();
-            }
-        }
-
-        return true;
+        return Padding(
+            padding: EdgeInsets.only(top: 4, bottom: 4),
+            child: Container(
+                width: MediaQuery.of(context).size.width - 40,
+                child: RichText(
+                    text: TextSpan(
+                        children: [
+                            TextSpan(
+                                text: "$name: ",
+                                style: Theme.of(context).textTheme.headline
+                            ),
+                            TextSpan(
+                                text: value,
+                                style: Theme.of(context).textTheme.headline.copyWith(fontWeight: FontWeight.normal),
+                                recognizer: tapGestureRecognizer
+                            )
+                        ]
+                    ),
+                ),
+            ),
+        );
     }
 
     Future<void> _onRefresh() async
     {
-        widget.presenter?.didRefresh();
+        await widget.presenter?.didRefresh();
     }
 }

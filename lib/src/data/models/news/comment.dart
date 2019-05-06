@@ -23,6 +23,10 @@ class Comment extends Model
 
     factory Comment.fromMap(Map<String, dynamic> map)
     {
+        if(map == null) {
+            return null;
+        }
+
         return Comment(
             id: map["id"] as int,
             user: User.fromMap(map["user"]),

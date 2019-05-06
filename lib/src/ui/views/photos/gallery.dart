@@ -54,6 +54,7 @@ class _PhotoGalleryViewViewState extends State<PhotoGalleryView>
                             builder: _buildPhotoItem,
                             loadingChild: Center(
                                 child: CircularProgressIndicator(
+                                    backgroundColor: Colors.black26,
                                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                 )
                             ),

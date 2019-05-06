@@ -53,12 +53,12 @@ abstract class Presenter implements PresenterContract, DrawerNavigationDelegate,
 
     void didDrawerNavigationVideoGalleryPressed() {
         router.pop();
-        // TODO
+        router.presentVideos();
     }
 
     void didDrawerNavigationSportComplexPressed() {
         router.pop();
-        // TODO
+        router.presentSportComplex();
     }
 
     void didDrawerNavigationStructurePressed() {
@@ -78,7 +78,7 @@ abstract class Presenter implements PresenterContract, DrawerNavigationDelegate,
 
     void didDrawerNavigationLeadershipPressed() {
         router.pop();
-        // TODO
+        router.presentLeaderships();
     }
 
     void didDrawerNavigationCollectiveAgreementPressed() {
@@ -88,12 +88,12 @@ abstract class Presenter implements PresenterContract, DrawerNavigationDelegate,
 
     void didDrawerNavigationContactsPressed() {
         router.pop();
-        // TODO
+        router.presentContacts();
     }
 
     void didDrawerNavigationFollowsUsPressed() {
         router.pop();
-        // TODO
+        router.presentFollowUs();
     }
 
     void didDrawerNavigationWriteToUsPressed() {
@@ -106,7 +106,7 @@ abstract class Presenter implements PresenterContract, DrawerNavigationDelegate,
     }
 
     void didBottomNavigationSportComplex() {
-        // TODO
+        router.presentSportComplex();
     }
     void didBottomNavigationWriteToUs() {
         router.presentWriteToUs();
