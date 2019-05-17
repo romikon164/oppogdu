@@ -114,8 +114,6 @@ class _ScaffoldWithBottomNavigationState extends State<ScaffoldWithBottomNavigat
             }
         }
 
-        print('test');
-
         return true;
     }
 

@@ -2,6 +2,77 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
+class AppBarFloatingTitle extends StatefulWidget
+{
+    final String title;
+
+    final bool visibled;
+
+    final double margin;
+
+    AppBarFloatingTitle({
+        Key key,
+        this.title,
+        this.visibled,
+        this.margin,
+    }): super(key: key);
+
+    @override
+    _AppBarFloatingTitleState createState() => _AppBarFloatingTitleState();
+}
+
+class _AppBarFloatingTitleState extends State<AppBarFloatingTitle>
+{
+    bool _visibled;
+
+    double _margin;
+
+    @override
+    void initState()
+    {
+        super.initState();
+
+        _visibled = widget.visibled;
+        _margin = widget.margin;
+    }
+
+    @override
+    Widget build(BuildContext context)
+    {
+        if(_visibled) {
+            return ClipRect(
+                child: Padding(
+                    padding: EdgeInsets.only(top: _margin),
+                    child: Text(widget.title, textScaleFactor: 0.6),
+                ),
+            );
+        }
+
+        return Container();
+    }
+
+    void setMargin(double newMargin)
+    {
+        if(mounted) {
+            setState(() {
+                _visibled = true;
+                _margin = newMargin > 0 ? newMargin : 0;
+            });
+        }
+    }
+
+    void setVisibled([bool newVisibled = true])
+    {
+        if(mounted) {
+            if(newVisibled != _visibled) {
+                setState(() {
+                    _visibled = newVisibled;
+                });
+            }
+        }
+    }
+}
+
 class CustomScrollViewWithScrolledTitle extends StatefulWidget
 {
     final String title;
@@ -39,18 +110,14 @@ class CustomScrollViewWithScrolledTitle extends StatefulWidget
 
 class _CustomScrollViewWithScrolledTitleState extends State<CustomScrollViewWithScrolledTitle>
 {
-    bool _appBarTitleVisibled = false;
-
-    double _appBarTitleMarginTop = 0;
-
     double _flexibleSpaceHeight;
+
+    GlobalKey<_AppBarFloatingTitleState> _appBarTitleKey = GlobalKey<_AppBarFloatingTitleState>();
 
     @override
     void initState()
     {
         super.initState();
-
-        _flexibleSpaceHeight = widget.flexibleSpaceHeight;
     }
 
     @override
@@ -75,7 +142,9 @@ class _CustomScrollViewWithScrolledTitleState extends State<CustomScrollViewWith
 
         List<Widget> slivers = List<Widget>();
 
-        slivers.add(_buildAppBar(context));
+        slivers.add(
+            _buildAppBar(context)
+        );
 
         slivers.add(
             SliverToBoxAdapter(
@@ -115,22 +184,30 @@ class _CustomScrollViewWithScrolledTitleState extends State<CustomScrollViewWith
     Widget _buildAppBar(BuildContext context)
     {
         if(widget.image == null) {
-            _flexibleSpaceHeight = kToolbarHeight;
-
             return SliverAppBar(
                 centerTitle: false,
                 floating: false,
                 pinned: true,
-                title: _buildAppBarTitle(context),
+                title: AppBarFloatingTitle(
+                    key: _appBarTitleKey,
+                    title: widget.title,
+                    margin: 0,
+                    visibled: false,
+                ),
                 actions: widget.actions,
             );
         } else {
             return SliverAppBar(
                 centerTitle: false,
-                expandedHeight: _flexibleSpaceHeight,
+                expandedHeight: widget.flexibleSpaceHeight,
                 floating: false,
                 pinned: true,
-                title: _buildAppBarTitle(context),
+                title: AppBarFloatingTitle(
+                    key: _appBarTitleKey,
+                    title: widget.title,
+                    margin: 0,
+                    visibled: false,
+                ),
                 actions: widget.actions,
                 flexibleSpace: FlexibleSpaceBar(
                     background: Image(
@@ -140,20 +217,6 @@ class _CustomScrollViewWithScrolledTitleState extends State<CustomScrollViewWith
                 ),
             );
         }
-    }
-
-    Widget _buildAppBarTitle(BuildContext context)
-    {
-        if(_appBarTitleVisibled) {
-            return ClipRect(
-                child: Padding(
-                    padding: EdgeInsets.only(top: _appBarTitleMarginTop),
-                    child: Text(widget.title, textScaleFactor: 0.6),
-                ),
-            );
-        }
-
-        return null;
     }
 
     Future<void> _onRefresh() async
@@ -167,27 +230,14 @@ class _CustomScrollViewWithScrolledTitleState extends State<CustomScrollViewWith
     {
         double scrollTop = notification.metrics.pixels;
 
-        if(scrollTop > _flexibleSpaceHeight - kToolbarHeight + widget.bodyTitleMarginTop) {
-            if(!_appBarTitleVisibled) {
-                setState(() {
-                    _appBarTitleVisibled = true;
-                    _appBarTitleMarginTop = kToolbarHeight;
-                });
-            } else {
-                setState(() {
-                    _appBarTitleMarginTop = _flexibleSpaceHeight - scrollTop + widget.bodyTitleMarginTop;
+        _flexibleSpaceHeight = widget.image != null ? widget.flexibleSpaceHeight : 0;
 
-                    if(_appBarTitleMarginTop < 0) {
-                        _appBarTitleMarginTop = 0;
-                    }
-                });
-            }
+        if(scrollTop > _flexibleSpaceHeight - kToolbarHeight + widget.bodyTitleMarginTop) {
+            _appBarTitleKey.currentState?.setMargin(
+                _flexibleSpaceHeight - scrollTop + widget.bodyTitleMarginTop
+            );
         } else {
-            if (_appBarTitleVisibled) {
-                setState(() {
-                    _appBarTitleVisibled = false;
-                });
-            }
+            _appBarTitleKey.currentState?.setVisibled(false);
         }
 
         return false;

@@ -52,8 +52,7 @@ class LeadershipListPresenter extends FuturePresenterContract<List<Worker>>
             _delegate.onLoad(_leaderships);
         } on RepositoryNotFoundException {
             router.presentNewsList();
-        } catch(e) {
-            print(e);
+        } catch(_) {
             _delegate.onError();
         }
     }

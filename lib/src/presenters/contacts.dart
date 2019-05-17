@@ -43,8 +43,7 @@ class ContactsPresenter extends FuturePresenterContract<Contacts>
         try {
             Contacts contacts = await _apiRepository.getCompanyContacts();
             _delegate.onLoad(contacts);
-        } catch(e) {
-            print(e);
+        } catch(_) {
             _delegate.onError();
         }
     }

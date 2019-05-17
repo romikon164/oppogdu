@@ -62,17 +62,26 @@ class _MarkDownComponentState extends State<MarkDownComponent> implements MarkDo
     final List<GestureRecognizer> _recognizers = <GestureRecognizer>[];
 
     @override
+    void initState()
+    {
+        super.initState();
+    }
+
+    @override
     void didChangeDependencies() {
-        _parseMarkdown();
         super.didChangeDependencies();
+
+        if(_children == null) {
+            _parseMarkdown();
+        }
     }
 
     @override
     void didUpdateWidget(MarkDownComponent oldWidget) {
         super.didUpdateWidget(oldWidget);
-        if (widget.data != oldWidget.data
-            || widget.styleSheet != oldWidget.styleSheet)
-            _parseMarkdown();
+//        if (widget.data != oldWidget.data
+//            || widget.styleSheet != oldWidget.styleSheet)
+//            _parseMarkdown();
     }
 
     @override

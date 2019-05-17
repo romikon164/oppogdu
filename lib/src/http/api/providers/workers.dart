@@ -15,7 +15,6 @@ class WorkerApiProvider
 
     Future<ApiResponse> getDetail(int id) async
     {
-        print('workers/$id');
         return await ApiRequest('workers/$id').execute();
     }
 

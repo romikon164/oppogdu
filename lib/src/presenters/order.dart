@@ -80,8 +80,7 @@ class OrderPresenter extends FormPresenter
             );
 
             _delegate.onFormSendSuccess();
-        } catch(e) {
-            print(e);
+        } catch(_) {
             _delegate.onFormSendFailure("Возникла ошибка при отправке данных");
         }
     }

@@ -15,7 +15,6 @@ class VideoApiProvider
 
     Future<ApiResponse> getDetail(int id) async
     {
-        print('videos/$id');
         return await ApiRequest('videos/$id').execute();
     }
 }

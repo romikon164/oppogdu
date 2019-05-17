@@ -30,6 +30,8 @@ class _NewsDetailViewState extends State<NewsDetailView> implements ViewFutureCo
 
     bool _isError = false;
 
+    MarkDownComponent _bodyWidget;
+
     @override
     void initState()
     {
@@ -77,6 +79,14 @@ class _NewsDetailViewState extends State<NewsDetailView> implements ViewFutureCo
 
     Widget _buildWidget(BuildContext context)
     {
+        if(_bodyWidget == null) {
+            _bodyWidget = MarkDownComponent(
+                data: _news.content,
+                onTapImage: _onTapBodyImage,
+                onTapLink: _onTapBodyLink,
+            );
+        }
+
         return ScaffoldWithBottomNavigation(
             includeDrawer: false,
             bottomNavigationDelegate: widget.presenter,
@@ -90,7 +100,7 @@ class _NewsDetailViewState extends State<NewsDetailView> implements ViewFutureCo
                 ),
                 children: [
                     Padding(
-                        padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                        padding: EdgeInsets.fromLTRB(12, 0, 12, 0),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: _buildNewsToolBar(context),
@@ -98,11 +108,7 @@ class _NewsDetailViewState extends State<NewsDetailView> implements ViewFutureCo
                     ),
                     Padding(
                         padding: EdgeInsets.all(16),
-                        child: MarkDownComponent(
-                            data: _news.content,
-                            onTapImage: _onTapBodyImage,
-                            onTapLink: _onTapBodyLink,
-                        ),
+                        child: _bodyWidget,
                     )
                 ],
                 onRefresh: _onRefresh,
@@ -194,7 +200,7 @@ class _NewsDetailViewState extends State<NewsDetailView> implements ViewFutureCo
 
         actions.add(
             Padding(
-                padding: EdgeInsets.fromLTRB(12, 0, 12, 0),
+                padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

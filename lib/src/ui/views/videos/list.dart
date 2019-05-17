@@ -309,7 +309,7 @@ class _VideoListViewState extends State<VideoListView> implements ViewFutureCont
             child: InkWell(
                 onTap: () {
                     FlutterYoutube.playYoutubeVideoById(
-                        apiKey: YOUTUBE_API_KEY,
+                        apiKey: GOOGLE_API_KEY,
                         videoId: video.code,
                         autoPlay: true,
                         fullScreen: false,

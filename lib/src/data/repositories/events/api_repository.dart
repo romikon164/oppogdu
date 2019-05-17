@@ -14,8 +14,6 @@ class EventApiRepository extends RepositoryContract<Event, ApiCriteria>
     {
         ApiResponse apiResponse = await _apiService.events.getList();
 
-        print(apiResponse.body);
-
         if(!apiResponse.isOk) {
             throw RequestException(apiResponse.status, apiResponse.errors().message);
         }

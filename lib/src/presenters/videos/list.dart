@@ -47,8 +47,7 @@ class VideoListPresenter extends FuturePresenterContract<List<Video>>
             _delegate.onLoad(_videos);
         } on RepositoryNotFoundException {
             router.presentNewsList();
-        } catch(e) {
-            print(e);
+        } catch(_) {
             _delegate.onError();
         }
     }

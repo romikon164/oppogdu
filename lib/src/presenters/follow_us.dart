@@ -44,8 +44,7 @@ class FollowUsPresenter extends FuturePresenterContract<List<SocialNetwork>>
         try {
             Contacts contacts = await _apiRepository.getCompanyContacts();
             _delegate.onLoad(contacts.socialNetworks);
-        } catch(e) {
-            print(e);
+        } catch(_) {
             _delegate.onError();
         }
     }

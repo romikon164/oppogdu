@@ -23,8 +23,6 @@ class ContactsApiRepository extends RepositoryContract<Contacts, ApiCriteria>
     {
         ApiResponse apiResponse = await _apiService.contacts.getCompanyContacts();
 
-        print(apiResponse.body);
-
         if(!apiResponse.isOk) {
             throw RequestException(apiResponse.status, apiResponse.errors().message);
         }

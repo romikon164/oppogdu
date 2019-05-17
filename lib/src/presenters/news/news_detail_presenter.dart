@@ -43,7 +43,6 @@ class NewsDetailPresenter extends FuturePresenterContract<News>
 
     void didCommentsPressed()
     {
-        print("Present comment for $_newsId");
         router.presentNewsComments(_newsId);
     }
 

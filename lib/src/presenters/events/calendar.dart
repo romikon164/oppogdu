@@ -47,8 +47,7 @@ class EventsCalendarPresenter extends FuturePresenterContract<List<Event>>
             _delegate.onLoad(_events);
         } on RepositoryNotFoundException {
             router.presentNewsList();
-        } catch(e) {
-            print(e.toString());
+        } catch(_) {
             _delegate.onError();
         }
     }

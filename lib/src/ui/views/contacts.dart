@@ -6,11 +6,12 @@ import 'view_contract.dart';
 import 'package:oppo_gdu/src/presenters/contacts.dart';
 import 'package:flutter/rendering.dart';
 import 'package:oppo_gdu/src/support/url.dart' as UrlUtils;
-import 'package:yandex_mapkit/yandex_mapkit.dart';
 import '../components/widgets/loading.dart';
 import '../components/widgets/empty.dart';
 import '../components/widgets/scaffold.dart';
 import 'package:flutter/gestures.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'dart:async';
 
 class ContactsView extends StatefulWidget implements ViewContract
 {
@@ -28,7 +29,7 @@ class _ContactsViewState extends State<ContactsView> implements ViewFutureContra
 
     bool _isError = false;
 
-    YandexMapController _yandexMapController;
+    Completer<GoogleMapController> _mapsController = Completer();
 
     @override
     void initState()
@@ -58,19 +59,6 @@ class _ContactsViewState extends State<ContactsView> implements ViewFutureContra
     {
         setState(() {
             _contacts = contacts;
-            if(_yandexMapController != null) {
-                _yandexMapController.move(
-                    point: Point(
-                        latitude: _contacts.latitude,
-                        longitude: _contacts.longitude
-                    ),
-                    zoom: 17,
-                    animation: MapAnimation(
-                        smooth: true,
-                        duration: 2.0
-                    )
-                );
-            }
         });
     }
 
@@ -139,34 +127,29 @@ class _ContactsViewState extends State<ContactsView> implements ViewFutureContra
         );
     }
 
+    void _onMapCreated(GoogleMapController controller) {
+        _mapsController.complete(controller);
+    }
+
     Widget _buildMap(BuildContext context)
     {
-        return YandexMap(
-            onMapCreated: (controller) async {
-                _yandexMapController = controller;
+        Set<Marker> markers = Set<Marker>();
 
-                _yandexMapController.move(
-                    point: Point(
-                        latitude: _contacts.latitude,
-                        longitude: _contacts.longitude
-                    ),
-                    zoom: 17,
-                    animation: MapAnimation(
-                        smooth: true,
-                        duration: 2.0
-                    )
-                );
+        markers.add(
+            Marker(
+                markerId: MarkerId("company-location"),
+                position: LatLng(_contacts.latitude, _contacts.longitude)
+            )
+        );
 
-                _yandexMapController.addPlacemark(
-                    Placemark(
-                        point: Point(
-                            latitude: _contacts.latitude,
-                            longitude: _contacts.longitude
-                        ),
-                        iconName: 'assets/place2.png'
-                    )
-                );
-            },
+        return GoogleMap(
+            myLocationButtonEnabled: false,
+            onMapCreated: _onMapCreated,
+            initialCameraPosition: CameraPosition(
+                target: LatLng(_contacts.latitude, _contacts.longitude),
+                zoom: 17.0,
+            ),
+            markers: markers,
         );
     }
 
