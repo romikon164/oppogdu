@@ -63,17 +63,17 @@ abstract class Presenter implements PresenterContract, DrawerNavigationDelegate,
 
     void didDrawerNavigationStructurePressed() {
         router.pop();
-        // TODO
+        router.presentOrganizations();
     }
 
     void didDrawerNavigationPrintsPressed() {
         router.pop();
-        // TODO
+        router.presentPrints();
     }
 
     void didDrawerNavigationRegulationsPressed() {
         router.pop();
-        // TODO
+        router.presentActs();
     }
 
     void didDrawerNavigationLeadershipPressed() {

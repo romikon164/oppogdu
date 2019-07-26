@@ -106,12 +106,19 @@ class _ScaffoldWithBottomNavigationState extends State<ScaffoldWithBottomNavigat
 
     bool _onUserScrollNotification(UserScrollNotification notification)
     {
-        if(widget.floatingBottomNavigationBar && _bottomNavigationKey?.currentState != null) {
-            if(notification.direction == ScrollDirection.forward) {
-                _bottomNavigationKey.currentState.show();
-            } else if(notification.direction == ScrollDirection.reverse) {
-                _bottomNavigationKey.currentState.hide();
+        bool upDirection = notification.metrics.axisDirection == AxisDirection.up;
+        bool downDirection = notification.metrics.axisDirection == AxisDirection.down;
+
+        if(upDirection || downDirection) {
+
+            if(widget.floatingBottomNavigationBar && _bottomNavigationKey?.currentState != null) {
+                if(notification.direction == ScrollDirection.forward) {
+                    _bottomNavigationKey.currentState.show();
+                } else if(notification.direction == ScrollDirection.reverse) {
+                    _bottomNavigationKey.currentState.hide();
+                }
             }
+
         }
 
         return true;

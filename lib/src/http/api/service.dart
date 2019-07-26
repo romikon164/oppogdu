@@ -22,6 +22,7 @@ part 'providers/workers.dart';
 part 'providers/organizations.dart';
 part 'providers/orders.dart';
 part 'providers/contacts.dart';
+part 'providers/documents.dart';
 
 class ApiService
 {
@@ -61,6 +62,9 @@ class ApiService
     ContactsApiProvider _contactsApiProvider;
     ContactsApiProvider get contacts => _contactsApiProvider;
 
+    DocumentApiProvider _documentsApiProvider;
+    DocumentApiProvider get documents => _documentsApiProvider;
+
     static ApiService buildInstance({int clientId, String clientSecret, String baseUrl})
     {
         ApiService._instance = ApiService(clientId: clientId, clientSecret: clientSecret, baseUrl: baseUrl);
@@ -86,6 +90,7 @@ class ApiService
         _organizationApiProvider = OrganizationApiProvider(this);
         _orderApiProvider = OrderApiProvider(this);
         _contactsApiProvider = ContactsApiProvider(this);
+        _documentsApiProvider = DocumentApiProvider(this);
     }
 
     Future<AuthToken> createAccount({String email, String phone, String password, String fullname}) async

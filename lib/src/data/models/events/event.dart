@@ -14,6 +14,8 @@ class Event extends Model
 
     DateTime startsAt;
 
+    DateTime endsAt;
+
     DateTime createdAt;
 
     Event({
@@ -22,6 +24,7 @@ class Event extends Model
         this.description,
         this.category,
         this.startsAt,
+        this.endsAt,
         this.createdAt
     });
 
@@ -37,6 +40,7 @@ class Event extends Model
             description: map["description"] as String,
             category: EventCategory.fromMap(map["category"]),
             startsAt: DateTimeFormatter.dateTimeFromSeconds(map["starts_at"]),
+            endsAt: DateTimeFormatter.dateTimeFromSeconds(map["ends_at"]),
             createdAt: DateTimeFormatter.dateTimeFromSeconds(map["created_at"]),
         );
     }

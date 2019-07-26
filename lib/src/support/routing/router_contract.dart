@@ -19,6 +19,11 @@ abstract class RouterContract
     void presentSportComplex();
     void presentLeaderships();
     void presentWorkerDetail(int id);
+    void presentOrganizations();
+    void presentOrganizationDetail(int id);
+    void presentPrints();
+    void presentActs();
+    void presentDocumentDetail(int id);
     void presentFollowUs();
     void presentWriteToUs();
     void presentContacts();

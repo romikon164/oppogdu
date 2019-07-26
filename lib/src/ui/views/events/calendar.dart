@@ -353,9 +353,19 @@ class _EventsCalendarViewState extends State<EventsCalendarView>
                     ),
                     Padding(
                         padding: EdgeInsets.fromLTRB(8, 12, 8, 12),
-                        child: Text(
-                            DateTimeFormatter.format(event.startsAt, pattern: "HH:mm"),
-                            style: Theme.of(context).textTheme.headline,
+                        child: Column(
+                            children: [
+                                Text(
+                                    DateTimeFormatter.format(event.startsAt, pattern: "HH:mm"),
+                                    style: Theme.of(context).textTheme.headline,
+                                ),
+                                Text(
+                                    event.endsAt != null && event.endsAt.millisecondsSinceEpoch != 0
+                                        ? DateTimeFormatter.format(event.startsAt, pattern: "HH:mm")
+                                        : "",
+                                    style: Theme.of(context).textTheme.headline,
+                                )
+                            ],
                         ),
                     ),
                     Padding(

@@ -23,6 +23,8 @@ class Organization extends Model
 
     String description;
 
+    Worker chairman;
+
     List<Worker> workers;
 
     List<Worker> commissioners;
@@ -38,14 +40,33 @@ class Organization extends Model
         this.image,
         this.thumb,
         this.description,
+        this.chairman,
         this.workers,
         this.commissioners
     });
 
     factory Organization.fromMap(Map<String, dynamic> map)
     {
+        print(map);
         if(map == null) {
             return null;
+        }
+
+        dynamic latitudeRaw = map["latitude"];
+        dynamic longitudeRaw = map["longitude"];
+        double latitude = 0;
+        double longitude = 0;
+
+        if(latitudeRaw is int) {
+            latitude = latitudeRaw.toDouble();
+        } else if(latitudeRaw is double) {
+            latitude = latitudeRaw;
+        }
+
+        if(longitudeRaw is int) {
+            longitude = longitudeRaw.toDouble();
+        } else if(latitudeRaw is double) {
+            longitude = longitudeRaw;
         }
 
         return Organization(
@@ -54,11 +75,12 @@ class Organization extends Model
             email: map["email"] as String,
             phone: map["phone"] as String,
             address: map["address"] as String,
-            longitude: map["longitude"] as double,
-            latitude: map["latitude"] as double,
+            longitude: longitude,
+            latitude: latitude,
             image: map["image"] as String,
             thumb: map["thumb"] as String,
             description: map["description"] as String,
+            chairman: Worker.fromMap(map["chairman"]),
             workers: Worker.fromList(map["workers"]),
             commissioners: Worker.fromList(map["commissioners"]),
         );
@@ -77,6 +99,7 @@ class Organization extends Model
             "image": image,
             "thumb": thumb,
             "description": description,
+            "chairman": chairman,
             "workers": workers.map<Map<String,dynamic>>((worker) => worker.toMap()).toList(),
             "commissioners": commissioners.map<Map<String,dynamic>>(
                 (commissioner) => commissioner.toMap()

@@ -5,10 +5,10 @@ import 'package:oppo_gdu/src/presenters/workers/leadership_list.dart';
 import '../future_contract.dart';
 import '../../components/navigation/drawer/widget.dart';
 import 'package:oppo_gdu/src/data/models/users/worker.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../../components/widgets/loading.dart';
 import '../../components/widgets/empty.dart';
 import '../../components/widgets/scaffold.dart';
+import '../../components/users/worker.dart';
 
 class LeadershipListView extends StatefulWidget implements ViewContract
 {
@@ -144,110 +144,15 @@ class _LeadershipListViewState extends State<LeadershipListView> implements View
 
         Worker leadership = _leaderships[index];
 
-        List<Widget> widgets = [
-            Padding(
-                padding: EdgeInsets.fromLTRB(12, 12, 12, 8),
-                child: Text(
-                    leadership.name,
-                    style: Theme.of(context).textTheme.headline,
-                ),
-            )
-        ];
-
-        if(leadership.position != null && leadership.position.isNotEmpty) {
-            widgets.add(
-              Padding(
-                  padding: EdgeInsets.fromLTRB(12, 0, 12, 8),
-                  child: Text(
-                    leadership.position,
-                    style: Theme.of(context).textTheme.overline
-                  ),
-              )
-            );
-        }
-
-        if(leadership.phone != null && leadership.phone.isNotEmpty) {
-            widgets.add(
-              Padding(
-                  padding: EdgeInsets.fromLTRB(12, 0, 12, 8),
-                  child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                          Icon(
-                              Icons.phone,
-                              size: 16,
-                              color: Colors.black54,
-                          ),
-                          Container(width: 8),
-                          Text(
-                            leadership.phone,
-                            style: Theme.of(context).textTheme.overline
-                          )
-                      ],
-                  ),
-              )
-            );
-        }
-
-        if(leadership.email != null && leadership.email.isNotEmpty) {
-            widgets.add(
-              Padding(
-                  padding: EdgeInsets.fromLTRB(12, 0, 12, 8),
-                  child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                          Icon(
-                              Icons.alternate_email,
-                              size: 16,
-                              color: Colors.black54,
-                          ),
-                          Container(width: 8),
-                          Text(
-                            leadership.email,
-                            style: Theme.of(context).textTheme.overline
-                          )
-                      ],
-                  ),
-              )
-            );
-        }
-
-        return Card(
-            child: InkWell(
-              onTap: () {
-                  widget.presenter?.didTapLeadershipItem(leadership);
-              },
-              child: Flex(
-                  direction: Axis.horizontal,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                      Flexible(
-                          child: CachedNetworkImage(
-                            imageUrl: leadership.thumb,
-                            width: 120,
-                            height: 120,
-                            fit: BoxFit.cover
-                          ),
-                          flex: 0,
-                          fit: FlexFit.tight,
-                      ),
-                      Flexible(
-                          child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: widgets,
-                          ),
-                          flex: 1,
-                          fit: FlexFit.loose,
-                      )
-                  ],
-              )
-            ),
+        return WorkerListItemWidget(
+            name: leadership.name,
+            position: leadership.position,
+            phone: leadership.phone,
+            email: leadership.email,
+            photo: leadership.photo,
+            onTap: () {
+                widget.presenter?.didTapLeadershipItem(leadership);
+            },
         );
     }
 

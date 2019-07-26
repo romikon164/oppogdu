@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-// import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:oppo_gdu/src/consts.dart' as AppConsts;
 import 'package:oppo_gdu/src/support/routing/router.dart';
 import 'package:oppo_gdu/src/http/api/service.dart';
@@ -16,10 +16,10 @@ void main() => initializeDateFormatting().then((_) => runApp(Application()));
 
 class Application extends StatelessWidget
 {
-    // final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+    final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
     Application({Key key}): super(key: key) {
-        // _firebaseInitialize();
+        _firebaseInitialize();
         _databaseInitialize();
         _apiInitialize();
     }
@@ -37,40 +37,49 @@ class Application extends StatelessWidget
         );
     }
 
-//    void _firebaseInitialize()
-//    {
-//        _firebaseMessaging.configure(
-//            onMessage: (Map<String, dynamic> message) async {
-//                print("onMessage: $message");
-//            },
-//            onLaunch: (Map<String, dynamic> message) async {
-//                print("onLaunch: $message");
-//            },
-//            onResume: (Map<String, dynamic> message) async {
-//                print("onResume: $message");
-//            },
-//        );
-//
-//        _firebaseMessaging.requestNotificationPermissions(
-//            const IosNotificationSettings(
-//                sound: true,
-//                badge: true,
-//                alert: true
-//            )
-//        );
-//
-//        _firebaseMessaging.onIosSettingsRegistered
-//            .listen((IosNotificationSettings settings) {
-//                print("Settings registered: $settings");
-//            });
-//
-//        _firebaseMessaging.getToken().then((String token) {
-//            // assert(token != null);
-//
-//            AuthService.instance.firebaseToken = token;
-//            ApiService.instance.deviceToken = token;
-//        });
-//    }
+    void _firebaseInitialize()
+    {
+        _firebaseMessaging.configure(
+            onMessage: (Map<String, dynamic> message) async {
+                print("onMessage: $message");
+            },
+            onLaunch: (Map<String, dynamic> message) async {
+                print("onLaunch: $message");
+            },
+            onResume: (Map<String, dynamic> message) async {
+                print("onResume: $message");
+            },
+        );
+
+        _firebaseMessaging.requestNotificationPermissions(
+            const IosNotificationSettings(
+                sound: true,
+                badge: true,
+                alert: true
+            )
+        );
+
+        _firebaseMessaging.onIosSettingsRegistered
+            .listen((IosNotificationSettings settings) {
+                print("Settings registered: $settings");
+            });
+
+
+
+        _firebaseMessaging.subscribeToTopic('/news');
+        _firebaseMessaging.subscribeToTopic('/photo-albums');
+        _firebaseMessaging.subscribeToTopic('/videos');
+        _firebaseMessaging.subscribeToTopic('/sport-complex');
+        _firebaseMessaging.subscribeToTopic('/prints');
+        _firebaseMessaging.subscribeToTopic('/aggrement');
+
+        _firebaseMessaging.getToken().then((String token) {
+            // assert(token != null);
+
+            AuthService.instance.firebaseToken = token;
+            ApiService.instance.deviceToken = token;
+        });
+    }
 
     void _databaseInitialize()
     {

@@ -12,12 +12,16 @@ import 'package:oppo_gdu/src/presenters/videos/list.dart';
 import 'package:oppo_gdu/src/presenters/events/calendar.dart';
 import 'package:oppo_gdu/src/presenters/workers/leadership_list.dart';
 import 'package:oppo_gdu/src/presenters/workers/detail.dart';
+import 'package:oppo_gdu/src/presenters/organizations/list.dart';
+import 'package:oppo_gdu/src/presenters/organizations/detail.dart';
+import 'package:oppo_gdu/src/presenters/documents/list.dart';
 import 'package:oppo_gdu/src/presenters/order.dart';
 import 'package:oppo_gdu/src/presenters/contacts.dart';
 import 'package:oppo_gdu/src/presenters/follow_us.dart';
 import 'package:oppo_gdu/src/ui/views/photo/single.dart';
 import 'package:oppo_gdu/src/ui/views/photos/gallery.dart';
 import 'package:oppo_gdu/src/data/models/photo/photo.dart';
+import 'package:oppo_gdu/src/data/models/documents/document.dart';
 
 typedef void RouterPushCallback<T>(T result);
 
@@ -100,6 +104,31 @@ class Router implements RouterContract
     void presentWorkerDetail(int id)
     {
         push(WorkerDetailPresenter(this, id: id));
+    }
+
+    void presentOrganizations()
+    {
+        replace(OrganizationListPresenter(this));
+    }
+
+    void presentOrganizationDetail(int id)
+    {
+        push(OrganizationDetailPresenter(this, id: id));
+    }
+
+    void presentPrints()
+    {
+        replace(DocumentListPresenter(this, DocumentTypes.PRINTS));
+    }
+
+    void presentActs()
+    {
+        replace(DocumentListPresenter(this, DocumentTypes.ACTS));
+    }
+
+    void presentDocumentDetail(int id)
+    {
+        // TODO
     }
 
     void presentLogin()

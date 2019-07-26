@@ -2,7 +2,7 @@ import '../repository_contract.dart';
 import '../../models/model_collection.dart';
 import 'package:oppo_gdu/src/http/api/service.dart';
 import '../exceptions/not_found.dart';
-import '../../models/users/organication.dart';
+import '../../models/users/organization.dart';
 import '../api_criteria.dart';
 
 

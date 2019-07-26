@@ -20,6 +20,6 @@ class WorkerApiProvider
 
     Future<ApiResponse> getLeadershipsList() async
     {
-        return await ApiRequest('leaderships').execute();
+        return await ApiRequest('workers/leaderships').execute();
     }
 }

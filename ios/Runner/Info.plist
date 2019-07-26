@@ -4,6 +4,8 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>ОППО Газпром Добыча Уренгой Профсоюз</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -15,13 +17,42 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>$(FLUTTER_BUILD_NAME)</string>
+	<string>1.0.1</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<string>2</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>oppo-gdu.ru</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>Приложение запрашивает доступ к музыке</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Приложение запрашивает доступ к календарю</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Приложение запрашивает доступ к контактам</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Приложение запрашивает доступ к вашему местоположению</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Приложение запрашивает доступ к местоположению</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Приложение запрашивает доступ к местоположению</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Приложение запрашивает доступ к микрофону</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
@@ -46,24 +77,7 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>NSLocationWhenInUseUsageDescription</key>
-    <string>Приложение запрашивает доступ к местоположению</string>
-    <key>NSAppTransportSecurity</key>
-    <dict>
-        <key>NSAllowsArbitraryLoads</key>
-        <true/>
-        <key>NSExceptionDomains</key>
-        <dict>
-            <key>oppo-gdu.ru</key>
-            <dict>
-                <key>NSExceptionAllowsInsecureHTTPLoads</key>
-                <true/>
-                <key>NSIncludesSubdomains</key>
-                <true/>
-            </dict>
-        </dict>
-    </dict>
-    <key>io.flutter.embedded_views_preview</key>
-    <true/>
+	<key>io.flutter.embedded_views_preview</key>
+	<true/>
 </dict>
 </plist>
