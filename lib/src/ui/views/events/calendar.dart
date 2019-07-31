@@ -44,6 +44,8 @@ class _EventsCalendarViewState extends State<EventsCalendarView>
 
     DateTime _selectedDay = DateTime.now();
 
+    CalendarController _calendarController;
+
     _EventsCalendarViewState(): super();
 
     @override
@@ -52,6 +54,8 @@ class _EventsCalendarViewState extends State<EventsCalendarView>
         super.initState();
 
         _currentEventCategory = _nullEventCategory;
+
+        _calendarController = CalendarController();
 
         widget.presenter?.onInitState(this);
     }
@@ -271,7 +275,8 @@ class _EventsCalendarViewState extends State<EventsCalendarView>
         return Card(
             margin: EdgeInsets.all(0),
             child: TableCalendar(
-                selectedDay: DateTime.now(),
+                calendarController: _calendarController,
+                initialSelectedDay: DateTime.now(),
                 locale: 'ru_RU',
                 onDaySelected: (DateTime date, List<dynamic> events) {
                     setState(() {
