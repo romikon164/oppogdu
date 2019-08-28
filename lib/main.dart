@@ -66,12 +66,12 @@ class Application extends StatelessWidget
 
 
 
-        _firebaseMessaging.subscribeToTopic('/news');
-        _firebaseMessaging.subscribeToTopic('/photo-albums');
-        _firebaseMessaging.subscribeToTopic('/videos');
-        _firebaseMessaging.subscribeToTopic('/sport-complex');
-        _firebaseMessaging.subscribeToTopic('/prints');
-        _firebaseMessaging.subscribeToTopic('/aggrement');
+        _firebaseMessaging.subscribeToTopic('news');
+        _firebaseMessaging.subscribeToTopic('photo-albums');
+        _firebaseMessaging.subscribeToTopic('videos');
+        _firebaseMessaging.subscribeToTopic('sport-complex');
+        _firebaseMessaging.subscribeToTopic('prints');
+        _firebaseMessaging.subscribeToTopic('aggrement');
 
         _firebaseMessaging.getToken().then((String token) {
             // assert(token != null);
