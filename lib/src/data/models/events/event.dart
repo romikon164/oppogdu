@@ -53,7 +53,8 @@ class Event extends Model
         map["name"] = name;
         map["description"] = description;
         map["category"] = category.toMap();
-        map["starts_at"] = createdAt.millisecondsSinceEpoch ~/ 1000;
+        map["starts_at"] = startsAt.millisecondsSinceEpoch ~/ 1000;
+        map["ends_at"] = endsAt.millisecondsSinceEpoch ~/ 1000;
         map["created_at"] = createdAt.millisecondsSinceEpoch ~/ 1000;
 
         return map;

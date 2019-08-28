@@ -17,4 +17,9 @@ class EventApiProvider
     {
         return await ApiRequest('sport-complex/events/$id').execute();
     }
+
+    Future<ApiResponse> getDescription() async
+    {
+        return await ApiRequest('sport-complex/description').execute();
+    }
 }

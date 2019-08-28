@@ -27,4 +27,5 @@ abstract class RouterContract
     void presentFollowUs();
     void presentWriteToUs();
     void presentContacts();
+    void presentCollectiveAgreement();
 }

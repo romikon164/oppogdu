@@ -12,6 +12,18 @@ import '../../components/widgets/empty.dart';
 import '../../components/widgets/scaffold.dart';
 import 'package:oppo_gdu/src/support/datetime/formatter.dart';
 import 'package:table_calendar/table_calendar.dart';
+import '../../components/users/worker.dart';
+import 'package:oppo_gdu/src/data/models/users/worker.dart';
+import '../../components/markdown/markdown.dart';
+import 'package:oppo_gdu/src/support/url.dart' as UrlService;
+
+enum SportComplexSection { description, events, pool, trainers}
+
+abstract class TrainersViewerContract
+{
+    void onLoadTrainers(List<Worker> trainers);
+    void onLoadDescription(String description);
+}
 
 class EventsCalendarView extends StatefulWidget implements ViewContract
 {
@@ -25,14 +37,20 @@ class EventsCalendarView extends StatefulWidget implements ViewContract
 
 class _EventsCalendarViewState extends State<EventsCalendarView>
     with TickerProviderStateMixin
-    implements ViewFutureContract<List<Event>>
+    implements ViewFutureContract<List<Event>>, TrainersViewerContract
 
 {
     List<Event> _events;
 
+    List<Event> _sports;
+
+    List<Event> _pools;
+
     List<Event> _filteredByCategoryEvents;
 
     List<Event> _filteredEvents;
+
+    List<Worker> _trainers;
 
     List<EventCategory> _categories;
 
@@ -45,6 +63,10 @@ class _EventsCalendarViewState extends State<EventsCalendarView>
     DateTime _selectedDay = DateTime.now();
 
     CalendarController _calendarController;
+
+    SportComplexSection _currentViewSection = SportComplexSection.description;
+
+    String _descriptionContent;
 
     _EventsCalendarViewState(): super();
 
@@ -76,16 +98,45 @@ class _EventsCalendarViewState extends State<EventsCalendarView>
         widget.presenter?.onInitState(this);
     }
 
+    void onLoadTrainers(List<Worker> trainers)
+    {
+        setState(() {
+            _trainers = trainers;
+        });
+    }
+
+    void onLoadDescription(String description)
+    {
+        setState(() {
+            _descriptionContent = description;
+        });
+    }
+
     void onLoad(List<Event> data)
     {
         setState(() {
-            _events = data.map((event) {
-                if(event.category == null) {
-                    event.category = _nullEventCategory;
-                }
+            _sports = data
+                .where((event) {
+                    return event.category == null || event.category.id != 2;
+                })
+                .map((event) {
+                    if(event.category == null) {
+                        event.category = _nullEventCategory;
+                    }
 
-                return event;
+                    return event;
+                })
+                .toList();
+
+            _pools = data.where((event) {
+                return event.category != null && event.category.id == 2;
             }).toList();
+
+            if(_currentViewSection == SportComplexSection.events) {
+                _events = _sports;
+            } else {
+                _events = _pools;
+            }
 
             _updateCategoryList();
             _filterEventList();
@@ -160,78 +211,186 @@ class _EventsCalendarViewState extends State<EventsCalendarView>
 
     Widget _buildWidget(BuildContext context)
     {
+        Widget bodyWidget;
+
+        if(_currentViewSection == SportComplexSection.trainers) {
+            bodyWidget = _buildTrainersWidget(context);
+        } else if(_currentViewSection == SportComplexSection.description) {
+            bodyWidget = _buildDescriptionWidget(context);
+        } else {
+            bodyWidget = _buildEventsWidget(context);
+        }
+
         return ScaffoldWithBottomNavigation(
             drawerDelegate: widget.presenter,
             drawerCurrentIndex: DrawerNavigationWidget.sportComplexItem,
             bottomNavigationDelegate: widget.presenter,
             bottomNavigationCurrentIndex: BottomNavigationWidget.sportComplexItem,
             appBar: _buildAppBar(context),
-            body: SafeArea(
-                child: Flex(
-                    direction: Axis.vertical,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                        Flexible(
-                            fit: FlexFit.tight,
-                            flex: 0,
-                            child: _buildEventsWidget(context),
-                        ),
-                        Flexible(
-                            fit: FlexFit.tight,
-                            flex: 0,
-                            child: Container(height: 1, color: Colors.white54),
-                        ),
-                        Flexible(
-                            fit: FlexFit.loose,
-                            flex: 1,
-                            child: _buildEventListWidget(context),
-                        )
-                    ],
-                )
+            body: bodyWidget,
+        );
+    }
+
+    Widget _buildDescriptionWidget(BuildContext context)
+    {
+        return SingleChildScrollView(
+            child: Container(
+                color: Colors.white,
+                child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: MarkDownComponent(
+                        data: _descriptionContent,
+                        onTapImage: _onTapBodyImage,
+                        onTapLink: _onTapBodyLink,
+                    ),
+                ),
             ),
+        );
+    }
+
+    void _onTapBodyImage(String src, String title, String alt)
+    {
+        widget.presenter?.router?.presentSinglePhoto(src, title: title);
+    }
+
+    void _onTapBodyLink(String href)
+    {
+        UrlService.launchUrl(href);
+    }
+
+    Widget _buildTrainersWidget(BuildContext context)
+    {
+        if(_trainers.isEmpty) {
+            return Center(
+                child: Text("Пусто"),
+            );
+        } else {
+            return ListView.builder(
+                padding: EdgeInsets.all(0),
+                itemCount: _trainers.length,
+                itemBuilder: _buildTrainerItemWidget,
+            );
+        }
+    }
+
+    Widget _buildTrainerItemWidget(BuildContext context, int index)
+    {
+        if(_trainers == null || index >= _trainers.length) {
+            return null;
+        }
+
+        Worker leadership = _trainers[index];
+
+        return WorkerListItemWidget(
+            name: leadership.name,
+            position: leadership.position,
+            phone: leadership.phone,
+            email: leadership.email,
+            photo: leadership.photo,
+            onTap: () {
+                widget.presenter?.didTapTrainerItem(leadership);
+            },
+        );
+    }
+
+    Widget _buildEventsWidget(BuildContext context)
+    {
+        return SafeArea(
+            child: Flex(
+                direction: Axis.vertical,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                    Flexible(
+                        fit: FlexFit.tight,
+                        flex: 0,
+                        child: _buildEventsCalendarWidget(context),
+                    ),
+                    Flexible(
+                        fit: FlexFit.tight,
+                        flex: 0,
+                        child: Container(height: 1, color: Colors.white54),
+                    ),
+                    Flexible(
+                        fit: FlexFit.loose,
+                        flex: 1,
+                        child: _buildEventListWidget(context),
+                    )
+                ],
+            )
         );
     }
 
     Widget _buildAppBar(BuildContext context)
     {
-        Widget title;
+        String titleText = "Спортивный комплекс";
 
-        if(_categories.isEmpty) {
-            title = Text("Спортивный комплекс");
-        } else {
-            title = PopupMenuButton<EventCategory>(
-                child: Row(
-                    children: [
-                        SizedBox(
-                            width: MediaQuery.of(context).size.width - 200,
-                            child: Text(
-                                _currentEventCategory.name,
-                                style: Theme.of(context)
-                                  .appBarTheme
-                                  .textTheme
-                                  .title
-                                  .copyWith(fontSize: 14),
-                                overflow: TextOverflow.ellipsis,
-                            ),
-                        ),
-                        Padding(
-                            child: Icon(Icons.arrow_drop_down, size: 24, color: Colors.white),
-                            padding: EdgeInsets.all(8.0),
-                        )
-                    ],
-                ),
-                initialValue: _currentEventCategory,
-                itemBuilder: _buildEventCategories,
-                onSelected: (category) {
-                    setState(() {
-                        _currentEventCategory = category;
-                        _filterEventList();
-                    });
-                },
-            );
+        if(_currentViewSection == SportComplexSection.trainers) {
+            titleText = "Тренерский состав";
+        } else if(_currentViewSection == SportComplexSection.pool) {
+            titleText = "Занятия в бассейне";
+        } else if(_currentViewSection == SportComplexSection.events) {
+            titleText = "Расписание";
         }
+
+        Widget title = PopupMenuButton<SportComplexSection>(
+            child: Row(
+                children: [
+                    SizedBox(
+                        width: MediaQuery.of(context).size.width - 200,
+                        child: Text(
+                            titleText,
+                            style: Theme.of(context)
+                                .appBarTheme
+                                .textTheme
+                                .title
+                                .copyWith(fontSize: 14),
+                            overflow: TextOverflow.ellipsis,
+                        ),
+                    ),
+                    Padding(
+                        child: Icon(Icons.arrow_drop_down, size: 24, color: Colors.white),
+                        padding: EdgeInsets.all(8.0),
+                    )
+                ],
+            ),
+            initialValue: SportComplexSection.events,
+            itemBuilder: (BuildContext context) {
+                return [
+                    PopupMenuItem<SportComplexSection>(
+                        value: SportComplexSection.description,
+                        child: Text("Спортивный комплекс"),
+                    ),
+                    PopupMenuItem<SportComplexSection>(
+                        value: SportComplexSection.events,
+                        child: Text("Расписание"),
+                    ),
+                    PopupMenuItem<SportComplexSection>(
+                        value: SportComplexSection.pool,
+                        child: Text("Занятия в бассейне"),
+                    ),
+                    PopupMenuItem<SportComplexSection>(
+                        value: SportComplexSection.trainers,
+                        child: Text("Тренерский состав"),
+                    ),
+                ];
+            },
+            onSelected: (section) {
+                setState(() {
+                    _currentViewSection = section;
+
+                    if(section == SportComplexSection.events) {
+                        _events = _sports;
+                    } else {
+                        _events = _pools;
+                    }
+
+                    _updateCategoryList();
+                    _filterEventList();
+                });
+            },
+        );
 
         return AppBar(
             title: title,
@@ -270,7 +429,7 @@ class _EventsCalendarViewState extends State<EventsCalendarView>
         return categoryWidgets;
     }
 
-    Widget _buildEventsWidget(BuildContext context)
+    Widget _buildEventsCalendarWidget(BuildContext context)
     {
         return Card(
             margin: EdgeInsets.all(0),

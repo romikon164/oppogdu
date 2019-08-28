@@ -22,6 +22,7 @@ import 'package:oppo_gdu/src/ui/views/photo/single.dart';
 import 'package:oppo_gdu/src/ui/views/photos/gallery.dart';
 import 'package:oppo_gdu/src/data/models/photo/photo.dart';
 import 'package:oppo_gdu/src/data/models/documents/document.dart';
+import 'package:oppo_gdu/src/ui/views/pdf.dart';
 
 typedef void RouterPushCallback<T>(T result);
 
@@ -172,5 +173,14 @@ class Router implements RouterContract
     void presentContacts()
     {
         replace(ContactsPresenter(this));
+    }
+
+    void presentCollectiveAgreement()
+    {
+        navigatorKey.currentState.push(
+            MaterialPageRoute(
+                builder: (context) => PdfViewWidget(title: "Коллектвный договор", url: "http://oppo-gdu.ru/kollektivnyij-dogovor.pdf")
+            )
+        );
     }
 }

@@ -115,13 +115,13 @@ class _DrawerNavigationWidgetState extends State<DrawerNavigationWidget> with Ti
                         onTap: widget.delegate.didDrawerNavigationLeadershipPressed,
                         active: currentIndex == DrawerNavigationWidget.leadersItem,
                     ),
-//                    _buildItem(
-//                        context,
-//                        title: "Коллективный договор",
-//                        icon: Icons.thumbs_up_down,
-//                        onTap: widget.delegate.didDrawerNavigationCollectiveAgreementPressed,
-//                        active: currentIndex == DrawerNavigationWidget.agreementItem,
-//                    ),
+                    _buildItem(
+                        context,
+                        title: "Коллективный договор",
+                        icon: Icons.thumbs_up_down,
+                        onTap: widget.delegate.didDrawerNavigationCollectiveAgreementPressed,
+                        active: currentIndex == DrawerNavigationWidget.agreementItem,
+                    ),
                     _buildMenuSeparator(context),
                     _buildItem(
                         context,

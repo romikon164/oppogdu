@@ -22,4 +22,9 @@ class WorkerApiProvider
     {
         return await ApiRequest('workers/leaderships').execute();
     }
+
+    Future<ApiResponse> getTrainersList() async
+    {
+        return await ApiRequest('workers/trainers').execute();
+    }
 }

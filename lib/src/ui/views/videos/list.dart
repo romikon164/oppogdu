@@ -274,7 +274,7 @@ class _VideoListViewState extends State<VideoListView> implements ViewFutureCont
               Padding(
                   padding: EdgeInsets.fromLTRB(12, 0, 12, 8),
                   child: Text(
-                    "Опубликованно " + DateTimeFormatter.format(video.createdAt),
+                    "Опубликовано " + DateTimeFormatter.format(video.createdAt),
                     style: Theme.of(context).textTheme.overline
                   ),
               )

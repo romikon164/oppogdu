@@ -38,6 +38,20 @@ class WorkerApiRepository extends RepositoryContract<Worker, ApiCriteria>
         return ModelCollection(Worker.fromList(rawWorkers));
     }
 
+    Future<ModelCollection<Worker>> getTrainers([ApiCriteria criteria]) async
+    {
+        ApiResponse apiResponse = await _apiService.workers.getTrainersList();
+
+        if(!apiResponse.isOk) {
+            throw RequestException(apiResponse.status, apiResponse.errors().message);
+        }
+
+        Map<String, dynamic> rawWorkersWithMeta = apiResponse.json();
+        List<dynamic> rawWorkers = rawWorkersWithMeta["data"] as List<dynamic>;
+
+        return ModelCollection(Worker.fromList(rawWorkers));
+    }
+
     Future<Worker> getFirst(ApiCriteria criteria) async
     {
         criteria.take(1);

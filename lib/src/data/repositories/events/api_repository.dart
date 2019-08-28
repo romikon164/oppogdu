@@ -24,6 +24,18 @@ class EventApiRepository extends RepositoryContract<Event, ApiCriteria>
         return ModelCollection(Event.fromList(rawVideos));
     }
 
+    Future<String> getDescription() async
+    {
+        ApiResponse apiResponse = await _apiService.events.getDescription();
+
+        if(!apiResponse.isOk) {
+            throw RequestException(apiResponse.status, apiResponse.errors().message);
+        }
+
+        Map<String, dynamic> rawEventsWithMeta = apiResponse.json();
+        return rawEventsWithMeta["description"] as String;
+    }
+
     Future<Event> getFirst(ApiCriteria criteria) async
     {
         criteria.take(1);
