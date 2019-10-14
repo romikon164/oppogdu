@@ -95,7 +95,7 @@ class _NewsDetailViewState extends State<NewsDetailView> implements ViewFutureCo
                 title: _news.name,
                 image: _news.image,
                 subTitle: Text(
-                    "Опубликованно " + DateTimeFormatter.format(_news.createdAt),
+                    "Опубликовано " + DateTimeFormatter.format(_news.createdAt),
                     style: Theme.of(context).textTheme.overline,
                 ),
                 children: [

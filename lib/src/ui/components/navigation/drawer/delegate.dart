@@ -11,6 +11,8 @@ abstract class DrawerNavigationDelegate
     /// нажатие на "выход"
     void didDrawerNavigationLogoutPressed();
 
+    /// нажатие на "об организации"
+    void didDrawerNavigationAboutPressed();
     /// нажатие на "новости"
     void didDrawerNavigationNewsPressed();
     /// нажатие на "фотогалерея"

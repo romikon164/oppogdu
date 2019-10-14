@@ -258,6 +258,8 @@ class _OrganizationDetailViewState extends State<OrganizationDetailView> impleme
                         },
                     );
                 }
+
+                return null;
             }
         );
     }

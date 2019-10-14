@@ -10,6 +10,7 @@ abstract class RouterContract
     void presentHomeScreen();
     void presentLogin();
     void presentRegister();
+    void presentAboutList();
     void presentNewsList();
     void presentNewsDetail(int newsId);
     void presentNewsComments(int newsId);

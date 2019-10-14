@@ -11,6 +11,7 @@ import 'package:oppo_gdu/src/data/database/providers/news.dart';
 import 'package:oppo_gdu/src/data/database/providers/photo.dart';
 import 'package:oppo_gdu/src/data/database/providers/photo_album.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 
 void main() => initializeDateFormatting().then((_) => runApp(Application()));
 
@@ -29,6 +30,9 @@ class Application extends StatelessWidget
     Widget build(BuildContext context)
     {
         Router router = Router();
+
+        Intl.defaultLocale = 'ru_RU';
+        initializeDateFormatting(Intl.defaultLocale);
 
         return MaterialApp(
             home: NewsListPresenter(router).view as StatefulWidget,

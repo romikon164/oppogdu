@@ -8,29 +8,31 @@ import '../../users/circle_avatar.dart';
 
 class DrawerNavigationWidget extends StatefulWidget
 {
-    static const newsItem = 0;
+    static const aboutItem = 0;
 
-    static const photosItem = 1;
+    static const newsItem = 1;
 
-    static const videosItem = 2;
+    static const photosItem = 2;
 
-    static const sportComplexItem = 3;
+    static const videosItem = 3;
 
-    static const structureItem = 4;
+    static const sportComplexItem = 4;
 
-    static const printsItem = 5;
+    static const structureItem = 5;
 
-    static const regulationsItem = 6;
+    static const printsItem = 6;
 
-    static const leadersItem = 7;
+    static const regulationsItem = 7;
 
-    static const agreementItem = 8;
+    static const leadersItem = 8;
 
-    static const contactsItem = 9;
+    static const agreementItem = 9;
 
-    static const followUsItem = 10;
+    static const contactsItem = 10;
 
-    static const callbackItem = 11;
+    static const followUsItem = 11;
+
+    static const callbackItem = 12;
 
     final DrawerNavigationDelegate delegate;
 
@@ -58,6 +60,13 @@ class _DrawerNavigationWidgetState extends State<DrawerNavigationWidget> with Ti
                 padding: EdgeInsets.fromLTRB(0, 0, 0, 16),
                 children: [
                     _buildHeader(context),
+                    _buildItem(
+                        context,
+                        title: "Об организации",
+                        icon: Icons.perm_device_information,
+                        onTap: widget.delegate.didDrawerNavigationAboutPressed,
+                        active: currentIndex == DrawerNavigationWidget.aboutItem,
+                    ),
                     _buildItem(
                         context,
                         title: "Новости",
@@ -115,13 +124,13 @@ class _DrawerNavigationWidgetState extends State<DrawerNavigationWidget> with Ti
                         onTap: widget.delegate.didDrawerNavigationLeadershipPressed,
                         active: currentIndex == DrawerNavigationWidget.leadersItem,
                     ),
-                    _buildItem(
-                        context,
-                        title: "Коллективный договор",
-                        icon: Icons.thumbs_up_down,
-                        onTap: widget.delegate.didDrawerNavigationCollectiveAgreementPressed,
-                        active: currentIndex == DrawerNavigationWidget.agreementItem,
-                    ),
+//                    _buildItem(
+//                        context,
+//                        title: "Коллективный договор",
+//                        icon: Icons.thumbs_up_down,
+//                        onTap: widget.delegate.didDrawerNavigationCollectiveAgreementPressed,
+//                        active: currentIndex == DrawerNavigationWidget.agreementItem,
+//                    ),
                     _buildMenuSeparator(context),
                     _buildItem(
                         context,

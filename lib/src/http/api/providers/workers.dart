@@ -27,4 +27,14 @@ class WorkerApiProvider
     {
         return await ApiRequest('workers/trainers').execute();
     }
+
+    Future<ApiResponse> getSportComplexTrainers() async
+    {
+        return await ApiRequest('workers/sctrainers').execute();
+    }
+
+    Future<ApiResponse> getSportComplexLeaderships() async
+    {
+        return await ApiRequest('workers/scleaderships').execute();
+    }
 }

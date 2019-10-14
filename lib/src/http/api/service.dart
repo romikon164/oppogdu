@@ -15,6 +15,7 @@ part 'exceptions/authentication_exception.dart';
 part 'parameters/retrieve.dart';
 part 'parameters/news_retrieve.dart';
 part 'providers/news.dart';
+part 'providers/pages.dart';
 part 'providers/photos.dart';
 part 'providers/videos.dart';
 part 'providers/events.dart';
@@ -23,6 +24,9 @@ part 'providers/organizations.dart';
 part 'providers/orders.dart';
 part 'providers/contacts.dart';
 part 'providers/documents.dart';
+part 'providers/halls.dart';
+part 'providers/trainers.dart';
+part 'providers/schedules.dart';
 
 class ApiService
 {
@@ -40,6 +44,9 @@ class ApiService
 
     NewsApiProvider _newsApiProvider;
     NewsApiProvider get news => _newsApiProvider;
+
+    PagesApiProvider _pagesApiProvider;
+    PagesApiProvider get pages => _pagesApiProvider;
 
     PhotoApiProvider _photoApiProvider;
     PhotoApiProvider get photos => _photoApiProvider;
@@ -65,6 +72,15 @@ class ApiService
     DocumentApiProvider _documentsApiProvider;
     DocumentApiProvider get documents => _documentsApiProvider;
 
+    HallsApiProvider _hallsApiProvider;
+    HallsApiProvider get halls => _hallsApiProvider;
+
+    TrainersApiProvider _trainersApiProvider;
+    TrainersApiProvider get trainers => _trainersApiProvider;
+
+    SchedulesApiProvider _schedulesApiProvider;
+    SchedulesApiProvider get schedules => _schedulesApiProvider;
+
     static ApiService buildInstance({int clientId, String clientSecret, String baseUrl})
     {
         ApiService._instance = ApiService(clientId: clientId, clientSecret: clientSecret, baseUrl: baseUrl);
@@ -83,6 +99,7 @@ class ApiService
 
     ApiService({this.clientId, this.clientSecret, this.baseUrl}) {
         _newsApiProvider = NewsApiProvider(this);
+        _pagesApiProvider = PagesApiProvider(this);
         _photoApiProvider = PhotoApiProvider(this);
         _videoApiProvider = VideoApiProvider(this);
         _eventApiProvider = EventApiProvider(this);
@@ -91,6 +108,9 @@ class ApiService
         _orderApiProvider = OrderApiProvider(this);
         _contactsApiProvider = ContactsApiProvider(this);
         _documentsApiProvider = DocumentApiProvider(this);
+        _hallsApiProvider = HallsApiProvider(this);
+        _trainersApiProvider = TrainersApiProvider(this);
+        _schedulesApiProvider = SchedulesApiProvider(this);
     }
 
     Future<AuthToken> createAccount({String email, String phone, String password, String fullname}) async

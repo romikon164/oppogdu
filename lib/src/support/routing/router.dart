@@ -10,6 +10,7 @@ import 'package:oppo_gdu/src/presenters/photos/album_list.dart';
 import 'package:oppo_gdu/src/presenters/photos/album_detail.dart';
 import 'package:oppo_gdu/src/presenters/videos/list.dart';
 import 'package:oppo_gdu/src/presenters/events/calendar.dart';
+import 'package:oppo_gdu/src/presenters/about.dart';
 import 'package:oppo_gdu/src/presenters/workers/leadership_list.dart';
 import 'package:oppo_gdu/src/presenters/workers/detail.dart';
 import 'package:oppo_gdu/src/presenters/organizations/list.dart';
@@ -18,6 +19,7 @@ import 'package:oppo_gdu/src/presenters/documents/list.dart';
 import 'package:oppo_gdu/src/presenters/order.dart';
 import 'package:oppo_gdu/src/presenters/contacts.dart';
 import 'package:oppo_gdu/src/presenters/follow_us.dart';
+import 'package:oppo_gdu/src/presenters/sportcomplex/sportcomplex.dart';
 import 'package:oppo_gdu/src/ui/views/photo/single.dart';
 import 'package:oppo_gdu/src/ui/views/photos/gallery.dart';
 import 'package:oppo_gdu/src/data/models/photo/photo.dart';
@@ -67,6 +69,11 @@ class Router implements RouterContract
         replace(NewsListPresenter(this));
     }
 
+    void presentAboutList()
+    {
+        replace(AboutPresenter(this));
+    }
+
     void presentNewsDetail(int newsId, [RouterPushCallback callback])
     {
         push(NewsDetailPresenter(this, id: newsId), callback);
@@ -94,7 +101,7 @@ class Router implements RouterContract
 
     void presentSportComplex()
     {
-        replace(EventsCalendarPresenter(this));
+        replace(SportComplexPresenter(this));
     }
 
     void presentLeaderships()

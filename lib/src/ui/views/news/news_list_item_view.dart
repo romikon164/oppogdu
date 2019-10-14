@@ -37,7 +37,7 @@ class _NewsListItemViewState extends State<NewsListItemView>
                 Padding(
                     padding: EdgeInsets.fromLTRB(12, 0, 12, 8),
                     child: Text(
-                        "Опубликованно " + DateTimeFormatter.format(widget.news.createdAt),
+                        "Опубликовано " + DateTimeFormatter.format(widget.news.createdAt),
                         style: Theme.of(context).textTheme.overline
                     ),
                 )

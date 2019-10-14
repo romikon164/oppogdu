@@ -41,6 +41,11 @@ abstract class Presenter implements PresenterContract, DrawerNavigationDelegate,
         AuthService.instance.logout();
     }
 
+    void didDrawerNavigationAboutPressed() {
+        router.pop();
+        router.presentAboutList();
+    }
+
     void didDrawerNavigationNewsPressed() {
         router.pop();
         router.presentNewsList();
