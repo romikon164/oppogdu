@@ -95,9 +95,12 @@ class _SportComplexAboutState extends State<SportComplexAboutView>
         }
 
         return SingleChildScrollView(
-            child: Padding(
-                padding: EdgeInsets.all(16),
-                child: _bodyWidget,
+            child: Container(
+                color: Colors.white,
+                child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: _bodyWidget,
+                ),
             ),
         );
     }
